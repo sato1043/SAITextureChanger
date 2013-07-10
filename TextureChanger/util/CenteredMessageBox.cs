@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace TextureChanger
+namespace TextureChanger.util
 {
 	/// <summary>
 	/// オーナーウィンドウの真中に表示される MessageBox
@@ -63,9 +63,9 @@ namespace TextureChanger
 			MessageBoxIcon icon )
 		{
 			// フックを設定する。
-			IntPtr hInstance = WinApi.GetWindowLong( m_ownerWindow.Handle, WinApi.GWL_HINSTANCE );
-			IntPtr threadId = WinApi.GetCurrentThreadId( );
-			m_hHook = WinApi.SetWindowsHookEx( WinApi.WH_CBT, new WinApi.HOOKPROC( HookProc ), hInstance, threadId );
+			IntPtr hInstance = Win32Api.GetWindowLong( m_ownerWindow.Handle, Win32Api.GWL_HINSTANCE );
+			IntPtr threadId = Win32Api.GetCurrentThreadId( );
+			m_hHook = Win32Api.SetWindowsHookEx( Win32Api.WH_CBT, new Win32Api.HOOKPROC( HookProc ), hInstance, threadId );
 
 			return MessageBox.Show( m_ownerWindow, messageBoxText, caption, button, icon );
 		}
@@ -80,24 +80,24 @@ namespace TextureChanger
 		private IntPtr HookProc( int nCode, IntPtr wParam, IntPtr lParam )
 		{
 
-			if( nCode == WinApi.HCBT_ACTIVATE )
+			if( nCode == Win32Api.HCBT_ACTIVATE )
 			{
-				WinApi.RECT rcForm = new WinApi.RECT( 0, 0, 0, 0 );
-				WinApi.RECT rcMsgBox = new WinApi.RECT( 0, 0, 0, 0 );
+				Win32Api.RECT rcForm = new Win32Api.RECT( 0, 0, 0, 0 );
+				Win32Api.RECT rcMsgBox = new Win32Api.RECT( 0, 0, 0, 0 );
 
-				WinApi.GetWindowRect( m_ownerWindow.Handle, out rcForm );
-				WinApi.GetWindowRect( wParam, out rcMsgBox );
+				Win32Api.GetWindowRect( m_ownerWindow.Handle, out rcForm );
+				Win32Api.GetWindowRect( wParam, out rcMsgBox );
 
 				// センター位置を計算する。
 				int x = ( rcForm.Left + ( rcForm.Right - rcForm.Left ) / 2 ) - ( ( rcMsgBox.Right - rcMsgBox.Left ) / 2 );
 				int y = ( rcForm.Top + ( rcForm.Bottom - rcForm.Top ) / 2 ) - ( ( rcMsgBox.Bottom - rcMsgBox.Top ) / 2 );
 
-				WinApi.SetWindowPos( wParam, 0, x, y, 0, 0, WinApi.SWP_NOSIZE | WinApi.SWP_NOZORDER | WinApi.SWP_NOACTIVATE );
+				Win32Api.SetWindowPos( wParam, 0, x, y, 0, 0, Win32Api.SWP_NOSIZE | Win32Api.SWP_NOZORDER | Win32Api.SWP_NOACTIVATE );
 
-				IntPtr result = WinApi.CallNextHookEx( m_hHook, nCode, wParam, lParam );
+				IntPtr result = Win32Api.CallNextHookEx( m_hHook, nCode, wParam, lParam );
 
 				// フックを解除する。
-				WinApi.UnhookWindowsHookEx( m_hHook );
+				Win32Api.UnhookWindowsHookEx( m_hHook );
 				m_hHook = (IntPtr)0;
 
 				return result;
@@ -105,7 +105,7 @@ namespace TextureChanger
 			}
 			else
 			{
-				return WinApi.CallNextHookEx( m_hHook, nCode, wParam, lParam );
+				return Win32Api.CallNextHookEx( m_hHook, nCode, wParam, lParam );
 			}
 		}
 	}

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace TextureChanger
+namespace TextureChanger.util
 {
 	public partial class AboutForm : Form
 	{
@@ -21,10 +21,10 @@ namespace TextureChanger
 		private void AboutForm_Load( object sender, EventArgs e )
 		{
 			#region アプリケーション・アイコンを表示
-			WinApi.SHFILEINFO shinfo = new WinApi.SHFILEINFO();
-			IntPtr hSuccess = WinApi.SHGetFileInfo(
+			Win32Api.SHFILEINFO shinfo = new Win32Api.SHFILEINFO();
+			IntPtr hSuccess = Win32Api.SHGetFileInfo(
 				Assembly.GetEntryAssembly( ).Location, 0,
-				ref shinfo, (uint) Marshal.SizeOf(shinfo), WinApi.SHGFI_ICON | WinApi.SHGFI_LARGEICON);
+				ref shinfo, (uint) Marshal.SizeOf(shinfo), Win32Api.SHGFI_ICON | Win32Api.SHGFI_LARGEICON);
 
 			Icon appIcon;
 			if( hSuccess != IntPtr.Zero )
