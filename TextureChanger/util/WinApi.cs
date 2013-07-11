@@ -80,7 +80,7 @@ namespace TextureChanger
 		#endregion
 
 
-        #region SHBrowseForFolder用
+
         // C# representation of the IMalloc interface.
         [InterfaceType(ComInterfaceType.InterfaceIsIUnknown),
            Guid("00000002-0000-0000-C000-000000000046")]
@@ -103,7 +103,10 @@ namespace TextureChanger
         [DllImport("User32.DLL")]
         public static extern IntPtr GetActiveWindow();
 
-        public class Shell32
+
+		#region Shell32
+
+		public class Shell32
         {
             // Styles used in the BROWSEINFO.ulFlags field.
             [Flags]
@@ -141,7 +144,14 @@ namespace TextureChanger
             [DllImport("Shell32.DLL")]
             public static extern int SHGetMalloc(out IMalloc ppMalloc);
 
-            [DllImport("Shell32.DLL")]
+			public static Win32Api.IMalloc GetSHMalloc( )
+			{
+				Win32Api.IMalloc malloc;
+				Win32Api.Shell32.SHGetMalloc( out malloc );
+				return malloc;
+			}
+
+			[DllImport( "Shell32.DLL" )]
             public static extern int SHGetSpecialFolderLocation(
                         IntPtr hwndOwner, int nFolder, out IntPtr ppidl);
 
@@ -151,7 +161,9 @@ namespace TextureChanger
 
             [DllImport("Shell32.DLL", CharSet = CharSet.Auto)]
             public static extern IntPtr SHBrowseForFolder(ref BROWSEINFO bi);
-        }
+			
+			
+		}
         #endregion
 
 

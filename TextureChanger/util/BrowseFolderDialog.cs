@@ -9,53 +9,37 @@ namespace TextureChanger.util
 {
     public class BrowseFolderDialog : Component
     {
-
+		//special folderを示すDWORD定数
         public enum FolderID
         {
-            Desktop = 0x0000,
-            Printers = 0x0004,
-            MyDocuments = 0x0005,
-            Favorites = 0x0006,
-            Recent = 0x0008,
-            SendTo = 0x0009,
-            StartMenu = 0x000b,
-            MyComputer = 0x0011,
+            Desktop                 = 0x0000,
+            Printers                = 0x0004,
+            MyDocuments             = 0x0005,
+            Favorites               = 0x0006,
+            Recent                  = 0x0008,
+            SendTo                  = 0x0009,
+            StartMenu               = 0x000b,
+            MyComputer              = 0x0011,
             NetworkNeighborhood     = 0x0012,
             Templates               = 0x0015,
             MyPictures              = 0x0027,
             NetAndDialUpConnections = 0x0031,
         }
 
+        private FolderID _startLocation = FolderID.Desktop; //ルートノード初期値
 
+        private int _publicOptions =
+			(int)Win32Api.Shell32.BffStyles.RestrictToFilesystem |
+            (int)Win32Api.Shell32.BffStyles.RestrictToDomain ;
 
+        private int _privateOptions = 
+			(int)Win32Api.Shell32.BffStyles.NewDialogStyle ;
 
+		private string _descriptionText = "フォルダを選択してください：";
 
-
-        // Root node of the tree view.
-        private FolderID startLocation = FolderID.Desktop;
-
-        // Browse info options.
-        private int publicOptions = (int)Win32Api.Shell32.BffStyles.RestrictToFilesystem |
-             (int)Win32Api.Shell32.BffStyles.RestrictToDomain;
-        private int privateOptions = (int)Win32Api.Shell32.BffStyles.NewDialogStyle;
-
-        // Description text to show.
-        private string descriptionText = "Please select a folder below:";
-
-        // Folder chosen by the user.
         private string directoryPath = String.Empty;
 
 
-
-        /// <summary>
-        /// Helper function that returns the IMalloc interface used by the shell.
-        /// </summary>
-        private static Win32Api.IMalloc GetSHMalloc()
-        {
-            Win32Api.IMalloc malloc;
-            Win32Api.Shell32.SHGetMalloc(out malloc);
-            return malloc;
-        }
 
         /// <summary>
         /// Shows the folder browser dialog box.
@@ -87,14 +71,14 @@ namespace TextureChanger.util
             }
 
             // Get the IDL for the specific startLocation.
-            Win32Api.Shell32.SHGetSpecialFolderLocation(hWndOwner, (int)startLocation, out pidlRoot);
+            Win32Api.Shell32.SHGetSpecialFolderLocation(hWndOwner, (int)_startLocation, out pidlRoot);
 
             if (pidlRoot == IntPtr.Zero)
             {
                 return DialogResult.Cancel;
             }
 
-            int mergedOptions = (int)publicOptions | (int)privateOptions;
+            int mergedOptions = (int)_publicOptions | (int)_privateOptions;
 
             if ((mergedOptions & (int)Win32Api.Shell32.BffStyles.NewDialogStyle) != 0)
             {
@@ -110,11 +94,11 @@ namespace TextureChanger.util
                 Win32Api.Shell32.BROWSEINFO bi = new Win32Api.Shell32.BROWSEINFO();
                 IntPtr buffer = Marshal.AllocHGlobal(Win32Api.MAX_PATH);
 
-                bi.pidlRoot = pidlRoot;
-                bi.hwndOwner = hWndOwner;
+                bi.pidlRoot       = pidlRoot;
+                bi.hwndOwner      = hWndOwner;
                 bi.pszDisplayName = buffer;
-                bi.lpszTitle = descriptionText;
-                bi.ulFlags = mergedOptions;
+                bi.lpszTitle      = _descriptionText;
+                bi.ulFlags        = mergedOptions;
                 // The rest of the fields are initialized to zero by the constructor.
                 // bi.lpfn = null;  bi.lParam = IntPtr.Zero;    bi.iImage = 0;
 
@@ -131,7 +115,7 @@ namespace TextureChanger.util
                 }
 
                 // Then retrieve the path from the IDList.
-                StringBuilder sb = new StringBuilder(Win32Api.MAX_PATH);
+                StringBuilder sb = new StringBuilder( Win32Api.MAX_PATH );
                 if (0 == Win32Api.Shell32.SHGetPathFromIDList(pidlRet, sb))
                 {
                     return DialogResult.Cancel;
@@ -142,7 +126,7 @@ namespace TextureChanger.util
             }
             finally
             {
-                Win32Api.IMalloc malloc = GetSHMalloc();
+				Win32Api.IMalloc malloc = Win32Api.Shell32.GetSHMalloc( );
                 malloc.Free(pidlRoot);
 
                 if (pidlRet != IntPtr.Zero)
@@ -171,9 +155,9 @@ namespace TextureChanger.util
         private void SetOptionField(int mask, bool turnOn)
         {
             if (turnOn)
-                publicOptions |= mask;
+                _publicOptions |= mask;
             else
-                publicOptions &= ~mask;
+                _publicOptions &= ~mask;
         }
 
         /// <summary>
@@ -188,7 +172,7 @@ namespace TextureChanger.util
         {
             get
             {
-                return (publicOptions & (int)Win32Api.Shell32.BffStyles.RestrictToFilesystem) != 0;
+                return (_publicOptions & (int)Win32Api.Shell32.BffStyles.RestrictToFilesystem) != 0;
             }
             set
             {
@@ -210,12 +194,12 @@ namespace TextureChanger.util
         {
             get
             {
-                return startLocation;
+                return _startLocation;
             }
             set
             {
                 new UIPermission(UIPermissionWindow.AllWindows).Demand();
-                startLocation = value;
+                _startLocation = value;
             }
         }
 
