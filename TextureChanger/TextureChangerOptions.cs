@@ -42,36 +42,6 @@ namespace TextureChanger
 
 
 
-		#region 初回起動時のsai.exeのフォルダ指定ダイアログの入力チェック用コールバックデリゲート
-		private int SpecifySaiExeBffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
-		{
-			StringBuilder sb;
-			switch (uMsg)
-			{
-				case (uint) SH.BFFM.INITIALIZED:
-					//はじめに選択されるフォルダをitemIDLでメッセージ
-					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSELECTION, IntPtr.Zero, lpData);
-					sb = new StringBuilder((int) MAX.PATH);
-					SH.SHGetPathFromIDListW(lpData, sb);
-					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-					Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
-						File.Exists(sb + "\\sai.exe") ? 1 : 0);
-					break;
-
-				case (uint) SH.BFFM.SELCHANGED:
-					// ユーザーがフォルダを変更した時
-					// SAI_EXEが含まれるかによってOKボタンの有効化を制御
-					sb = new StringBuilder((int) MAX.PATH);
-					SH.SHGetPathFromIDListW(lParam, sb);
-					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-					Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
-						File.Exists(sb + "\\sai.exe") ? 1 : 0);
-					break;
-			}
-			return 0;
-		}
-		#endregion
-
 
 		public TextureChangerOptions( )
 		{
@@ -100,7 +70,7 @@ namespace TextureChanger
 					throw new ArgumentOutOfRangeException();
 				}
 				
-                _iniFile["SAI", "folder"] = PathToSaiFolder = temp;
+				_iniFile["SAI", "folder"] = PathToSaiFolder = temp;
 			}
 			#endregion
 
@@ -108,18 +78,20 @@ namespace TextureChanger
 
 		}
 
-        #region オプション値保持に関して、SAIフォルダの再指定
-        public void ChangeSaiFolder()
-        {
-            string temp = this.RequestPathToSaiFolder();
-            if (temp == "")
-            {
-                return;
-            }
+		#region SAIフォルダの指定
 
-            _iniFile["SAI", "folder"] = PathToSaiFolder = temp;
-        }
-        #endregion
+		#region オプション値保持に関して、SAIフォルダの再指定
+		public void ChangeSaiFolder()
+		{
+			string temp = this.RequestPathToSaiFolder();
+			if (temp == "")
+			{
+				return;
+			}
+
+			_iniFile["SAI", "folder"] = PathToSaiFolder = temp;
+		}
+		#endregion
 
 		#region SAIフォルダの問い合わせ
 		private string RequestPathToSaiFolder()
@@ -170,6 +142,37 @@ namespace TextureChanger
 		}
 		#endregion
 
+		#region 初回起動時のsai.exeのフォルダ指定ダイアログの入力チェック用コールバックデリゲート
+		private int SpecifySaiExeBffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
+		{
+			StringBuilder sb;
+			switch (uMsg)
+			{
+				case (uint)SH.BFFM.INITIALIZED:
+					//はじめに選択されるフォルダをitemIDLでメッセージ
+					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSELECTION, IntPtr.Zero, lpData);
+					sb = new StringBuilder((int)MAX.PATH);
+					SH.SHGetPathFromIDListW(lpData, sb);
+					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
+					Api.SendMessage(hwnd, (uint)SH.BFFM.ENABLEOK, 0,
+						File.Exists(sb + "\\sai.exe") ? 1 : 0);
+					break;
+
+				case (uint)SH.BFFM.SELCHANGED:
+					// ユーザーがフォルダを変更した時
+					// SAI_EXEが含まれるかによってOKボタンの有効化を制御
+					sb = new StringBuilder((int)MAX.PATH);
+					SH.SHGetPathFromIDListW(lParam, sb);
+					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
+					Api.SendMessage(hwnd, (uint)SH.BFFM.ENABLEOK, 0,
+						File.Exists(sb + "\\sai.exe") ? 1 : 0);
+					break;
+			}
+			return 0;
+		}
+		#endregion
+
+		#endregion
 
 
 
