@@ -21,10 +21,10 @@ namespace TextureChanger.util
 		private void AboutForm_Load( object sender, EventArgs e )
 		{
 			#region アプリケーション・アイコンを表示
-			Win32Api.SHFILEINFO shinfo = new Win32Api.SHFILEINFO();
-			IntPtr hSuccess = Win32Api.SHGetFileInfo(
+			Win32.SH.SHFILEINFO shinfo = new Win32.SH.SHFILEINFO();
+            IntPtr hSuccess = Win32.SH.SHGetFileInfo(
 				Assembly.GetEntryAssembly( ).Location, 0,
-				ref shinfo, (uint) Marshal.SizeOf(shinfo), Win32Api.SHGFI_ICON | Win32Api.SHGFI_LARGEICON);
+                ref shinfo, (uint)Marshal.SizeOf(shinfo), (uint)(Win32.SH.SHGFI.ICON | Win32.SH.SHGFI.LARGEICON));
 
 			Icon appIcon;
 			if( hSuccess != IntPtr.Zero )
