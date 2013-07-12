@@ -42,35 +42,35 @@ namespace TextureChanger
 
 
 
-	    #region 初回起動時のsai.exeのフォルダ指定ダイアログの入力チェック用コールバックデリゲート
-	    private int SpecifySaiExeBffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
-	    {
-	        StringBuilder sb;
-	        switch (uMsg)
-	        {
-	            case (uint) SH.BFFM.INITIALIZED:
-	                //はじめに選択されるフォルダをitemIDLでメッセージ
-	                Api.SendMessage(hwnd, (uint) SH.BFFM.SETSELECTION, IntPtr.Zero, lpData);
-	                sb = new StringBuilder((int) MAX.PATH);
-	                SH.SHGetPathFromIDListW(lpData, sb);
-	                Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-	                Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
-	                    File.Exists(sb + "\\sai.exe") ? 1 : 0);
-	                break;
+		#region 初回起動時のsai.exeのフォルダ指定ダイアログの入力チェック用コールバックデリゲート
+		private int SpecifySaiExeBffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
+		{
+			StringBuilder sb;
+			switch (uMsg)
+			{
+				case (uint) SH.BFFM.INITIALIZED:
+					//はじめに選択されるフォルダをitemIDLでメッセージ
+					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSELECTION, IntPtr.Zero, lpData);
+					sb = new StringBuilder((int) MAX.PATH);
+					SH.SHGetPathFromIDListW(lpData, sb);
+					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
+					Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
+						File.Exists(sb + "\\sai.exe") ? 1 : 0);
+					break;
 
-	            case (uint) SH.BFFM.SELCHANGED:
-	                // ユーザーがフォルダを変更した時
-	                // SAI_EXEが含まれるかによってOKボタンの有効化を制御
-	                sb = new StringBuilder((int) MAX.PATH);
-	                SH.SHGetPathFromIDListW(lParam, sb);
-	                Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-	                Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
-	                    File.Exists(sb + "\\sai.exe") ? 1 : 0);
-	                break;
-	        }
-	        return 0;
-	    }
-	    #endregion
+				case (uint) SH.BFFM.SELCHANGED:
+					// ユーザーがフォルダを変更した時
+					// SAI_EXEが含まれるかによってOKボタンの有効化を制御
+					sb = new StringBuilder((int) MAX.PATH);
+					SH.SHGetPathFromIDListW(lParam, sb);
+					Api.SendMessage(hwnd, (uint) SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
+					Api.SendMessage(hwnd, (uint) SH.BFFM.ENABLEOK, 0,
+						File.Exists(sb + "\\sai.exe") ? 1 : 0);
+					break;
+			}
+			return 0;
+		}
+		#endregion
 
 
 		public TextureChangerOptions( )
@@ -87,60 +87,92 @@ namespace TextureChanger
 			PathToSaiFolder = _iniFile[ "SAI", "folder" ];
 
 			#region SAIのフォルダが未指定のときはユーザに指定させる
+
 			if (PathToSaiFolder == "")
 			{
-				#region フォルダ指定ダイアログの初期表示先取得
-
-				SH.IShellFolder desktopShellFolder = null;
-				SH.SHGetDesktopFolder(ref desktopShellFolder);
-
-				string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
-				UInt32 chEaten = 0;
-				UInt32 dwAttributes = 0;
-				IntPtr pItemIdl = IntPtr.Zero;
-				try
-				{
-					desktopShellFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero,
-						defaultSaiExeFolder, ref chEaten, out pItemIdl, ref dwAttributes);
-				}
-				catch
-				{
-					SH.SHGetSpecialFolderLocation(IntPtr.Zero, SH.CSIDL.DESKTOP, ref pItemIdl);
-					if (pItemIdl == IntPtr.Zero)
-					{
-						throw;
-					}
-				}
-				#endregion
-				
-				BrowseFolderDialog bfdlg = new BrowseFolderDialog();
-
-				bfdlg.DialogMessage =
-					"はじめに、操作するSAIのインストール先(sai.exeの在処)を指定下さい。\n" +
-					"デフォルトでは C:\\Program Files\\PaintToolSAI です。\n" +
-					"再度別の場所を指定したいときはオプションメニューから変更してください。";
-				bfdlg.fStatusText = false;
-				bfdlg.fReturnOnlyFsDirs = true;
-				bfdlg.fNoNewFolderButton = true;
-				bfdlg.Procedure = SpecifySaiExeBffCallback;
-				bfdlg.lParam = (uint)pItemIdl;
-
-				if (bfdlg.ShowDialog() == DialogResult.Cancel)
+				string temp = this.RequestPathToSaiFolder();
+				if (temp == "")
 				{
 					MessageBox.Show(
 						"SAIのインストール先が特定できませんでした。\n" +
 						"操作先のSAIがわからず処理を継続できないため、起動を中断します。"
 						);
-				    throw new ArgumentOutOfRangeException();
+					throw new ArgumentOutOfRangeException();
 				}
-
-				PathToSaiFolder = bfdlg.DirectoryPath;
-				_iniFile[ "SAI", "folder" ] = PathToSaiFolder;
+				
+                _iniFile["SAI", "folder"] = PathToSaiFolder = temp;
 			}
 			#endregion
 
 
 
 		}
+
+        #region オプション値保持に関して、SAIフォルダの再指定
+        public void ChangeSaiFolder()
+        {
+            string temp = this.RequestPathToSaiFolder();
+            if (temp == "")
+            {
+                return;
+            }
+
+            _iniFile["SAI", "folder"] = PathToSaiFolder = temp;
+        }
+        #endregion
+
+		#region SAIフォルダの問い合わせ
+		private string RequestPathToSaiFolder()
+		{
+			#region フォルダ指定ダイアログの初期表示先取得
+
+			SH.IShellFolder desktopShellFolder = null;
+			SH.SHGetDesktopFolder(ref desktopShellFolder);
+
+			string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
+			UInt32 chEaten = 0;
+			UInt32 dwAttributes = 0;
+			IntPtr pItemIdl = IntPtr.Zero;
+			try
+			{
+				desktopShellFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero,
+					defaultSaiExeFolder, ref chEaten, out pItemIdl, ref dwAttributes);
+			}
+			catch
+			{
+				SH.SHGetSpecialFolderLocation(IntPtr.Zero, SH.CSIDL.DESKTOP, ref pItemIdl);
+				if (pItemIdl == IntPtr.Zero)
+				{
+					throw;
+				}
+			}
+
+			#endregion
+
+			BrowseFolderDialog bfdlg = new BrowseFolderDialog();
+
+			bfdlg.DialogMessage =
+				"操作するSAIのインストール先(sai.exeの在処)を指定下さい。\n" +
+				"デフォルトでは C:\\Program Files\\PaintToolSAI です。\n" +
+				"再度別の場所を指定したいときはオプションメニューから変更してください。";
+			bfdlg.fStatusText = false;
+			bfdlg.fReturnOnlyFsDirs = true;
+			bfdlg.fNoNewFolderButton = true;
+			bfdlg.Procedure = SpecifySaiExeBffCallback;
+			bfdlg.lParam = (uint) pItemIdl;
+
+			if (bfdlg.ShowDialog() == DialogResult.Cancel)
+			{
+				return "";
+			}
+
+			return bfdlg.DirectoryPath;
+		}
+		#endregion
+
+
+
+
+
 	}
 }

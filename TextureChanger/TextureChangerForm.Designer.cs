@@ -34,6 +34,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewVToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.optionOToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.requestSaiFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
@@ -76,9 +77,18 @@
             // 
             // optionOToolStripMenuItem
             // 
+            this.optionOToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.requestSaiFolderToolStripMenuItem});
             this.optionOToolStripMenuItem.Name = "optionOToolStripMenuItem";
             this.optionOToolStripMenuItem.Size = new System.Drawing.Size(50, 20);
             this.optionOToolStripMenuItem.Text = "&Option";
+            // 
+            // requestSaiFolderToolStripMenuItem
+            // 
+            this.requestSaiFolderToolStripMenuItem.Name = "requestSaiFolderToolStripMenuItem";
+            this.requestSaiFolderToolStripMenuItem.Size = new System.Drawing.Size(162, 22);
+            this.requestSaiFolderToolStripMenuItem.Text = "&SAIフォルダを指定...";
+            this.requestSaiFolderToolStripMenuItem.Click += new System.EventHandler(this.requestSaiFolderToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
@@ -125,6 +135,7 @@
 		private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
 		private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem requestSaiFolderToolStripMenuItem;
 	}
 }
 

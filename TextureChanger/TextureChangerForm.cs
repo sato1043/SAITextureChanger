@@ -32,5 +32,12 @@ namespace TextureChanger
 		{
 			DialogResult showDialog = new AboutForm().ShowDialog();
 		}
+
+		private void requestSaiFolderToolStripMenuItem_Click(object sender, EventArgs e)
+		{
+			Program.TextureChangerOptions.ChangeSaiFolder();
+
+			// TODO: UI上、処理上、SAIフォルダ再指定に対応する
+		}
 	}
 }

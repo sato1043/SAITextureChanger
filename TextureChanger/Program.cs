@@ -7,7 +7,7 @@ namespace TextureChanger
 {
 	static class Program
 	{
-		static TextureChangerOptions _textureChangerOptions;
+		public static TextureChangerOptions TextureChangerOptions;
 
 		[STAThread]
 		static void Main( )
@@ -17,7 +17,7 @@ namespace TextureChanger
 
 			try
 			{
-				_textureChangerOptions = new TextureChangerOptions();
+				TextureChangerOptions = new TextureChangerOptions();
 			}
 			catch (ArgumentOutOfRangeException e)
 			{
