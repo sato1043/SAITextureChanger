@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using Win32;
 
 namespace TextureChanger.util
 {
@@ -42,26 +43,9 @@ namespace TextureChanger.util
 
         #region 表示時初期ルートノード
 
-        //special folderを示すDWORD定数
-        public enum FolderId
-        {
-            Desktop = 0x0000,
-            Printers = 0x0004,
-            MyDocuments = 0x0005,
-            Favorites = 0x0006,
-            Recent = 0x0008,
-            SendTo = 0x0009,
-            StartMenu = 0x000b,
-            MyComputer = 0x0011,
-            NetworkNeighborhood = 0x0012,
-            Templates = 0x0015,
-            MyPictures = 0x0027,
-            NetAndDialUpConnections = 0x0031,
-        };
+        private SH.CSIDL _startLocation;
 
-        private FolderId _startLocation;
-
-        public FolderId StartLocation
+        public SH.CSIDL StartLocation
         {
             get
             {
@@ -73,46 +57,65 @@ namespace TextureChanger.util
                 _startLocation = value;
             }
         }
-
         #endregion
 
         #region 表示時DWORD値ダイアログオプション（ファイル下部に個別設定用プロパティあり）
 
-        private int _publicOptions =
-            (int)Win32.SH.BffStyles.RestrictToFilesystem |
-            (int)Win32.SH.BffStyles.RestrictToDomain;
+        private SH.BIF _options;
+        #endregion
 
-        private int _privateOptions =
-            (int)Win32.SH.BffStyles.NewDialogStyle; //表示時に_publicOptionsに加算されます。
-
-        private void SetOptionField(int mask, bool turnOn)
+        #region ダイアログ表示中のコールバック
+        private SH.BFFCALLBACK _procedure;
+ 
+        public SH.BFFCALLBACK Procedure
         {
-            if (turnOn)
-                _publicOptions |= mask;
-            else
-                _publicOptions &= ~mask;
+            get
+            {
+                return _procedure;
+            }
+            set
+            {
+                _procedure = value;
+            }
         }
         #endregion
 
-        // TODO: BFFCALLBACKの実装
+        #region longパラメータ
+        private UInt32 _lParam;
+
+        public UInt32 lParam
+        {
+            get
+            {
+                return _lParam;
+            }
+            set
+            {
+                _lParam = value;
+            }
+        }
+        #endregion
 
         public BrowseFolderDialog()
         {
             _dialogMessage = "フォルダを選択してください：";
             _directoryPath = String.Empty;
-            _startLocation = FolderId.Desktop;
+            _startLocation = SH.CSIDL.DESKTOP;
+            _options = SH.BIF.RETURNONLYFSDIRS  | SH.BIF.DONTGOBELOWDOMAIN | SH.BIF.NEWDIALOGSTYLE ;
+            _procedure = BffCallback;
+            _lParam = 0;
         }
 
         int BffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
         {
             switch(uMsg)
             {
-                case (uint)Win32.SH.BFFM.INITIALIZED:
+                case (uint)SH.BFFM.INITIALIZED:
                     //はじめに選択されるフォルダをitemIDLでメッセージ
-                    Win32.Api.SendMessage( hwnd, (uint)Win32.SH.BFFM.SETSELECTION, IntPtr.Zero, lpData );
+                    //Win32.Api.SendMessage( hwnd, (uint)Win32.SH.BFFM.SETSELECTION, IntPtr.Zero, lpData );
                     break;
 
-                case (uint)Win32.SH.BFFM.SELCHANGED:
+                case (uint)SH.BFFM.SELCHANGED:
                     // TODO:
                     /*
                     char szPath[Win32Api.MAX_PATH+1];
@@ -133,66 +136,62 @@ namespace TextureChanger.util
 
         public DialogResult ShowDialog(IWin32Window owner)
         {
-            IntPtr pidlRoot = IntPtr.Zero; //ルートノードのPIDLを保存する
+            //新しいスタイルのダイアログを使うならOLEを初期化
+            //初期化できなかったら新しいスタイルのダイアログを無効化
+            if (this.fNewDialogStyle == true)
+            {
+                if (Application.OleRequired()
+                     == System.Threading.ApartmentState.MTA)
+                {
+                    this.fNewDialogStyle = false;
+                }
+            }
 
             IntPtr hWndOwner = (owner != null) ? owner.Handle : Win32.Api.GetActiveWindow();
 
-            Win32.SH.SHGetSpecialFolderLocation(hWndOwner, (int)_startLocation, out pidlRoot);
+            IntPtr pidlRoot = IntPtr.Zero;
 
+            SH.SHGetSpecialFolderLocation(hWndOwner, _startLocation, ref pidlRoot);
             if (pidlRoot == IntPtr.Zero)
             {
                 return DialogResult.Cancel;
-            }
-
-            int mergedOptions = (int)_publicOptions | (int)_privateOptions;
-
-            if ((mergedOptions & (int)Win32.SH.BffStyles.NewDialogStyle) != 0)
-            {
-                if (System.Threading.ApartmentState.MTA == Application.OleRequired())
-                    mergedOptions = mergedOptions & (~(int)Win32.SH.BffStyles.NewDialogStyle);
             }
 
             IntPtr pidlRet = IntPtr.Zero;
 
             try
             {
-                // Construct a BROWSEINFO.
-                Win32.SH.BROWSEINFO bi = new Win32.SH.BROWSEINFO();
+                SH.BROWSEINFO bi = new SH.BROWSEINFO();
                 IntPtr buffer = Marshal.AllocHGlobal((int)Win32.MAX.PATH);
 
-                bi.pidlRoot = pidlRoot;
                 bi.hwndOwner = hWndOwner;
-                bi.pszDisplayName = buffer;
+                bi.pidlRoot = pidlRoot;
+                bi.pszDisplayName = buffer; //TODO:
                 bi.lpszTitle = DialogMessage;
-                bi.ulFlags = mergedOptions;
-                // The rest of the fields are initialized to zero by the constructor.
-                // bi.lpfn = null;  bi.lParam = IntPtr.Zero;    bi.iImage = 0;
-
-                // Show the dialog.
+                bi.ulFlags = (int)_options;
+                bi.iImage = 0;
+                bi.lpfn = Procedure;
+                bi.lParam = lParam;
                 pidlRet = Win32.SH.SHBrowseForFolder(ref bi);
-
-                // Free the buffer you've allocated on the global heap.
                 Marshal.FreeHGlobal(buffer);
 
                 if (pidlRet == IntPtr.Zero)
                 {
-                    // User clicked Cancel.
-                    return DialogResult.Cancel;
+                    return DialogResult.Cancel; // User clicked Cancel.
                 }
 
                 // Then retrieve the path from the IDList.
                 StringBuilder sb = new StringBuilder((int)Win32.MAX.PATH);
-                if (0 == Win32.SH.SHGetPathFromIDList(pidlRet, sb))
+                if (SH.SHGetPathFromIDListW(pidlRet, sb) == false)
                 {
                     return DialogResult.Cancel;
                 }
-
-                // Convert to a string.
                 _directoryPath = sb.ToString();
+
             }
             finally
             {
-                Win32.IMalloc malloc = Win32.SH.GetMalloc();
+                IMalloc malloc = SH.GetMalloc();
                 malloc.Free(pidlRoot);
 
                 if (pidlRet != IntPtr.Zero)
@@ -205,92 +204,198 @@ namespace TextureChanger.util
         }
 
 
-        public bool OnlyFilesystem
+        public void SetOptionField(Win32.SH.BIF mask, bool turnOn)
+        {
+            if (turnOn)
+                _options |= mask;
+            else
+                _options &= ~mask;
+        }
+        public bool fReturnOnlyFsDirs
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.RestrictToFilesystem) != 0;
+                return (_options & SH.BIF.RETURNONLYFSDIRS) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.RestrictToFilesystem, value);
+                SetOptionField(SH.BIF.RETURNONLYFSDIRS, value);
             }
         }
-        public bool ShowNetworkFolders
+        public bool fDontGoBelowDomain
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.RestrictToDomain) != 0;
+                return (_options & SH.BIF.DONTGOBELOWDOMAIN) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.RestrictToDomain, value);
+                SetOptionField(SH.BIF.DONTGOBELOWDOMAIN, value);
             }
         }
-        public bool OnlySubfolders
+        public bool fStatusText
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.RestrictToSubfolders) != 0;
+                return (_options & SH.BIF.STATUSTEXT) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.RestrictToSubfolders, value);
+                SetOptionField(SH.BIF.STATUSTEXT, value);
             }
         }
-        public bool ShowTextBox
+        public bool fReturnFsAncestors
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.ShowTextBox) != 0;
+                return (_options & SH.BIF.RETURNFSANCESTORS) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.ShowTextBox, value);
+                SetOptionField(SH.BIF.RETURNFSANCESTORS, value);
             }
         }
-        public bool ValidateUserInput
+        public bool fEditBox
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.ValidateSelection) != 0;
+                return (_options & SH.BIF.EDITBOX) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.ValidateSelection, value);
+                SetOptionField(SH.BIF.EDITBOX, value);
             }
         }
-        public bool SelectComputer
+        public bool fValidate
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.BrowseForComputer) != 0;
+                return (_options & SH.BIF.VALIDATE) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.BrowseForComputer, value);
+                SetOptionField(SH.BIF.VALIDATE, value);
             }
         }
-        public bool SelectPrinter
+        public bool fNewDialogStyle
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.BrowseForPrinter) != 0;
+                return (_options & SH.BIF.NEWDIALOGSTYLE) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.BrowseForPrinter, value);
+                SetOptionField(SH.BIF.NEWDIALOGSTYLE, value);
             }
         }
-        public bool SelectFiles
+        public bool fBrowseIncludeUrls
         {
             get
             {
-                return (_publicOptions & (int)Win32.SH.BffStyles.BrowseForEverything) != 0;
+                return (_options & SH.BIF.BROWSEINCLUDEURLS) != 0;
             }
             set
             {
-                SetOptionField((int)Win32.SH.BffStyles.BrowseForEverything, value);
+                SetOptionField(SH.BIF.BROWSEINCLUDEURLS, value);
+            }
+        }
+        public bool fUseNewUi
+        {
+            get
+            {
+                return (_options & SH.BIF.USENEWUI) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.USENEWUI, value);
+            }
+        }
+        public bool fUaHint
+        {
+            get
+            {
+                return (_options & SH.BIF.UAHINT) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.UAHINT, value);
+            }
+        }
+        public bool fNoNewFolderButton
+        {
+            get
+            {
+                return (_options & SH.BIF.NONEWFOLDERBUTTON) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.NONEWFOLDERBUTTON, value);
+            }
+        }
+        public bool fNoTranslateTargets
+        {
+            get
+            {
+                return (_options & SH.BIF.NOTRANSLATETARGETS) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.NOTRANSLATETARGETS, value);
+            }
+        }
+        public bool fBrowseForComputer
+        {
+            get
+            {
+                return (_options & SH.BIF.BROWSEFORCOMPUTER) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.BROWSEFORCOMPUTER, value);
+            }
+        }
+        public bool fBrowseForPrinter
+        {
+            get
+            {
+                return (_options & SH.BIF.BROWSEFORPRINTER) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.BROWSEFORPRINTER, value);
+            }
+        }
+        public bool fBrowseIncludeFiles
+        {
+            get
+            {
+                return (_options & SH.BIF.BROWSEINCLUDEFILES) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.BROWSEINCLUDEFILES, value);
+            }
+        }
+        public bool fShareable
+        {
+            get
+            {
+                return (_options & SH.BIF.SHAREABLE) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.SHAREABLE, value);
+            }
+        }
+        public bool fBrowseFileJunctions
+        {
+            get
+            {
+                return (_options & SH.BIF.BROWSEFILEJUNCTIONS) != 0;
+            }
+            set
+            {
+                SetOptionField(SH.BIF.BROWSEFILEJUNCTIONS, value);
             }
         }
 
