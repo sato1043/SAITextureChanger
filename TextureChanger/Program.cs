@@ -15,7 +15,14 @@ namespace TextureChanger
 			Application.EnableVisualStyles( );
 			Application.SetCompatibleTextRenderingDefault( false );
 
-			_textureChangerOptions = new TextureChangerOptions( );
+			try
+			{
+				_textureChangerOptions = new TextureChangerOptions();
+			}
+			catch (ArgumentOutOfRangeException e)
+			{
+				return;
+			}
 
 
 			Application.Run( new TextureChangerForm( ) );
