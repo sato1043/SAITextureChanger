@@ -39,5 +39,21 @@ namespace TextureChanger
 
 			// TODO: UI上、処理上、SAIフォルダ再指定に対応する
 		}
+
+		private void ToggleCheckingForMenuFirstExpandingFolder()
+		{
+			mniFirstExpandingRecentFolder.Checked = !mniFirstExpandingRecentFolder.Checked;
+			mniFirstExpandingSpecifiedFolder.Checked = !mniFirstExpandingSpecifiedFolder.Checked;
+		}
+
+		private void mniFirstExpandingRecentFolder_Click(object sender, EventArgs e)
+		{
+			this.ToggleCheckingForMenuFirstExpandingFolder();
+		}
+
+		private void mniFirstExpandingSpecifiedFolder_Click(object sender, EventArgs e)
+		{
+			this.ToggleCheckingForMenuFirstExpandingFolder();
+		}
 	}
 }
