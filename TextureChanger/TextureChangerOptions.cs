@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Windows.Forms;
 using TextureChanger.util;
 using System.Text;
@@ -11,22 +12,9 @@ namespace TextureChanger
 
 	/*
 		[WindowPosition]
-		nCmdShow = 3
-		top = 256
-		left = 150
-		wide = 512
-		high = 300
 		upperHigh = 284
 		upperLeftWide = 311
 		lowerLeftWide = 256
-
-		[SAI]
-		folder = C:\Documents and Settings\na\デスクトップ\PaintToolSAI
-
-		[Browse]
-		use_fixed = 1
-		folder = C:\Documents and Settings\na\デスクトップ
-		recent = C:\Documents and Settings\na\My Documents
 	 */
 
 
@@ -34,147 +22,157 @@ namespace TextureChanger
 	{
 		readonly IniFile _iniFile;
 
-		public string PathToSaiFolder { get; private set; }
+        private string _pathToSaiFolder;
 
-		public bool   UseFixed { get; private set; }
-		public string PathToBrowseFolder { get; private set; }
-		public string PathToRecentFolder { get; private set; }
+		private bool _firstExpandingUseFixed;
+		private string _firstExpandingRecentFolder;
+		private string _firstExpandingFixedFolder;
+
+		private bool _promptToExitProgram;
+
+        private Rectangle _windowBounds;
+        private FormWindowState _windowState;
 
 
+        #region SAIのフォルダ指定プロパティ
+        public string PathToSaiFolder
+        {
+            get { return _pathToSaiFolder; }
+            set { _iniFile["SAI", "folder"] = _pathToSaiFolder = value; }
+        }
+        #endregion
+        
+        #region 起動時のフォルダの指定プロパティ
+        public bool FirstExpandingUseFixed
+		{
+			get { return _firstExpandingUseFixed; }
+			private set { _iniFile["FirstExpanding", "UseFixed"] = (_firstExpandingUseFixed = value).ToString(); }
+		}
+		public string FirstExpandingRecentFolder
+		{
+			get { return _firstExpandingRecentFolder; }
+			private set { _iniFile["FirstExpanding", "RecentFolder"] = _firstExpandingRecentFolder = value; }
+		}
+		public string FirstExpandingFixedFolder
+		{
+			get { return _firstExpandingFixedFolder; }
+			private set { _iniFile["FirstExpanding", "FixedFolder"] = _firstExpandingFixedFolder = value; }
+		}
+		public void ToggleFirstExpandingUseFixed()
+		{
+			FirstExpandingUseFixed = !FirstExpandingUseFixed;
+		}
+		public void SetToUseFirstExpandingRecentFolder(string path = "")
+		{
+			FirstExpandingUseFixed = false;
+			if (path != "")
+			{
+				FirstExpandingRecentFolder = path;
+			}
+		}
+		public void SetToUseFirstExpandingFixedFolder(string path = "")
+		{
+			FirstExpandingUseFixed = true;
+			if (path != "")
+			{
+				FirstExpandingFixedFolder = path;
+			}
+		}
+        #endregion
 
+        #region 終了時の問い合わせプロパティ
+        public bool PromptToExitProgram
+		{
+			get { return _promptToExitProgram; }
+			set { _iniFile["Settings", "PromptToExitProgram"] = (_promptToExitProgram = value).ToString(); }
+		}
 
-		public TextureChangerOptions( )
+	    #endregion
+
+        #region ウィンドウ位置保存プロパティ
+        public Rectangle WindowBounds
+        {
+            get { return _windowBounds; }
+            private set
+            {
+                _windowBounds = value;
+                string temp = String.Format("{0},{1},{2},{3}"
+                    , value.X, value.Y, value.Width, value.Height);
+                _iniFile["Settings", "WindowBounds"] = temp;
+            }
+        }
+	    public FormWindowState WindowState
+	    {
+	        get { return _windowState; }
+            private set { _iniFile["Settings", "WindowStates"] = (_windowState = value).ToString(); }
+	    }
+        public void SaveWindowConditions(Rectangle bounds, FormWindowState state)
+        {
+            WindowBounds = bounds;
+            WindowState = state;
+        }
+        public void LoadWindowConditions(out Rectangle bounds, out FormWindowState state)
+        {
+            bounds = WindowBounds;
+            state = WindowState;
+        }
+        #endregion
+
+        public TextureChangerOptions( )
 		{
 			_iniFile = new IniFile( );
 
-			UseFixed = (_iniFile["Browse", "use_fixed"] == "1");
-			PathToBrowseFolder = _iniFile["Browse", "folder"];
-			PathToRecentFolder = _iniFile["Browse", "recent"];
+			#region SAIのフォルダ指定
+			_pathToSaiFolder = _iniFile["SAI", "folder"];
+			#endregion
 
+			#region エクスプローラの初期表示フォルダの設定
+			_firstExpandingUseFixed = (_iniFile["FirstExpanding", "UseFixed"] == Boolean.TrueString);
+			_firstExpandingRecentFolder = _iniFile["FirstExpanding", "RecentFolder"];
+			_firstExpandingFixedFolder  = _iniFile["FirstExpanding", "FixedFolder" ];
+			#endregion
 
+			#region 終了時にそれを確認する
+			_promptToExitProgram = (_iniFile["Settings", "PromptToExitProgram"] == Boolean.TrueString);
+			#endregion
 
+            #region 前回のウィンドウ位置
+            try
+            {
+                string temp = _iniFile["Settings", "WindowBounds"];
+                _windowBounds = (Rectangle)new RectangleConverter().ConvertFromString(temp);
+            }
+            catch
+            {
+                _windowBounds = new Rectangle(0,0,998,615);
+            }
+            try
+            {
+                string temp = _iniFile["Settings", "WindowStates"];
+                _windowState = (FormWindowState)Enum.Parse(typeof(FormWindowState), temp);
+            }
+            catch
+            {
+                _windowState = FormWindowState.Normal;
+            }
+            #endregion
 
-			PathToSaiFolder = _iniFile[ "SAI", "folder" ];
-
-			#region SAIのフォルダが未指定のときはユーザに指定させる
-
-			if (PathToSaiFolder == "")
+            #region 前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
+            if (_firstExpandingUseFixed == false
+				&& _firstExpandingRecentFolder == "")
 			{
-				string temp = this.RequestPathToSaiFolder();
-				if (temp == "")
-				{
-					MessageBox.Show(
-						"SAIのインストール先が特定できませんでした。\n" +
-						"操作先のSAIがわからず処理を継続できないため、起動を中断します。"
-						);
-					throw new ArgumentOutOfRangeException();
-				}
-				
-				_iniFile["SAI", "folder"] = PathToSaiFolder = temp;
+				string temp = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+				FirstExpandingUseFixed = false;
+				FirstExpandingRecentFolder = temp;
+				FirstExpandingFixedFolder = temp;
+				PathToSaiFolder = "";
+				PromptToExitProgram = true;
+			    WindowBounds = new Rectangle(0, 0, 998, 615);
+                WindowState = FormWindowState.Normal;
 			}
 			#endregion
 
-
-
 		}
-
-		#region SAIフォルダの指定
-
-		#region オプション値保持に関して、SAIフォルダの再指定
-		public void ChangeSaiFolder()
-		{
-			string temp = this.RequestPathToSaiFolder();
-			if (temp == "")
-			{
-				return;
-			}
-
-			_iniFile["SAI", "folder"] = PathToSaiFolder = temp;
-		}
-		#endregion
-
-		#region SAIフォルダの問い合わせ
-		private string RequestPathToSaiFolder()
-		{
-			#region フォルダ指定ダイアログの初期表示先取得
-
-			SH.IShellFolder desktopShellFolder = null;
-			SH.SHGetDesktopFolder(ref desktopShellFolder);
-
-			string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
-			UInt32 chEaten = 0;
-			UInt32 dwAttributes = 0;
-			IntPtr pItemIdl = IntPtr.Zero;
-			try
-			{
-				desktopShellFolder.ParseDisplayName(IntPtr.Zero, IntPtr.Zero,
-					defaultSaiExeFolder, ref chEaten, out pItemIdl, ref dwAttributes);
-			}
-			catch
-			{
-				SH.SHGetSpecialFolderLocation(IntPtr.Zero, SH.CSIDL.DESKTOP, ref pItemIdl);
-				if (pItemIdl == IntPtr.Zero)
-				{
-					throw;
-				}
-			}
-
-			#endregion
-
-			BrowseFolderDialog bfdlg = new BrowseFolderDialog();
-
-			bfdlg.DialogMessage =
-				"操作するSAIのインストール先(sai.exeの在処)を指定下さい。\n" +
-				"デフォルトでは C:\\Program Files\\PaintToolSAI です。\n" +
-				"再度別の場所を指定したいときはオプションメニューから変更してください。";
-			bfdlg.fStatusText = false;
-			bfdlg.fReturnOnlyFsDirs = true;
-			bfdlg.fNoNewFolderButton = true;
-			bfdlg.Procedure = SpecifySaiExeBffCallback;
-			bfdlg.lParam = (uint) pItemIdl;
-
-			if (bfdlg.ShowDialog() == DialogResult.Cancel)
-			{
-				return "";
-			}
-
-			return bfdlg.DirectoryPath;
-		}
-		#endregion
-
-		#region 初回起動時のsai.exeのフォルダ指定ダイアログの入力チェック用コールバックデリゲート
-		private int SpecifySaiExeBffCallback(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData)
-		{
-			StringBuilder sb;
-			switch (uMsg)
-			{
-				case (uint)SH.BFFM.INITIALIZED:
-					//はじめに選択されるフォルダをitemIDLでメッセージ
-					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSELECTION, IntPtr.Zero, lpData);
-					sb = new StringBuilder((int)MAX.PATH);
-					SH.SHGetPathFromIDListW(lpData, sb);
-					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-					Api.SendMessage(hwnd, (uint)SH.BFFM.ENABLEOK, 0,
-						File.Exists(sb + "\\sai.exe") ? 1 : 0);
-					break;
-
-				case (uint)SH.BFFM.SELCHANGED:
-					// ユーザーがフォルダを変更した時
-					// SAI_EXEが含まれるかによってOKボタンの有効化を制御
-					sb = new StringBuilder((int)MAX.PATH);
-					SH.SHGetPathFromIDListW(lParam, sb);
-					Api.SendMessage(hwnd, (uint)SH.BFFM.SETSTATUSTEXTW, IntPtr.Zero, sb);
-					Api.SendMessage(hwnd, (uint)SH.BFFM.ENABLEOK, 0,
-						File.Exists(sb + "\\sai.exe") ? 1 : 0);
-					break;
-			}
-			return 0;
-		}
-		#endregion
-
-		#endregion
-
-
 
 
 	}
