@@ -65,7 +65,10 @@ namespace TextureChanger
 			SH.IShellFolder desktopShellFolder = null;
 			SH.SHGetDesktopFolder(ref desktopShellFolder);
 
-			const string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
+			string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
+		    if (_textureChangerOptions.PathToSaiFolder != "")
+		        defaultSaiExeFolder = _textureChangerOptions.PathToSaiFolder;
+
 			IntPtr pItemIdl = IntPtr.Zero;
 			try
 			{
