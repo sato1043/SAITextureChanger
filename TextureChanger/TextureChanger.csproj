@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="TextureChangerOptions.cs" />
+    <Compile Include="TextureManager.cs" />
     <Compile Include="util\AboutForm.cs">
       <SubType>Form</SubType>
     </Compile>

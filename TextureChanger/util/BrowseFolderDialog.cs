@@ -147,7 +147,7 @@ namespace TextureChanger.util
                 }
             }
 
-            IntPtr hWndOwner = (owner != null) ? owner.Handle : Win32.Api.GetActiveWindow();
+            IntPtr hWndOwner = (owner != null) ? owner.Handle : Api.GetActiveWindow();
 
             IntPtr pidlRoot = IntPtr.Zero;
 

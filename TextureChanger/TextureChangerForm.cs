@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Text;
@@ -14,7 +15,15 @@ namespace TextureChanger
 	{
 		private TextureChangerOptions _textureChangerOptions;
 
-		public TextureChangerForm( )
+	    private bool _forceExitProgram = false;
+
+	    private const string SAI = "sai";
+		
+		private Timer _saiProcessCheckTimer;
+
+	    private TextureManager _textureManager;
+
+	    public TextureChangerForm( )
 		{
 			InitializeComponent( );
 		}
@@ -36,10 +45,14 @@ namespace TextureChanger
 					MessageBox.Show(this,
 						"SAIのインストール先を設定できませんでした。\n" +
 						"操作先のSAIがわからないため、処理を継続できません。\n"+
-						"インストール先はオプションメニューから設定できます。"
+						"申し訳ありませんが、プログラムの起動を中断します。"
 						);
+					_forceExitProgram = true;
+					Application.Exit();
+					return;
 				}
 			}
+			//このプログラムの特性上、PathToSaiFolderが空ということは無しの前提で動かす
 			#endregion
 
             #region メニューのチェック状態の再構築
@@ -54,8 +67,76 @@ namespace TextureChanger
             Bounds = bounds;
             WindowState = state;
             #endregion
+
+			#region 起動確認
+			CenteredMessageBox.Show(this,
+				"SAIに対する編集は、直接即座に上書きされます。\n" +
+				"\n" +
+				"また、TextureChangerとSAIはお互いを知らないので、\n" +
+				"SAI起動中にTextureChangerを実行することができません。\n" +
+				"\n" +
+				"TextureChanger起動中にSAIを起動した場合、SAIでの変更が再読み込みされます。　　　\n"
+				, "TexureChanger起動確認"
+				, MessageBoxButtons.OK, MessageBoxIcon.Information);
+			#endregion
+
+			#region SAIの起動中確認とテクスチャ情報の読み込み
+			_saiProcessCheckTimer = new Timer();
+			_saiProcessCheckTimer.Tick += new EventHandler(SaiProcessCheckTimerHandler);
+			_saiProcessCheckTimer.Interval = 1000;
+			_textureManager = null;
+			SaiProcessCheckTimerHandler(sender, e);
+			#endregion
 		}
 
+		#region タイマーハンドラ: SAI起動中確認と最新情報読み込み
+		private void SaiProcessCheckTimerHandler(object sender, EventArgs e)
+		{
+			//リロード目的で呼ばれる場合：あらかじめ_textureManager=nullしてからこれを呼ぶ
+			//プロセス監視目的で呼ばれる場合：既存の_textureManager!=nullで呼ばれる
+			_saiProcessCheckTimer.Stop();
+
+			Process[] hProcesses = Process.GetProcessesByName(SAI);
+
+			while (hProcesses.Length != 0)
+			{
+				_textureManager = null;
+
+				DialogResult res = CenteredMessageBox.Show(this,
+					"SAIの起動が検出されました。\n" +
+					"このプログラムはSAIの起動中は処理を行えません。\n" +
+					"\n" +
+					"SAIを通常終了し、３つほど数えてから「OK」してみて下さい。　　　　\n" +
+					"最新のテクスチャ情報を再読み込みします。\n" +
+					"\n" +
+					"確認しますか？　（「キャンセル」でこちらが強制終了です）"
+					, "--- SAI起動中 ---"
+					, MessageBoxButtons.OKCancel, MessageBoxIcon.Information );
+
+				if (res == DialogResult.Cancel)
+				{
+					_forceExitProgram = true;
+					Application.Exit();
+					return;
+				}
+				else
+				{
+					hProcesses = Process.GetProcessesByName(SAI);
+				}
+			}
+			
+			// この先は、まったく引っかからなかったか、OKして抜けてきている
+
+			if (_textureManager == null)
+			{
+				_textureManager = new TextureManager(_textureChangerOptions.PathToSaiFolder,this);
+			}
+
+			// TODO : テクスチャ情報再読み込みに伴うUIの全更新
+
+			_saiProcessCheckTimer.Start();
+		}
+		#endregion
 
 		#region SAIフォルダの問い合わせ
 
@@ -91,8 +172,8 @@ namespace TextureChanger
 
 			bfdlg.DialogMessage =
 				"操作するSAIのインストール先(sai.exeの在処)を指定下さい。\n" +
-				"デフォルトでは C:\\Program Files\\PaintToolSAI です。\n" +
-				"再度別の場所を指定したいときはオプションメニューから変更してください。";
+				//"大抵は C:\\Program Files\\PaintToolSAI 辺りです。\n" +
+				"後でから指定を変更できます。オプションメニューから変更してください。";
 			bfdlg.fStatusText = false;
 			bfdlg.fReturnOnlyFsDirs = true;
 			bfdlg.fNoNewFolderButton = true;
@@ -143,7 +224,8 @@ namespace TextureChanger
         private void TextureChangerForm_FormClosing( object sender, FormClosingEventArgs e )
         {
             #region 終了問い合わせ
-            if (_textureChangerOptions.PromptToExitProgram)
+			if (_forceExitProgram == false 
+				&& _textureChangerOptions.PromptToExitProgram)
 			{
 				DialogResult result = CenteredMessageBox.Show(this
 					, "終了しますか？", "確認"
@@ -184,10 +266,11 @@ namespace TextureChanger
 			string temp = RequestPathToSaiFolder();
 			if (temp != "")
 			{
+				_saiProcessCheckTimer.Stop();
 				_textureChangerOptions.PathToSaiFolder = temp;
+				_textureManager = null;
+				SaiProcessCheckTimerHandler(sender, e);
 			}
-
-			// TODO: UI上、処理上、SAIフォルダ再指定に対応する
 		}
 		#endregion
 

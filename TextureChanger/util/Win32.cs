@@ -129,7 +129,22 @@ namespace Win32
     }
     #endregion
 
-    public enum GWL : int
+	#region SIZE
+	[StructLayout(LayoutKind.Sequential)]
+	public struct SIZE
+	{
+		public int cx;
+		public int cy;
+
+		public SIZE(int cx, int cy)
+		{
+			this.cx = cx;
+			this.cy = cy;
+		}
+	}
+	#endregion
+
+	public enum GWL : int
     {
         WNDPROC   = (-4),
         HINSTANCE = (-6),
