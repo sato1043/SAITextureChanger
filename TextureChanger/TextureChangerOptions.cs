@@ -33,6 +33,10 @@ namespace TextureChanger
         private Rectangle _windowBounds;
         private FormWindowState _windowState;
 
+		private int _splitterDistanceNorthSouth;
+		private int _splitterDistanceTreeList;
+		private int _splitterDistanceTextureImage;
+
 		private string _lastEditingTextureName;
 		private string _lastEditingTextureImagePath;
 
@@ -120,6 +124,30 @@ namespace TextureChanger
         }
         #endregion
 
+		#region スプリッターの表示状態
+		public int SplitterDistanceNorthSouth
+		{
+			get { return _splitterDistanceNorthSouth; }
+			private set { _iniFile["Settings", "SplitterDistanceNorthSouth"] = (_splitterDistanceNorthSouth = value).ToString(); }
+		}
+		public int SplitterDistanceTreeList
+		{
+			get { return _splitterDistanceTreeList; }
+			private set { _iniFile["Settings", "SplitterDistanceTreeList"] = (_splitterDistanceTreeList = value).ToString(); }
+		}
+		public int SplitterDistanceTextureImage
+		{
+			get { return _splitterDistanceTextureImage; }
+			private set { _iniFile["Settings", "SplitterDistanceTextureImage"] = (_splitterDistanceTextureImage = value).ToString(); }
+		}
+		public void SaveSplitterDistances(int northSouth, int treeList, int textureImage)
+		{
+			SplitterDistanceNorthSouth = northSouth;
+			SplitterDistanceTreeList = treeList;
+			SplitterDistanceTextureImage = textureImage;
+		}
+		#endregion
+
 		#region 編集状態保存プロパティ
 		public string LastEditingTextureName
 		{
@@ -145,7 +173,7 @@ namespace TextureChanger
 
 		public TextureChangerOptions()
 		{
-	        _iniFile = new IniFile( );
+			_iniFile = new IniFile( );
 
 			#region SAIのフォルダ指定
 			_pathToSaiFolder = _iniFile["SAI", "folder"];
@@ -182,6 +210,36 @@ namespace TextureChanger
             }
             #endregion
 
+			#region 前回のスプリッター状態
+			try
+			{
+				var temp = _iniFile["Settings", "SplitterDistanceNorthSouth"];
+				_splitterDistanceNorthSouth = int.Parse(temp);
+			}
+			catch
+			{
+				_splitterDistanceNorthSouth = 270; //TODO const
+			}
+			try
+			{
+				var temp = _iniFile["Settings", "SplitterDistanceTreeList"];
+				_splitterDistanceTreeList = int.Parse(temp);
+			}
+			catch
+			{
+				_splitterDistanceTreeList = 330; //TODO const
+			}
+			try
+			{
+				var temp = _iniFile["Settings", "SplitterDistanceTextureImage"];
+				_splitterDistanceTextureImage = int.Parse(temp);
+			}
+			catch
+			{
+				_splitterDistanceTextureImage = 330; //TODO const
+			}
+			#endregion
+
 			#region 前回終了時編集中だったテクスチャ
 			LastEditingTextureName = _iniFile["Settings", "LastEditingTextureName"];
 			LastEditingTextureImagePath = _iniFile["Settings", "LastEditingTextureImagePath"];
@@ -191,14 +249,20 @@ namespace TextureChanger
             if (_firstExpandingUseFixed == false
 				&& _firstExpandingRecentFolder == "")
 			{
+				
+				//TODO 設定をひとつづつ判定して初期値を入れる
+
 				string temp = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 				FirstExpandingUseFixed = false;
 				FirstExpandingRecentFolder = temp;
 				FirstExpandingFixedFolder = temp;
 				PathToSaiFolder = "";
 				PromptToExitProgram = true;
-			    WindowBounds = new Rectangle(0, 0, 998, 615);
+			    WindowBounds = new Rectangle(0, 0, 998, 615);//TODO const
                 WindowState = FormWindowState.Normal;
+				SplitterDistanceNorthSouth = 270; //TODO const
+				SplitterDistanceTreeList = 330; //TODO const
+				SplitterDistanceTextureImage = 330; //TODO const
 				LastEditingTextureName = TextureManager.BLOTMAP_NAME;
 				LastEditingTextureImagePath = "";
 			}

@@ -42,6 +42,7 @@ namespace TextureChanger
 			this.mniEditElemap = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniEditBrushtex = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniEditPapertex = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
 			this.mniView = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniOption = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniRequestSaiFolder = new System.Windows.Forms.ToolStripMenuItem();
@@ -53,7 +54,15 @@ namespace TextureChanger
 			this.mniPromptToExitProgram = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniHelp = new System.Windows.Forms.ToolStripMenuItem();
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem();
+			this.splNorthSouth = new System.Windows.Forms.SplitContainer();
+			this.splTreeList = new System.Windows.Forms.SplitContainer();
+			this.splTextureImage = new System.Windows.Forms.SplitContainer();
 			this.menuStrip1.SuspendLayout();
+			this.splNorthSouth.Panel1.SuspendLayout();
+			this.splNorthSouth.Panel2.SuspendLayout();
+			this.splNorthSouth.SuspendLayout();
+			this.splTreeList.SuspendLayout();
+			this.splTextureImage.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// menuStrip1
@@ -92,7 +101,8 @@ namespace TextureChanger
             this.mniEditBlotmap,
             this.mniEditElemap,
             this.mniEditBrushtex,
-            this.mniEditPapertex});
+            this.mniEditPapertex,
+            this.toolStripMenuItem2});
 			this.mniEdit.Name = "mniEdit";
 			this.mniEdit.Size = new System.Drawing.Size(37, 20);
 			this.mniEdit.Text = "&Edit";
@@ -126,6 +136,11 @@ namespace TextureChanger
 			this.mniEditPapertex.Size = new System.Drawing.Size(171, 22);
 			this.mniEditPapertex.Text = "用紙質感(papertex)";
 			this.mniEditPapertex.Click += new System.EventHandler(this.mniEditTexture_Click);
+			// 
+			// toolStripMenuItem2
+			// 
+			this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+			this.toolStripMenuItem2.Size = new System.Drawing.Size(168, 6);
 			// 
 			// mniView
 			// 
@@ -213,9 +228,64 @@ namespace TextureChanger
 			this.mniAbout.Text = "&about";
 			this.mniAbout.Click += new System.EventHandler(this.mniAbout_Click);
 			// 
+			// splNorthSouth
+			// 
+			this.splNorthSouth.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+						| System.Windows.Forms.AnchorStyles.Left)
+						| System.Windows.Forms.AnchorStyles.Right)));
+			this.splNorthSouth.BackColor = System.Drawing.SystemColors.ControlLight;
+			this.splNorthSouth.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.splNorthSouth.ImeMode = System.Windows.Forms.ImeMode.NoControl;
+			this.splNorthSouth.Location = new System.Drawing.Point(0, 27);
+			this.splNorthSouth.Name = "splNorthSouth";
+			this.splNorthSouth.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// splNorthSouth.Panel1
+			// 
+			this.splNorthSouth.Panel1.BackColor = System.Drawing.SystemColors.Desktop;
+			this.splNorthSouth.Panel1.Controls.Add(this.splTreeList);
+			// 
+			// splNorthSouth.Panel2
+			// 
+			this.splNorthSouth.Panel2.BackColor = System.Drawing.SystemColors.Desktop;
+			this.splNorthSouth.Panel2.Controls.Add(this.splTextureImage);
+			this.splNorthSouth.Size = new System.Drawing.Size(990, 557);
+			this.splNorthSouth.SplitterDistance = 270;
+			this.splNorthSouth.SplitterWidth = 8;
+			this.splNorthSouth.TabIndex = 1;
+			this.splNorthSouth.TabStop = false;
+			this.splNorthSouth.Paint += new System.Windows.Forms.PaintEventHandler(this.splSplitContainer_Paint);
+			// 
+			// splTreeList
+			// 
+			this.splTreeList.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.splTreeList.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splTreeList.Location = new System.Drawing.Point(0, 0);
+			this.splTreeList.Name = "splTreeList";
+			this.splTreeList.Size = new System.Drawing.Size(990, 270);
+			this.splTreeList.SplitterDistance = 330;
+			this.splTreeList.SplitterWidth = 6;
+			this.splTreeList.TabIndex = 0;
+			this.splTreeList.TabStop = false;
+			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler(this.splSplitContainer_Paint);
+			// 
+			// splTextureImage
+			// 
+			this.splTextureImage.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+			this.splTextureImage.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.splTextureImage.Location = new System.Drawing.Point(0, 0);
+			this.splTextureImage.Name = "splTextureImage";
+			this.splTextureImage.Size = new System.Drawing.Size(990, 279);
+			this.splTextureImage.SplitterDistance = 330;
+			this.splTextureImage.SplitterWidth = 6;
+			this.splTextureImage.TabIndex = 0;
+			this.splTextureImage.TabStop = false;
+			this.splTextureImage.Paint += new System.Windows.Forms.PaintEventHandler(this.splSplitContainer_Paint);
+			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size(990, 588);
+			this.Controls.Add(this.splNorthSouth);
 			this.Controls.Add(this.menuStrip1);
 			this.Cursor = System.Windows.Forms.Cursors.Default;
 			this.DoubleBuffered = true;
@@ -228,6 +298,11 @@ namespace TextureChanger
 			this.Load += new System.EventHandler(this.TextureChangerForm_Load);
 			this.menuStrip1.ResumeLayout(false);
 			this.menuStrip1.PerformLayout();
+			this.splNorthSouth.Panel1.ResumeLayout(false);
+			this.splNorthSouth.Panel2.ResumeLayout(false);
+			this.splNorthSouth.ResumeLayout(false);
+			this.splTreeList.ResumeLayout(false);
+			this.splTextureImage.ResumeLayout(false);
 			this.ResumeLayout(false);
 			this.PerformLayout();
 
@@ -254,6 +329,10 @@ namespace TextureChanger
 		private ToolStripMenuItem mniEditElemap;
 		private ToolStripMenuItem mniEditBrushtex;
 		private ToolStripMenuItem mniEditPapertex;
+		private ToolStripSeparator toolStripMenuItem2;
+		private SplitContainer splNorthSouth;
+		private SplitContainer splTreeList;
+		private SplitContainer splTextureImage;
 	}
 }
 
