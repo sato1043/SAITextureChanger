@@ -33,8 +33,10 @@ namespace TextureChanger
         private Rectangle _windowBounds;
         private FormWindowState _windowState;
 
+		private string _lastEditingTextureName;
+		private string _lastEditingTextureImagePath;
 
-        #region SAIのフォルダ指定プロパティ
+		#region SAIのフォルダ指定プロパティ
         public string PathToSaiFolder
         {
             get { return _pathToSaiFolder; }
@@ -106,7 +108,7 @@ namespace TextureChanger
 	        get { return _windowState; }
             private set { _iniFile["Settings", "WindowStates"] = (_windowState = value).ToString(); }
 	    }
-        public void SaveWindowConditions(Rectangle bounds, FormWindowState state)
+		public void SaveWindowConditions(Rectangle bounds, FormWindowState state)
         {
             WindowBounds = bounds;
             WindowState = state;
@@ -118,9 +120,32 @@ namespace TextureChanger
         }
         #endregion
 
-        public TextureChangerOptions( )
+		#region 編集状態保存プロパティ
+		public string LastEditingTextureName
 		{
-			_iniFile = new IniFile( );
+			get { return _lastEditingTextureName; }
+			private set { _iniFile["Settings", "LastEditingTextureName"] = _lastEditingTextureName = value; }
+		}
+		public string LastEditingTextureImagePath
+		{
+			get { return _lastEditingTextureImagePath; }
+			set { _iniFile["Settings", "LastEditingTextureImagePath"] = _lastEditingTextureImagePath = value; }
+		}
+		public void SaveLastEditings(string textureName, string imagePath)
+		{
+			if (string.IsNullOrEmpty(textureName))
+			{
+				throw new ArgumentNullException();
+			}
+			LastEditingTextureName = textureName;
+			LastEditingTextureImagePath = imagePath; //imagePathは空文字を許可
+		}
+		#endregion
+
+
+		public TextureChangerOptions()
+		{
+	        _iniFile = new IniFile( );
 
 			#region SAIのフォルダ指定
 			_pathToSaiFolder = _iniFile["SAI", "folder"];
@@ -157,6 +182,11 @@ namespace TextureChanger
             }
             #endregion
 
+			#region 前回終了時編集中だったテクスチャ
+			LastEditingTextureName = _iniFile["Settings", "LastEditingTextureName"];
+			LastEditingTextureImagePath = _iniFile["Settings", "LastEditingTextureImagePath"];
+			#endregion
+
             #region 前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
             if (_firstExpandingUseFixed == false
 				&& _firstExpandingRecentFolder == "")
@@ -169,6 +199,8 @@ namespace TextureChanger
 				PromptToExitProgram = true;
 			    WindowBounds = new Rectangle(0, 0, 998, 615);
                 WindowState = FormWindowState.Normal;
+				LastEditingTextureName = TextureManager.BLOTMAP_NAME;
+				LastEditingTextureImagePath = "";
 			}
 			#endregion
 

@@ -60,6 +60,8 @@ namespace TextureChanger
             #region メニューのチェック状態の再構築
 		    SetCheckingForMenuFirstExpandingFolder();
 		    mniPromptToExitProgram.Checked = _textureChangerOptions.PromptToExitProgram;
+			foreach (var mniEditTexture in new[]{ mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
+				mniEditTexture.Checked = (mniEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
 		    #endregion
 
             #region ウィンドウの状況を復元
@@ -320,6 +322,16 @@ namespace TextureChanger
 				= !_textureChangerOptions.PromptToExitProgram;
 		}
 		#endregion
+
+		private void mniEditTexture_Click(object sender, EventArgs e)
+		{
+			foreach (var mniEditTexture in new[] { mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
+				mniEditTexture.Checked = (mniEditTexture == (ToolStripMenuItem)sender);
+
+			_textureChangerOptions.SaveLastEditings(((ToolStripMenuItem) sender).Text, "");
+
+			//TODO テクスチャを表示しているビューの変更
+		}
 
 	}
 }
