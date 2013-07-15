@@ -11,6 +11,8 @@ namespace TextureChanger
 {
     // TODO : 現在のフォルダを逐次保存する。特にプログラム終了時
 
+	//TODO ファイル-バックアップ機能の実装
+
     public partial class TextureChangerForm : Form
 	{
 		private TextureChangerOptions _textureChangerOptions;

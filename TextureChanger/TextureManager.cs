@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using TextureChanger.util;
@@ -19,7 +18,7 @@ namespace TextureChanger
 		  2. blotmap フォルダにその画像を置く
 		  3. brushform.conf に" 1,blotmap\\画像名.bmp "と追記する
 		*/
-		private const string BLOTMAP_NAME = "にじみ形状(blotmap)";
+		public const string BLOTMAP_NAME = "にじみ形状(blotmap)";
 		private const string BRUSHFORM_CONF = "\\brushform.conf";
 		private const string BLOTMAP_CONF = BRUSHFORM_CONF;
 		private const string BLOTMAP_DIR = "blotmap";
@@ -33,7 +32,7 @@ namespace TextureChanger
 		  2. elemap フォルダにその画像を置く
 		  3. brushform.conf に" 2,elemap\\画像名.bmp "と追記する
 		*/
-		private const string ELEMAP_NAME = "筆形状(elemap)";
+		public const string ELEMAP_NAME = "筆形状(elemap)";
 		private const string ELEMAP_CONF = BRUSHFORM_CONF;
 		private const string ELEMAP_DIR = "elemap";
 		private const string ELEMAP_SIGN = "2,";
@@ -46,7 +45,7 @@ namespace TextureChanger
 		  2. brushtex フォルダにその画像を置く
 		  3. brushtex.conf に" 1,brushtex\\画像名.bmp "と追記する
 		*/
-		private const string BRUSHTEX_NAME = "テクスチャ(brushtex)";
+		public const string BRUSHTEX_NAME = "テクスチャ(brushtex)";
 		private const string BRUSHTEX_CONF = "\\brushtex.conf";
 		private const string BRUSHTEX_DIR = "brushtex";
 		private const string BRUSHTEX_SIGN = "1,";
@@ -59,7 +58,7 @@ namespace TextureChanger
 		  2. papertex フォルダにその画像を置く
 		  3. papertex.conf に" 1,papertex\\画像名.bmp "と追記する
 		*/
-		private const string PAPERTEX_NAME = "用紙質感(papertex)";
+		public const string PAPERTEX_NAME = "用紙質感(papertex)";
 		private const string PAPERTEX_CONF = "\\papertex.conf";
 		private const string PAPERTEX_DIR = "papertex";
 		private const string PAPERTEX_SIGN = "1,";
@@ -93,17 +92,26 @@ namespace TextureChanger
 				image_vector = new List<string>();
 			}
 
+			public string CreateConfFileText()
+			{
+				var lines = new List<string>();
+				foreach (string imagePath in image_vector)
+				{
+					lines.Add(sign + imagePath);
+				}
+				return string.Join(Environment.NewLine, lines.ToArray()) + Environment.NewLine;
+			}
 		};
 		#endregion
 
 
-		private List<SAITextureFormat> _saiTextureFormatList;
+		private readonly List<SAITextureFormat> _saiTextureFormatList;
 
-		private string _pathToSaiFolder;
+		private readonly string _pathToSaiFolder;
 
 		public TextureManager(string pathToSaiFolder, IWin32Window owner)
 		{
-			if (pathToSaiFolder == null || pathToSaiFolder == "")
+			if (string.IsNullOrEmpty(pathToSaiFolder))
 			{
 				throw new ArgumentNullException("pathToSaiFolder");
 			}
@@ -195,9 +203,47 @@ namespace TextureChanger
 		#endregion
 
 		#region テクスチャ情報をファイルに書き込み
-		private void SaveFormats()
+		public void SaveFormats(params string[] targetConfs)
 		{
-			throw new System.NotImplementedException();
+			//保存対象が省略（無指定）された場合、すべてを保存する
+			if (targetConfs.Length == 0)
+			{
+				targetConfs = new[]
+				{
+					BLOTMAP_NAME, ELEMAP_NAME
+					, BRUSHTEX_NAME, PAPERTEX_NAME
+				};
+			}
+
+			//テクスチャ種毎に保存
+			var fileList = new List<string>();
+			foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)
+			{
+				//保存対象でなければスキップ
+				if (targetConfs.Contains(saiTextureFormat.name) == false)
+				{
+					//TODO ひとつのファイルで複数のテクスチャ種が保存されているファイルで、一方だけ保存対象にされた場合にもう一方が消えてしまう
+					continue;
+				}
+
+				//このメソッドの中で一度も開いたことがない設定ファイルはtruncate
+				//このメソッド中で開いたことがある設定ファイルならばappend
+				if (fileList.Contains(saiTextureFormat.confpath) == false)
+				{
+					fileList.Add(saiTextureFormat.confpath);
+					File.WriteAllText(
+						_pathToSaiFolder + saiTextureFormat.confpath
+						, saiTextureFormat.CreateConfFileText()
+						, Encoding.GetEncoding(932));
+				}
+				else
+				{
+					File.AppendAllText(
+						_pathToSaiFolder + saiTextureFormat.confpath
+						, saiTextureFormat.CreateConfFileText()
+						, Encoding.GetEncoding(932));
+				}
+			}
 		}
 		#endregion
 
@@ -216,7 +262,7 @@ namespace TextureChanger
 		}
 		private void BackupOrRestoreFormats(bool isRestore, bool isInitial, IWin32Window owner)
 		{
-			List<string> fileList = new List<string>();
+			var fileList = new List<string>();
 			bool initialMessageDone = false;
 
 			foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)

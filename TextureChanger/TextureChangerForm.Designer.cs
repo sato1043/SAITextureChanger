@@ -169,7 +169,6 @@ namespace TextureChanger
             // TextureChangerForm
             // 
             this.AutoScaleDimensions = new SizeF(6F, 12F);
-            this.AutoScaleMode = AutoScaleMode.Font;
             this.ClientSize = new Size(990, 588);
             this.Controls.Add(this.menuStrip1);
             this.Cursor = Cursors.Default;
