@@ -66,9 +66,8 @@ namespace TextureChanger
 		#endregion
 
 		#region SAITextureFormat：テクスチャ種毎の書式情報
-		private struct SAITextureFormat
+		private class SAITextureFormat
 		{
-
 			public string confpath;
 			public string directory;
 			public string name;
@@ -319,6 +318,111 @@ namespace TextureChanger
 		}
 		#endregion
 
+		#region イメージ追加(処理しなかったときfalse)
+		public bool AddImage(
+			string targetConfName
+			, string fromPath
+			, IWin32Window owner
+		)
+		{
+			//TODO addImage() 単体テスト
 
+			var targetFormat =
+				_saiTextureFormatList
+					.FirstOrDefault(saiTextureFormat =>
+						targetConfName == saiTextureFormat.name);
+			if (targetFormat == null)
+			{
+				throw new ArgumentOutOfRangeException("targetConfName");
+			}
+
+			var imagePath = targetFormat.directory + "\\" + Path.GetFileName(fromPath);
+			if (targetFormat.image_vector.Contains(imagePath))
+			{
+				return false; //登録済みだったので処理しなかった
+			}
+
+			var dst = _pathToSaiFolder+ "\\" + imagePath;
+
+			if (File.Exists(dst))
+			{
+				; //TODO 追加先画像がすでにあった場合どうするか(今は上書きしてる)
+				//内容比較してエラーにする？
+			}
+			
+			// Exploreシェルでファイルをコピーする。
+			var shfop = new SH.SHFILEOPSTRUCT
+			{
+				hwnd = owner.Handle,
+				wFunc = SH.FileFuncFlags.FO_COPY,
+				pFrom = fromPath + '\0' + '\0',
+				pTo = dst + '\0' + '\0',
+				fFlags = SH.FILEOP_FLAGS.FOF_ALLOWUNDO
+			};
+			if (SH.SHFileOperation(ref shfop) != 0)
+			{
+				throw new System.IO.IOException(); //something happened
+			}
+			if (shfop.fAnyOperationsAborted == true)
+			{
+				return false; //ファイル処理中断
+			}
+
+			targetFormat.image_vector.Add(imagePath);
+			return true;
+		}
+		#endregion
+
+		#region イメージ削除(処理しなかったときfalse)
+		public bool RemoveImage(
+			string targetConfName
+			,  string targetImagePath
+			, IWin32Window owner
+		)
+		{
+			//TODO remove_image() 単体テスト
+
+			var targetFormat =
+				_saiTextureFormatList
+					.FirstOrDefault(saiTextureFormat =>
+						targetConfName == saiTextureFormat.name);
+			if (targetFormat == null)
+			{
+				throw new ArgumentOutOfRangeException("targetConfName");
+			}
+
+			targetImagePath =
+				targetFormat.image_vector
+					.FirstOrDefault(imagePath =>
+						targetImagePath == imagePath);
+			if (targetImagePath == null)
+			{
+				throw new ArgumentOutOfRangeException("targetImagePath");
+			}
+
+			//エクスプローラーでファイル削除
+			//TODO 削除画像のバックアップ（必要？）
+			var shfop = new SH.SHFILEOPSTRUCT
+			{
+				hwnd = owner.Handle,
+				wFunc = SH.FileFuncFlags.FO_DELETE,
+				pFrom = _pathToSaiFolder + "\\" + targetImagePath + '\0' + '\0',
+				fFlags = SH.FILEOP_FLAGS.FOF_ALLOWUNDO | SH.FILEOP_FLAGS.FOF_WANTNUKEWARNING
+			};
+			if (SH.SHFileOperation(ref shfop) != 0)
+			{
+				targetFormat.image_vector.Remove(targetImagePath);//IOエラーなファイルを登録として残しておくのも不健康なので。
+				throw new System.IO.IOException(); //something happened
+			}
+			if (shfop.fAnyOperationsAborted == true)
+			{
+				return false; //ファイル処理中断
+			}
+
+			//登録を削除
+			targetFormat.image_vector.Remove(targetImagePath);
+			return true;
+		}
+		#endregion
 	}
 }
