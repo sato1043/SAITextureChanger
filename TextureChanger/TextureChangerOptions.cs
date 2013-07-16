@@ -22,7 +22,7 @@ namespace TextureChanger
 	{
 		readonly IniFile _iniFile;
 
-        private string _pathToSaiFolder;
+		private string _pathToSaiFolder;
 
 		private bool _firstExpandingUseFixed;
 		private string _firstExpandingRecentFolder;
@@ -30,26 +30,25 @@ namespace TextureChanger
 
 		private bool _promptToExitProgram;
 
-        private Rectangle _windowBounds;
-        private FormWindowState _windowState;
+		private Rectangle _windowBounds;
+		private FormWindowState _windowState;
 
 		private int _splitterDistanceNorthSouth;
 		private int _splitterDistanceTreeList;
-		private int _splitterDistanceTextureImage;
 
 		private string _lastEditingTextureName;
 		private string _lastEditingTextureImagePath;
 
 		#region SAIのフォルダ指定プロパティ
-        public string PathToSaiFolder
-        {
-            get { return _pathToSaiFolder; }
-            set { _iniFile["SAI", "folder"] = _pathToSaiFolder = value; }
-        }
-        #endregion
-        
-        #region 起動時のフォルダの指定プロパティ
-        public bool FirstExpandingUseFixed
+		public string PathToSaiFolder
+		{
+			get { return _pathToSaiFolder; }
+			set { _iniFile["SAI", "folder"] = _pathToSaiFolder = value; }
+		}
+		#endregion
+		
+		#region 起動時のフォルダの指定プロパティ
+		public bool FirstExpandingUseFixed
 		{
 			get { return _firstExpandingUseFixed; }
 			private set { _iniFile["FirstExpanding", "UseFixed"] = (_firstExpandingUseFixed = value).ToString(); }
@@ -84,45 +83,45 @@ namespace TextureChanger
 				FirstExpandingFixedFolder = path;
 			}
 		}
-        #endregion
+		#endregion
 
-        #region 終了時の問い合わせプロパティ
-        public bool PromptToExitProgram
+		#region 終了時の問い合わせプロパティ
+		public bool PromptToExitProgram
 		{
 			get { return _promptToExitProgram; }
 			set { _iniFile["Settings", "PromptToExitProgram"] = (_promptToExitProgram = value).ToString(); }
 		}
 
-	    #endregion
+		#endregion
 
-        #region ウィンドウ位置保存プロパティ
-        public Rectangle WindowBounds
-        {
-            get { return _windowBounds; }
-            private set
-            {
-                _windowBounds = value;
-                string temp = String.Format("{0},{1},{2},{3}"
-                    , value.X, value.Y, value.Width, value.Height);
-                _iniFile["Settings", "WindowBounds"] = temp;
-            }
-        }
-	    public FormWindowState WindowState
-	    {
-	        get { return _windowState; }
-            private set { _iniFile["Settings", "WindowStates"] = (_windowState = value).ToString(); }
-	    }
+		#region ウィンドウ位置保存プロパティ
+		public Rectangle WindowBounds
+		{
+			get { return _windowBounds; }
+			private set
+			{
+				_windowBounds = value;
+				string temp = String.Format("{0},{1},{2},{3}"
+					, value.X, value.Y, value.Width, value.Height);
+				_iniFile["Settings", "WindowBounds"] = temp;
+			}
+		}
+		public FormWindowState WindowState
+		{
+			get { return _windowState; }
+			private set { _iniFile["Settings", "WindowStates"] = (_windowState = value).ToString(); }
+		}
 		public void SaveWindowConditions(Rectangle bounds, FormWindowState state)
-        {
-            WindowBounds = bounds;
-            WindowState = state;
-        }
-        public void LoadWindowConditions(out Rectangle bounds, out FormWindowState state)
-        {
-            bounds = WindowBounds;
-            state = WindowState;
-        }
-        #endregion
+		{
+			WindowBounds = bounds;
+			WindowState = state;
+		}
+		public void LoadWindowConditions(out Rectangle bounds, out FormWindowState state)
+		{
+			bounds = WindowBounds;
+			state = WindowState;
+		}
+		#endregion
 
 		#region スプリッターの表示状態
 		public int SplitterDistanceNorthSouth
@@ -135,16 +134,10 @@ namespace TextureChanger
 			get { return _splitterDistanceTreeList; }
 			private set { _iniFile["Settings", "SplitterDistanceTreeList"] = (_splitterDistanceTreeList = value).ToString(); }
 		}
-		public int SplitterDistanceTextureImage
-		{
-			get { return _splitterDistanceTextureImage; }
-			private set { _iniFile["Settings", "SplitterDistanceTextureImage"] = (_splitterDistanceTextureImage = value).ToString(); }
-		}
-		public void SaveSplitterDistances(int northSouth, int treeList, int textureImage)
+		public void SaveSplitterDistances(int northSouth, int treeList)
 		{
 			SplitterDistanceNorthSouth = northSouth;
 			SplitterDistanceTreeList = treeList;
-			SplitterDistanceTextureImage = textureImage;
 		}
 		#endregion
 
@@ -189,26 +182,26 @@ namespace TextureChanger
 			_promptToExitProgram = (_iniFile["Settings", "PromptToExitProgram"] == Boolean.TrueString);
 			#endregion
 
-            #region 前回のウィンドウ位置
-            try
-            {
-                string temp = _iniFile["Settings", "WindowBounds"];
-                _windowBounds = (Rectangle)new RectangleConverter().ConvertFromString(temp);
-            }
-            catch
-            {
-                _windowBounds = new Rectangle(0,0,998,615);
-            }
-            try
-            {
-                string temp = _iniFile["Settings", "WindowStates"];
-                _windowState = (FormWindowState)Enum.Parse(typeof(FormWindowState), temp);
-            }
-            catch
-            {
-                _windowState = FormWindowState.Normal;
-            }
-            #endregion
+			#region 前回のウィンドウ位置
+			try
+			{
+				string temp = _iniFile["Settings", "WindowBounds"];
+				_windowBounds = (Rectangle)new RectangleConverter().ConvertFromString(temp);
+			}
+			catch
+			{
+				_windowBounds = new Rectangle(0,0,998,615);
+			}
+			try
+			{
+				string temp = _iniFile["Settings", "WindowStates"];
+				_windowState = (FormWindowState)Enum.Parse(typeof(FormWindowState), temp);
+			}
+			catch
+			{
+				_windowState = FormWindowState.Normal;
+			}
+			#endregion
 
 			#region 前回のスプリッター状態
 			try
@@ -229,15 +222,6 @@ namespace TextureChanger
 			{
 				_splitterDistanceTreeList = 330; //TODO const
 			}
-			try
-			{
-				var temp = _iniFile["Settings", "SplitterDistanceTextureImage"];
-				_splitterDistanceTextureImage = int.Parse(temp);
-			}
-			catch
-			{
-				_splitterDistanceTextureImage = 330; //TODO const
-			}
 			#endregion
 
 			#region 前回終了時編集中だったテクスチャ
@@ -245,8 +229,8 @@ namespace TextureChanger
 			LastEditingTextureImagePath = _iniFile["Settings", "LastEditingTextureImagePath"];
 			#endregion
 
-            #region 前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
-            if (_firstExpandingUseFixed == false
+			#region 前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
+			if (_firstExpandingUseFixed == false
 				&& _firstExpandingRecentFolder == "")
 			{
 				
@@ -258,11 +242,10 @@ namespace TextureChanger
 				FirstExpandingFixedFolder = temp;
 				PathToSaiFolder = "";
 				PromptToExitProgram = true;
-			    WindowBounds = new Rectangle(0, 0, 998, 615);//TODO const
-                WindowState = FormWindowState.Normal;
+				WindowBounds = new Rectangle(0, 0, 998, 615);//TODO const
+				WindowState = FormWindowState.Normal;
 				SplitterDistanceNorthSouth = 270; //TODO const
 				SplitterDistanceTreeList = 330; //TODO const
-				SplitterDistanceTextureImage = 330; //TODO const
 				LastEditingTextureName = TextureManager.BLOTMAP_NAME;
 				LastEditingTextureImagePath = "";
 			}

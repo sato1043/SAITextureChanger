@@ -62,7 +62,9 @@ namespace TextureChanger
 		    mniPromptToExitProgram.Checked = _textureChangerOptions.PromptToExitProgram;
 			foreach (var mniEditTexture in new[]{ mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
 				mniEditTexture.Checked = (mniEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
-		    #endregion
+			foreach( var rdoEditTexture in new[] { rdoEditBlotmap, rdoEditElemap, rdoEditBrushtex, rdoEditPapertex } )
+				rdoEditTexture.Checked = ( rdoEditTexture.Text == _textureChangerOptions.LastEditingTextureName );
+			#endregion
 
             #region ウィンドウの状況を復元
             Rectangle bounds;
@@ -79,10 +81,6 @@ namespace TextureChanger
 				_textureChangerOptions.SplitterDistanceTreeList <= splTreeList.Panel1MinSize
 					? splTreeList.Panel1MinSize
 					: _textureChangerOptions.SplitterDistanceTreeList;
-			splTextureImage.SplitterDistance =
-				_textureChangerOptions.SplitterDistanceTextureImage <= splTextureImage.Panel1MinSize
-					? splTextureImage.Panel1MinSize
-					: _textureChangerOptions.SplitterDistanceTextureImage;
             #endregion
 
 			#region 起動確認
@@ -266,10 +264,7 @@ namespace TextureChanger
 					: splNorthSouth.SplitterDistance,
 				splTreeList.SplitterDistance <= splTreeList.Panel1MinSize
 					? splTreeList.Panel1MinSize
-					: splTreeList.SplitterDistance,
-				splTextureImage.SplitterDistance <= splTextureImage.Panel1MinSize
-					? splTextureImage.Panel1MinSize
-					: splTextureImage.SplitterDistance	
+					: splTreeList.SplitterDistance
 				);
             #endregion
         }
@@ -351,12 +346,25 @@ namespace TextureChanger
 		#region 編集メニュー：編集対象のテクスチャ種を変更する
 		private void mniEditTexture_Click(object sender, EventArgs e)
 		{
-			foreach (var mniEditTexture in new[] { mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
-				mniEditTexture.Checked = (mniEditTexture == (ToolStripMenuItem)sender);
-
 			_textureChangerOptions.SaveLastEditings(((ToolStripMenuItem) sender).Text, "");
 
-			//TODO テクスチャを表示しているビューの変更
+			lsvTextureImage_UpdateImages(sender, e);
+		}
+		#endregion
+
+		#region ラジオグループ：編集対象のテクスチャ種を変更する
+		private void rdoEditTexture_Click( object sender, EventArgs e )
+		{
+			_textureChangerOptions.SaveLastEditings( ( (RadioButton)sender ).Text, "" );
+
+			lsvTextureImage_UpdateImages( sender, e );
+		}
+		#endregion
+
+		#region テクスチャ画像のリストビューを内容更新する
+		private void lsvTextureImage_UpdateImages( object sender, EventArgs e )
+		{
+
 		}
 		#endregion
 
