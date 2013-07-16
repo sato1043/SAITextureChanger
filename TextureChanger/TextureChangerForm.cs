@@ -60,10 +60,6 @@ namespace TextureChanger
             #region メニューのチェック状態の再構築
 		    SetCheckingForMenuFirstExpandingFolder();
 		    mniPromptToExitProgram.Checked = _textureChangerOptions.PromptToExitProgram;
-			foreach (var mniEditTexture in new[]{ mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
-				mniEditTexture.Checked = (mniEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
-			foreach( var rdoEditTexture in new[] { rdoEditBlotmap, rdoEditElemap, rdoEditBrushtex, rdoEditPapertex } )
-				rdoEditTexture.Checked = ( rdoEditTexture.Text == _textureChangerOptions.LastEditingTextureName );
 			#endregion
 
             #region ウィンドウの状況を復元
@@ -102,6 +98,8 @@ namespace TextureChanger
 			_textureManager = null;
 			SaiProcessCheckTimerHandler(sender, e);
 			#endregion
+
+			lsvTextureImage_UpdateImages(sender, e);
 		}
 
 		#region タイマーハンドラ: SAI起動中確認と最新情報読み込み
@@ -145,9 +143,11 @@ namespace TextureChanger
 			if (_textureManager == null)
 			{
 				_textureManager = new TextureManager(_textureChangerOptions.PathToSaiFolder,this);
-			}
 
-			// TODO : テクスチャ情報再読み込みに伴うUIの全更新
+				lsvTextureImage_UpdateImages(sender, e);
+
+				// TODO : テクスチャ情報再読み込みに伴うUIの全更新
+			}
 
 			_saiProcessCheckTimer.Start();
 		}
@@ -355,7 +355,7 @@ namespace TextureChanger
 		#region ラジオグループ：編集対象のテクスチャ種を変更する
 		private void rdoEditTexture_Click( object sender, EventArgs e )
 		{
-			_textureChangerOptions.SaveLastEditings( ( (RadioButton)sender ).Text, "" );
+			_textureChangerOptions.SaveLastEditings(((RadioButton) sender).Text, "");
 
 			lsvTextureImage_UpdateImages( sender, e );
 		}
@@ -364,7 +364,21 @@ namespace TextureChanger
 		#region テクスチャ画像のリストビューを内容更新する
 		private void lsvTextureImage_UpdateImages( object sender, EventArgs e )
 		{
+			foreach (var mniEditTexture in new[] { mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
+				mniEditTexture.Checked = (mniEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
+			foreach (var rdoEditTexture in new[] { rdoEditBlotmap, rdoEditElemap, rdoEditBrushtex, rdoEditPapertex })
+				rdoEditTexture.Checked = (rdoEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
 
+			_textureManager.GetImageList(_textureChangerOptions.LastEditingTextureName
+				, lsvTextureImages.LargeImageList);
+			 
+			lsvTextureImages.Items.Clear();
+
+			var imagePathList = _textureManager.GetImagePathList(_textureChangerOptions.LastEditingTextureName);
+			for (int index = 0; index < imagePathList.Length; index++)
+			{
+				lsvTextureImages.Items.Add(imagePathList[index], index);
+			}
 		}
 		#endregion
 
@@ -405,6 +419,46 @@ namespace TextureChanger
 				e.Graphics.FillEllipse(SystemBrushes.ControlLight,
 					new Rectangle(p, new Size(3, 3)));
 			}
+		}
+		#endregion
+
+		#region 編集メニュー：選択されたテクスチャを削除
+		private void mniTextureRemove_Click(object sender, EventArgs e)
+		{
+			//項目が１つも選択されていない場合処理を抜ける
+			if (lsvTextureImages.SelectedItems.Count == 0)
+				return;
+
+			foreach (ListViewItem item in lsvTextureImages.SelectedItems)
+			{
+				DialogResult res = CenteredMessageBox.Show(this
+					, item.Text + "を削除しますか？", "削除確認"
+					, MessageBoxButtons.YesNoCancel
+					, MessageBoxIcon.Question);
+				
+				if (res == DialogResult.Cancel)
+					break;
+				if (res == DialogResult.Yes)
+				{
+					_textureManager.RemoveImage(
+						_textureChangerOptions.LastEditingTextureName
+						, item.Text
+						, this);
+					lsvTextureImage_UpdateImages(sender, e);
+				}
+			}
+
+		}
+		#endregion
+
+		#region 編集メニュー：すべてのテクスチャを選択
+		private void mniSelectAll_Click(object sender, EventArgs e)
+		{
+			foreach (ListViewItem item in lsvTextureImages.Items)
+			{
+				item.Selected = true;
+			}
+			lsvTextureImages.Focus();
 		}
 		#endregion
 

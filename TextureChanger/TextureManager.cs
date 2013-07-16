@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -72,7 +73,7 @@ namespace TextureChanger
 			public string directory;
 			public string name;
 			public string sign;
-			public SIZE[] sizes;
+			public Size[] sizes;
 			public List<string> image_vector;
 
 			public SAITextureFormat(
@@ -80,7 +81,7 @@ namespace TextureChanger
 				, string directory_
 				, string sign_
 				, string name_
-				, SIZE[] sizes_
+				, Size[] sizes_
 				)
 			{
 				confpath = confpath_;
@@ -126,7 +127,7 @@ namespace TextureChanger
 					, BLOTMAP_DIR
 					, BLOTMAP_SIGN
 					, BLOTMAP_NAME
-					, new[] { new SIZE(256, 256), new SIZE(512, 512), new SIZE(1024, 1024) })
+					, new[] { new Size(256, 256), new Size(512, 512), new Size(1024, 1024) })
 				);
 			_saiTextureFormatList.Add(
 				new SAITextureFormat(
@@ -134,7 +135,7 @@ namespace TextureChanger
 					, ELEMAP_DIR
 					, ELEMAP_SIGN
 					, ELEMAP_NAME
-					, new[] { new SIZE(63, 63) })
+					, new[] { new Size(63, 63) })
 				);
 			_saiTextureFormatList.Add(
 				new SAITextureFormat(
@@ -142,7 +143,7 @@ namespace TextureChanger
 					, BRUSHTEX_DIR
 					, BRUSHTEX_SIGN
 					, BRUSHTEX_NAME
-					, new[] { new SIZE(256, 256), new SIZE(512, 512), new SIZE(1024, 1024) })
+					, new[] { new Size(256, 256), new Size(512, 512), new Size(1024, 1024) })
 				);
 			_saiTextureFormatList.Add(
 				new SAITextureFormat(
@@ -150,7 +151,7 @@ namespace TextureChanger
 					, PAPERTEX_DIR
 					, PAPERTEX_SIGN
 					, PAPERTEX_NAME
-					, new[] { new SIZE(256, 256), new SIZE(512, 512), new SIZE(1024, 1024) })
+					, new[] { new Size(256, 256), new Size(512, 512), new Size(1024, 1024) })
 				);
 			#endregion
 
@@ -318,6 +319,65 @@ namespace TextureChanger
 		}
 		#endregion
 
+		#region ImageListオブジェクトの生成
+		Image createThumbnail(Image image, int w, int h)
+		{
+			var canvas = new Bitmap(w, h);
+
+			var g = Graphics.FromImage(canvas);
+			g.FillRectangle(new SolidBrush(Color.White), 0, 0, w, h);
+			
+			var fw = (float)w / (float)image.Width;
+			var fh = (float)h / (float)image.Height;
+
+			var scale = Math.Min(fw, fh);
+			fw = image.Width * scale;
+			fh = image.Height * scale;
+
+			g.DrawImage(image, (w - fw) / 2, (h - fh) / 2, fw, fh);
+			g.Dispose();
+
+			return canvas;
+		}
+		public string[] GetImagePathList(string targetConfName)
+		{
+			var targetFormat =
+				_saiTextureFormatList
+					.FirstOrDefault(saiTextureFormat =>
+						targetConfName == saiTextureFormat.name);
+			if (targetFormat == null)
+			{
+				throw new ArgumentOutOfRangeException("targetConfName");
+			}
+			
+			return targetFormat.image_vector.ToArray();
+		}
+		public void GetImageList(string targetConfName, ImageList imageList)
+		{
+			var targetFormat =
+				_saiTextureFormatList
+					.FirstOrDefault(saiTextureFormat =>
+						targetConfName == saiTextureFormat.name);
+			if (targetFormat == null)
+			{
+				throw new ArgumentOutOfRangeException("targetConfName");
+			}
+
+			imageList.Images.Clear();
+			imageList.ImageSize = targetFormat.sizes[0];
+
+			foreach (var imagePath in targetFormat.image_vector)
+			{
+				var original = Bitmap.FromFile(_pathToSaiFolder + "\\" + imagePath);
+				var thumbnail = createThumbnail(original, 256, 256);
+				imageList.Images.Add(thumbnail);
+				original.Dispose();
+				thumbnail.Dispose();
+			}
+			
+		}
+		#endregion
+
 		#region イメージ追加(処理しなかったときfalse)
 		public bool AddImage(
 			string targetConfName
@@ -380,8 +440,6 @@ namespace TextureChanger
 			, IWin32Window owner
 		)
 		{
-			//TODO remove_image() 単体テスト
-
 			var targetFormat =
 				_saiTextureFormatList
 					.FirstOrDefault(saiTextureFormat =>
@@ -407,7 +465,7 @@ namespace TextureChanger
 				hwnd = owner.Handle,
 				wFunc = SH.FileFuncFlags.FO_DELETE,
 				pFrom = _pathToSaiFolder + "\\" + targetImagePath + '\0' + '\0',
-				fFlags = SH.FILEOP_FLAGS.FOF_ALLOWUNDO | SH.FILEOP_FLAGS.FOF_WANTNUKEWARNING
+				fFlags = SH.FILEOP_FLAGS.FOF_ALLOWUNDO | SH.FILEOP_FLAGS.FOF_WANTNUKEWARNING | SH.FILEOP_FLAGS.FOF_NOCONFIRMATION
 			};
 			if (SH.SHFileOperation(ref shfop) != 0)
 			{
