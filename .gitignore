@@ -27,3 +27,8 @@ _ReSharper*/
 [Tt]est[Rr]esult*
 *.vssscc
 $tf*/
+/TextureChanger/*.cs~
+
+/_UpgradeReport_Files
+
+/UpgradeLog.XML

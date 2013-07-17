@@ -13,6 +13,9 @@ namespace TextureChanger
 
 	//TODO ファイル-バックアップ機能の実装
 
+    //TODO http://www.codeproject.com/KB/tree/
+	//TODO http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=4472
+
     public partial class TextureChangerForm : Form
 	{
 		private TextureChangerOptions _textureChangerOptions;
@@ -99,7 +102,10 @@ namespace TextureChanger
 			SaiProcessCheckTimerHandler(sender, e);
 			#endregion
 
-			lsvTextureImage_UpdateImages(sender, e);
+			#region エクスプローラの初期表示
+			trvFolder.InitFolderTreeView();
+			trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
+			#endregion
 		}
 
 		#region タイマーハンドラ: SAI起動中確認と最新情報読み込み
@@ -343,19 +349,16 @@ namespace TextureChanger
 		}
 		#endregion
 
-		#region 編集メニュー：編集対象のテクスチャ種を変更する
+		#region 編集メニューとラジオグループ：編集対象のテクスチャ種を変更する
 		private void mniEditTexture_Click(object sender, EventArgs e)
 		{
 			_textureChangerOptions.SaveLastEditings(((ToolStripMenuItem) sender).Text, "");
 
 			lsvTextureImage_UpdateImages(sender, e);
 		}
-		#endregion
-
-		#region ラジオグループ：編集対象のテクスチャ種を変更する
 		private void rdoEditTexture_Click( object sender, EventArgs e )
 		{
-			_textureChangerOptions.SaveLastEditings(((RadioButton) sender).Text, "");
+			_textureChangerOptions.SaveLastEditings((string)((RadioButton) sender).Tag, "");
 
 			lsvTextureImage_UpdateImages( sender, e );
 		}
@@ -367,7 +370,7 @@ namespace TextureChanger
 			foreach (var mniEditTexture in new[] { mniEditBlotmap, mniEditElemap, mniEditBrushtex, mniEditPapertex })
 				mniEditTexture.Checked = (mniEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
 			foreach (var rdoEditTexture in new[] { rdoEditBlotmap, rdoEditElemap, rdoEditBrushtex, rdoEditPapertex })
-				rdoEditTexture.Checked = (rdoEditTexture.Text == _textureChangerOptions.LastEditingTextureName);
+				rdoEditTexture.Checked = ((string)rdoEditTexture.Tag == _textureChangerOptions.LastEditingTextureName);
 
 			_textureManager.GetImageList(_textureChangerOptions.LastEditingTextureName
 				, lsvTextureImages.LargeImageList);
@@ -467,6 +470,14 @@ namespace TextureChanger
 				item.Selected = true;
 			}
 			lsvTextureImages.Focus();
+		}
+		#endregion
+
+		#region ツリービューのクリック
+		private void trvFolder_AfterSelect(object sender, TreeViewEventArgs e)
+		{
+			_textureChangerOptions.SetToUseFirstExpandingFixedFolder(
+				trvFolder.GetSelectedNodePath() );
 		}
 		#endregion
 

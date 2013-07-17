@@ -83,6 +83,10 @@ namespace TextureChanger
 				FirstExpandingFixedFolder = path;
 			}
 		}
+		public string FirstExpandingFolder
+		{
+			get { return _firstExpandingUseFixed ? _firstExpandingFixedFolder : _firstExpandingRecentFolder;  }
+		}
 		#endregion
 
 		#region 終了時の問い合わせプロパティ
