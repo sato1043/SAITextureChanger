@@ -422,7 +422,7 @@ namespace TextureChanger
 		}
 		#endregion
 
-		#region 編集メニュー：選択されたテクスチャを削除
+		#region 編集メニュー、テクスチャの削除ボタンとポップアップメニュー：選択されたテクスチャを削除
 		private void mniTextureRemove_Click(object sender, EventArgs e)
 		{
 			//項目が１つも選択されていない場合処理を抜ける
@@ -448,6 +448,14 @@ namespace TextureChanger
 				}
 			}
 
+		}
+		private void btnTextureRemove_Click( object sender, EventArgs e )
+		{
+			mniTextureRemove_Click( sender, e );
+		}
+		private void mniTextureRemovePopup_Click( object sender, EventArgs e )
+		{
+			mniTextureRemove_Click( sender, e );
 		}
 		#endregion
 

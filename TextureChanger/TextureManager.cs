@@ -459,7 +459,6 @@ namespace TextureChanger
 			}
 
 			//エクスプローラーでファイル削除
-			//TODO 削除画像のバックアップ（必要？）
 			var shfop = new SH.SHFILEOPSTRUCT
 			{
 				hwnd = owner.Handle,
@@ -467,7 +466,12 @@ namespace TextureChanger
 				pFrom = _pathToSaiFolder + "\\" + targetImagePath + '\0' + '\0',
 				fFlags = SH.FILEOP_FLAGS.FOF_ALLOWUNDO | SH.FILEOP_FLAGS.FOF_WANTNUKEWARNING | SH.FILEOP_FLAGS.FOF_NOCONFIRMATION
 			};
-			if (SH.SHFileOperation(ref shfop) != 0)
+			int res = SH.SHFileOperation(ref shfop);
+			if (res == 1223)
+			{
+				shfop.fAnyOperationsAborted = true;
+			}
+			else if (res != 0)
 			{
 				targetFormat.image_vector.Remove(targetImagePath);//IOエラーなファイルを登録として残しておくのも不健康なので。
 				throw new System.IO.IOException(); //something happened
