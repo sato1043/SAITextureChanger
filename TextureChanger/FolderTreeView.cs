@@ -46,48 +46,100 @@ namespace TextureChanger
 
 	public class FolderTreeView : System.Windows.Forms.TreeView
 	{
-		private System.Windows.Forms.ImageList folderTreeViewImageList;
-		private System.Globalization.CultureInfo cultureInfo = System.Globalization.CultureInfo.CurrentCulture;
+		private ImageList _folderTreeViewImageList;
+		private readonly System.Globalization.CultureInfo _cultureInfo = System.Globalization.CultureInfo.CurrentCulture;
+		private IntPtr _himlSystemSmall;
 
 		#region Constructors
 
 		public FolderTreeView()
 		{
-			this.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.TreeViewBeforeExpand);
+			BeforeExpand += new TreeViewCancelEventHandler(TreeViewBeforeExpand);
 		}
 
 		public void InitFolderTreeView()
 		{
-			InitImageList();
-			ShellOperations.PopulateTree(this, base.ImageList);
-			if(this.Nodes.Count > 0)
+			InitFolderTreeImageLists();
+			//InitImageList();
+			ShellOperations.PopulateTree(this, ImageList);
+			if(Nodes.Count > 0)
 			{
-				this.Nodes[0].Expand();
+				Nodes[0].Expand();
 			}
 		}
+
+		#region システムイメージリストの登録 リストビューにイメージリストを登録する
+		void InitFolderTreeImageLists()
+		{
+			var shfi = new SH.SHFILEINFO();
+
+			//次のようにして、イメージリストのハンドルを得る
+			_himlSystemSmall = SH.SHGetFileInfo(
+				"C:\\"
+				, 0
+				, ref shfi
+				, (uint) Marshal.SizeOf(shfi)
+				, SH.SHGFI.SYSICONINDEX | SH.SHGFI.SMALLICON
+				);
+			if (_himlSystemSmall == IntPtr.Zero)
+			{
+				throw new NullReferenceException();
+			}
+
+			_folderTreeViewImageList = new ImageList
+			{
+				ColorDepth = ColorDepth.Depth32Bit,
+				ImageSize = new Size(16, 16),
+				TransparentColor = Color.Transparent
+			};
+
+			var nIcons = Api.ImageList_GetImageCount(_himlSystemSmall);
+
+			for (int i = 0; i < nIcons; ++i)
+			{
+				var hIcon = Api.ImageList_GetIcon(_himlSystemSmall, i, ILD_FLAGS.NORMAL);
+				if (hIcon == IntPtr.Zero)
+				{
+					var bmp = new Bitmap(16, 16);
+					var img = (Image)bmp;
+					_folderTreeViewImageList.Images.Add((Image)img.Clone());
+					bmp.Dispose();
+				}
+				else
+				{
+					var icon = (Icon)Icon.FromHandle(hIcon).Clone();
+					_folderTreeViewImageList.Images.Add(icon);
+					Api.DestroyIcon(hIcon);
+				}
+			}
+
+			ImageList = _folderTreeViewImageList;
+		}
+		#endregion
+
 
 		private void InitImageList()
 		{
 			// setup the image list to hold the folder icons
-			folderTreeViewImageList = new System.Windows.Forms.ImageList();
-			folderTreeViewImageList.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
-			folderTreeViewImageList.ImageSize = new System.Drawing.Size(16, 16);
-			folderTreeViewImageList.TransparentColor = System.Drawing.Color.Transparent;
+			_folderTreeViewImageList = new ImageList();
+			_folderTreeViewImageList.ColorDepth = ColorDepth.Depth32Bit;
+			_folderTreeViewImageList.ImageSize = new Size(16, 16);
+			_folderTreeViewImageList.TransparentColor = Color.Transparent;
 
 			// add the Desktop icon to the image list
 			try
 			{
-				folderTreeViewImageList.Images.Add(ExtractIcons.GetDesktopIcon());
+				_folderTreeViewImageList.Images.Add(ExtractIcons.GetDesktopIcon());
 			}
 			catch
 			{
 				// Create a blank icon if the desktop icon fails for some reason
 				Bitmap bmp = new Bitmap(16,16);
 				Image img = (Image)bmp;
-				folderTreeViewImageList.Images.Add((Image)img.Clone());
+				_folderTreeViewImageList.Images.Add((Image)img.Clone());
 				bmp.Dispose();
 			}
-			this.ImageList = folderTreeViewImageList;
+			ImageList = _folderTreeViewImageList;
 		}
 
 		#endregion
@@ -120,7 +172,7 @@ namespace TextureChanger
 				if(folderPath.Length > 3 && folderPath.LastIndexOf("\\") == folderPath.Length -1)
 					folderPath = folderPath.Substring(0, folderPath.Length -1);
 				//Start drilling the tree
-				DrillTree(this.Nodes[0].Nodes, folderPath.ToUpper(cultureInfo), ref folderFound);
+				DrillTree(this.Nodes[0].Nodes, folderPath.ToUpper(_cultureInfo), ref folderFound);
 				this.EndUpdate();
 			}
 			if(!folderFound)
@@ -135,7 +187,7 @@ namespace TextureChanger
 				if(!folderFound)
 				{
 					this.SelectedNode = tn;
-					string tnPath = ShellOperations.GetFilePath(tn).ToUpper(cultureInfo);
+					string tnPath = ShellOperations.GetFilePath(tn).ToUpper(_cultureInfo);
 					if(path == tnPath && !folderFound)
 					{
 						this.SelectedNode = tn;
@@ -590,7 +642,7 @@ namespace TextureChanger
 			Icon.FromHandle(shfi.hIcon);
 
 			var icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
-			DestroyIcon( shfi.hIcon );
+			Api.DestroyIcon( shfi.hIcon );
 
 			return icon;
 		}
@@ -601,27 +653,11 @@ namespace TextureChanger
 		// This is probably NOT the best way to retreive this icon, but it works - if you have a better way
 		// by all means let me know..
 
-//		[DllImport("Shell32.dll", CharSet=CharSet.Auto)]
-//		public static extern IntPtr ExtractIcon(int hInst, string lpszExeFileName, int nIconIndex);
-//
-//		public static Icon GetDesktopIcon()
-//		{
-//			IntPtr i = ExtractIcon(0, Environment.SystemDirectory + "\\shell32.dll", 34);
-//			return Icon.FromHandle(i);
-//		}
-
-		// Updated this method in v1.11 so that the icon returned is a small icon, not a large icon as
-		// returned by the old method above
-
-		[DllImport("Shell32.dll", CharSet=CharSet.Auto)]
-		public static extern uint ExtractIconEx(
-			string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, uint nIcons );
-
 		public static Icon GetDesktopIcon()
 		{
 			IntPtr[] handlesIconLarge = new IntPtr[1];
 			IntPtr[] handlesIconSmall = new IntPtr[1];
-			uint i = ExtractIconEx(Environment.SystemDirectory + "\\shell32.dll", 34, 
+			uint i = Api.ExtractIconEx(Environment.SystemDirectory + "\\shell32.dll", 34, 
 				handlesIconLarge, handlesIconSmall, 1);
 
 			return Icon.FromHandle(handlesIconSmall[0]);

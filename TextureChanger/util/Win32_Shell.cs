@@ -126,9 +126,9 @@ namespace Win32
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         private static extern int SHGetMalloc(out IMalloc ppMalloc);
 
-        public static Win32.IMalloc GetMalloc()
+        public static IMalloc GetMalloc()
         {
-            Win32.IMalloc malloc;
+            IMalloc malloc;
             SHGetMalloc(out malloc);
             return malloc;
         }
@@ -136,22 +136,13 @@ namespace Win32
         [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
         public struct SHITEMID
         {
-              /// <summary>
-              /// The size of identifier, in bytes, including cb itself.
-              /// </summary>
               public ushort cb;
-              /// <summary>
-              /// A variable-length item identifier.
-              /// </summary>
               public byte[] abID;
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
         public struct ITEMIDLIST
         {
-              /// <summary>
-              /// A list of item identifiers.
-              /// </summary>
             [MarshalAs(UnmanagedType.Struct)]
             public SHITEMID mkid;
         }

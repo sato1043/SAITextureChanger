@@ -168,6 +168,25 @@ namespace Win32
 	    PATH = 260,
     };
 
+	[Flags]
+	public enum ILD_FLAGS : int
+	{
+		NORMAL = 0x00000000,
+		TRANSPARENT = 0x00000001,
+		BLEND25 = 0x00000002,
+		FOCUS = 0x00000002,
+		BLEND50 = 0x00000004,
+		SELECTED = 0x00000004,
+		BLEND = 0x00000004,
+		MASK = 0x00000010,
+		IMAGE = 0x00000020,
+		ROP = 0x00000040,
+		OVERLAYMASK = 0x00000F00,
+		PRESERVEALPHA = 0x00001000,
+		SCALE = 0x00002000,
+		DPISCALE = 0x00004000,
+		ASYNC = 0x00008000,
+	};
 
     #region WIN32 API prototypes
     public partial class Api
@@ -210,11 +229,25 @@ namespace Win32
         public static extern IntPtr GetCurrentThreadId();
         #endregion
 
+		#region icon manip
+		[DllImport("Shell32.dll", CharSet = CharSet.Auto)]
+		public static extern uint ExtractIconEx(
+			string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, uint nIcons);
+
 		[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
 		[return: MarshalAs( UnmanagedType.Bool )]
 		public static extern bool DestroyIcon( IntPtr hIcon );
+		#endregion
 
-    };
+		#region ImageList manip
+		[DllImport("comctl32.dll", CharSet = CharSet.Auto, SetLastError=true)]
+		public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, ILD_FLAGS flags);
+		[DllImport("comctl32.dll", CharSet = CharSet.Auto)]
+		public static extern int ImageList_GetImageCount(IntPtr himl);
+		#endregion
+
+
+	};
     #endregion
 
 }

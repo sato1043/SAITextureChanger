@@ -946,4 +946,20 @@ namespace Win32
         /// </summary>
         SYSTIMER = 0x118
     }
+
+	public enum TVM : uint
+	{
+		  FIRST = 0x1100
+		, SETIMAGELIST = (FIRST + 9)
+		, GETNEXTITEM = (FIRST + 10)
+		, GETITEM = (FIRST + 12)
+		, SETITEM = (FIRST + 13)
+		, HITTEST = (FIRST + 17)
+		, SORTCHILDRENCB = (FIRST + 21)
+	}
+	public enum TVSIL : uint
+	{
+		  NORMAL = 0
+		, STATE = 2
+	}
 }
