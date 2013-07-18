@@ -210,6 +210,10 @@ namespace Win32
         public static extern IntPtr GetCurrentThreadId();
         #endregion
 
+		[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
+		[return: MarshalAs( UnmanagedType.Bool )]
+		public static extern bool DestroyIcon( IntPtr hIcon );
+
     };
     #endregion
 
