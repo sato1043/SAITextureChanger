@@ -587,6 +587,9 @@ namespace Win32
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
 		public static extern IntPtr SHGetFileInfo( string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
 
+		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		public static extern IntPtr SHGetFileInfo( IntPtr pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
+
         [DllImport("shell32.dll", CharSet = CharSet.Auto)]
         public static extern int SHGetDesktopFolder(ref IShellFolder ppshf);
 

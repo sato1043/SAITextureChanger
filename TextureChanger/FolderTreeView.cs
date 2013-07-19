@@ -460,7 +460,7 @@ namespace TextureChanger
 		{
 			int imageCount = imageList.Images.Count -1;
 			tree.Nodes.Clear();
-			AddRootNode(tree, ref imageCount, imageList, ShellFolder.Desktop, true);
+			AddRootNode(tree, ref imageCount, imageList, ShellFolder.Desktop, true);//TODO ShellFolder.DesktopDirectory
 			if(tree.Nodes.Count > 1)
 			{
 				tree.SelectedNode = tree.Nodes[1];
@@ -600,8 +600,8 @@ namespace TextureChanger
 					tn.ImageIndex = imageCount;
 					imageCount++;
 					tn.SelectedImageIndex = imageCount;
-					imageList.Images.Add(ExtractIcons.GetIcon(item.Path, false, imageList)); // normal icon
-					imageList.Images.Add(ExtractIcons.GetIcon(item.Path, true, imageList)); // selected icon
+					imageList.Images.Add(ExtractIcons.GetIcon(item, false, imageList)); // normal icon
+					imageList.Images.Add(ExtractIcons.GetIcon(item, true, imageList)); // selected icon
 				}
 				catch // use default 
 				{
@@ -628,7 +628,7 @@ namespace TextureChanger
 
 	public class ExtractIcons
 	{
-		public static Icon GetIcon(string strPath, bool selected, ImageList imageList)
+		public static Icon GetIcon( Shell32.FolderItem item, bool selected, ImageList imageList )
 		{
 			SH.SHFILEINFO shfi = new SH.SHFILEINFO();
 			int cbFileInfo = Marshal.SizeOf(shfi);
@@ -638,7 +638,10 @@ namespace TextureChanger
 			else
 				flags = SH.SHGFI.ICON | SH.SHGFI.SMALLICON | SH.SHGFI.OPENICON;
 
-			SH.SHGetFileInfo(strPath, 256, ref shfi,(uint)cbFileInfo, flags);
+			flags = flags | SH.SHGFI.PIDL;
+
+			
+			SH.SHGetFileInfo( item., 256, ref shfi, (uint)cbFileInfo, flags );
 			Icon.FromHandle(shfi.hIcon);
 
 			var icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
