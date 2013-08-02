@@ -210,7 +210,7 @@ namespace Win32
         public static extern IntPtr GetActiveWindow();
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SetWindowsHookEx(Win32.WH idHook, HOOKPROC lpfn, IntPtr hInstance, IntPtr threadId);
+        public static extern IntPtr SetWindowsHookEx(WH idHook, HOOKPROC lpfn, IntPtr hInstance, IntPtr threadId);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern bool UnhookWindowsHookEx(IntPtr hHook);
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
@@ -246,8 +246,39 @@ namespace Win32
 		public static extern int ImageList_GetImageCount(IntPtr himl);
 		#endregion
 
+		[DllImport( "kernel32", CharSet = CharSet.Auto )]
+	    public extern static int GetLastError( );
 
-	};
+
+		#region FormatMessage
+
+	    public enum FORMAT_MESSAGE : uint
+	    {
+			ALLOCATE_BUFFER = 0x100,
+			ARGUMENT_ARRAY  = 0x2000,
+			FROM_HMODULE    = 0x800,
+			FROM_STRING     = 0x400,
+			FROM_SYSTEM     = 0x1000,
+			IGNORE_INSERTS  = 0x200,
+			MAX_WIDTH_MASK  = 0xFF,
+	    }
+
+		[DllImport( "kernel32", CharSet = CharSet.Auto )]
+		public static extern int FormatMessage(
+		    int dwFlags,
+		    IntPtr lpSource,
+		    int dwMessageId,
+		    int dwLanguageId,
+		    string lpBuffer,
+		    uint nSize,
+		    int argumentsLong
+		);
+	    #endregion
+
+
+
+
+    };
     #endregion
 
 }

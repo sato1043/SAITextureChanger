@@ -8,150 +8,146 @@ namespace Win32
 {
     public class SH
     {
-        [Flags]
-        public enum BIF : uint
-        {
-            /// <summary>
-            /// Only return file system directories. 
-            /// 
-            /// If the user selects folders that are not part of the file system, 
-            /// the OK button is grayed. 
-            /// </summary>
-            RETURNONLYFSDIRS = 0x00000001,
-            /// <summary>
-            /// Do not include network folders below the domain level in the dialog box's tree view control.
-            /// </summary>
-            DONTGOBELOWDOMAIN = 0x00000002,
-            /// <summary>
-            /// Include a status area in the dialog box. 
-            /// The callback function can set the status text by sending messages to the dialog box. 
-            /// This flag is not supported when <bold>BIF_NEWDIALOGSTYLE</bold> is specified
-            /// </summary>
-            STATUSTEXT = 0x00000004,
-            /// <summary>
-            /// Only return file system ancestors. 
-            /// An ancestor is a subfolder that is beneath the root folder in the namespace hierarchy. 
-            /// If the user selects an ancestor of the root folder that is not part of the file system, the OK button is grayed
-            /// </summary>
-            RETURNFSANCESTORS = 0x00000008,
-            /// <summary>
-            /// Include an edit control in the browse dialog box that allows the user to type the name of an item.
-            /// </summary>
-            EDITBOX = 0x00000010,
-            /// <summary>
-            /// If the user types an invalid name into the edit box, the browse dialog box calls the application's BrowseCallbackProc with the BFFM_VALIDATEFAILED message. 
-            /// This flag is ignored if <bold>BIF_EDITBOX</bold> is not specified.
-            /// </summary>
-            VALIDATE = 0x00000020,
-            /// <summary>
-            /// Use the new user interface. 
-            /// Setting this flag provides the user with a larger dialog box that can be resized. 
-            /// The dialog box has several new capabilities, including: drag-and-drop capability within the 
-            /// dialog box, reordering, shortcut menus, new folders, delete, and other shortcut menu commands. 
-            /// </summary>
-            NEWDIALOGSTYLE = 0x00000040,
-            /// <summary>
-            /// The browse dialog box can display URLs. The <bold>BIF_USENEWUI</bold> and <bold>BIF_BROWSEINCLUDEFILES</bold> flags must also be set. 
-            /// If any of these three flags are not set, the browser dialog box rejects URLs.
-            /// </summary>
-            BROWSEINCLUDEURLS = 0x00000080,
-            /// <summary>
-            /// Use the new user interface, including an edit box. This flag is equivalent to <bold>BIF_EDITBOX | BIF_NEWDIALOGSTYLE</bold>
-            /// </summary>
-            USENEWUI = (EDITBOX | NEWDIALOGSTYLE),
-            /// <summary>
-            /// hen combined with <bold>BIF_NEWDIALOGSTYLE</bold>, adds a usage hint to the dialog box, in place of the edit box. <bold>BIF_EDITBOX</bold> overrides this flag.
-            /// </summary>
-            UAHINT = 0x00000100,
-            /// <summary>
-            /// Do not include the New Folder button in the browse dialog box.
-            /// </summary>
-            NONEWFOLDERBUTTON = 0x00000200,
-            /// <summary>
-            /// When the selected item is a shortcut, return the PIDL of the shortcut itself rather than its target.
-            /// </summary>
-            NOTRANSLATETARGETS = 0x00000400,
-            /// <summary>
-            /// Only return computers. If the user selects anything other than a computer, the OK button is grayed.
-            /// </summary>
-            BROWSEFORCOMPUTER = 0x00001000,
-            /// <summary>
-            /// Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed
-            /// </summary>
-            BROWSEFORPRINTER = 0x00002000,
-            /// <summary>
-            /// The browse dialog box displays files as well as folders.
-            /// </summary>
-            BROWSEINCLUDEFILES = 0x00004000,
-            /// <summary>
-            /// The browse dialog box can display shareable resources on remote systems.
-            /// </summary>
-            SHAREABLE = 0x00008000,
-            /// <summary>
-            /// Allow folder junctions such as a library or a compressed file with a .zip file name extension to be browsed.
-            /// </summary>
-            BROWSEFILEJUNCTIONS = 0x00010000,
-        };
+		#region SHGetMalloc
 
-        public enum BFFM : uint
-        {
-            INITIALIZED = 1,
-            SELCHANGED = 2,
-            VALIDATEFAILED = 3,
+		/*
+		 * http://www.codeproject.com/Articles/3551/C-does-Shell-Part-1
+		 * 
+			// Get IMalloc interface
+			IntPtr ptrRet;	
+			SHGetMalloc(out ptrRet);
 
-            SETSTATUSTEXTA = ((uint)Win32.WM.USER + 100),
-            SETSTATUSTEXTW = ((uint)Win32.WM.USER + 104),
-            ENABLEOK = ((uint)Win32.WM.USER + 101),
-            SETSELECTION = ((uint)Win32.WM.USER + 102),
-        };
+			System.Type mallocType = System.Type.GetType("IMalloc");
+			Object obj = Marshal.GetTypedObjectForIUnknown(ptrRet,mallocType);
+			IMalloc pMalloc = (IMalloc)obj;
+ 
+			// Get a PIDL
+			IntPtr pidlRoot;
+			SHGetFolderLocation(IntPtr.zero,CSIDL_WINDOWS,IntPtr.Zero,0,out pidlRoot);
+ 
+			// Use the IMalloc object to free PIDL
+			if (pidlRoot != IntPtr.Zero)
+				pMalloc.Free(pidlRoot);
 
+			// Free the IMalloc object
+			System.Runtime.InteropServices.Marshal.ReleaseComObject(pMalloc);
+		 */
 
-        public delegate int BFFCALLBACK(IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData);
+		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		private static extern int SHGetMalloc( out IMalloc ppMalloc );
 
-        [StructLayout(LayoutKind.Sequential, Pack = 8)]
-        public struct BROWSEINFO
-        {
-            public IntPtr hwndOwner;
-            public IntPtr pidlRoot;
-            public IntPtr pszDisplayName;
-            [MarshalAs(UnmanagedType.LPTStr)]
-            public string lpszTitle;
-            public int ulFlags;
-            [MarshalAs(UnmanagedType.FunctionPtr)]
-            public BFFCALLBACK lpfn;
-            public UInt32 lParam;
-            public int iImage;
-        }
+	    public static IMalloc GetMalloc()
+	    {
+		    IMalloc malloc;
+		    SHGetMalloc(out malloc);
+		    return malloc;
+	    }
 
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        private static extern int SHGetMalloc(out IMalloc ppMalloc);
+	    public static void FreeMalloc(IMalloc malloc)
+	    {
+			Marshal.ReleaseComObject(malloc);
+	    }
 
-        public static IMalloc GetMalloc()
-        {
-            IMalloc malloc;
-            SHGetMalloc(out malloc);
-            return malloc;
-        }
+	    #endregion
 
-        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
-        public struct SHITEMID
-        {
-              public ushort cb;
-              public byte[] abID;
-        }
+		#region SHGetFolderLocation : Retrieves the path of a folder as an PIDL.
+		/*
+			// Get a PIDL
+			IntPtr pidlRoot;
+			SHGetFolderLocation(IntPtr.zero,CSIDL_WINDOWS,IntPtr.Zero,0,out pidlRoot);
+		*/
+		[DllImport("shell32.dll")]
+		public static extern Int32 SHGetFolderLocation(
+			IntPtr hwndOwner,       // Handle to the owner window.
+			Int32 nFolder,          // A CSIDL value that identifies the folder to be located.
+			IntPtr hToken,          // Token that can be used to represent a particular user.
+			UInt32 dwReserved,      // Reserved.
+			out IntPtr ppidl        // Address of a pointer to an item identifier list structure
+		);							// specifying the folder's location relative to the
+									// root of the namespace (the desktop).
+		#endregion
 
-        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
-        public struct ITEMIDLIST
-        {
-            [MarshalAs(UnmanagedType.Struct)]
-            public SHITEMID mkid;
-        }
+		#region SHGetPathFromIDList : Converts an item identifier list to a file system path. 
+		/*
+			IntPtr pidlRoot;
+			SHGetFolderLocation(IntPtr.zero,CSIDL_WINDOWS,IntPtr.Zero,0,out pidlRoot);
+
+			System.Text.StringBuilder path = new System.Text.StringBuilder(MAX_PATH);
+			SHGetPathFromIDList(pidlRoot,path); 
+		 */
+		[DllImport("shell32.dll")]
+		public static extern Int32 SHGetPathFromIDList(
+			IntPtr pidl,                // Address of an item identifier list that
+										// specifies a file or directory location
+										// relative to the root of the namespace (the desktop). 
+			StringBuilder pszPath);     // Address of a buffer to receive the file system path.
+		#endregion
+
+		#region SHParseDisplayName : Translates a Shell namespace object's display name into an PIDL
+		/*
+			ShellLib.IMalloc pMalloc;
+			pMalloc = ShellLib.ShellFunctions.GetMalloc();
+
+			IntPtr pidlRoot;
+			String sPath = @"c:\temp\divx";
+			uint iAttribute;
+
+			ShellLib.ShellApi.SHParseDisplayName(sPath,IntPtr.Zero,out pidlRoot,0,
+				out iAttribute);
+
+			if (pidlRoot != IntPtr.Zero)
+				pMalloc.Free(pidlRoot);
+
+			System.Runtime.InteropServices.Marshal.ReleaseComObject(pMalloc);
+		 * 
+		 * Explaining the code: Suppose you want a PIDL of the my documents folder,
+		 * we already seen how this is done, we got a function called SHGetFolderLocation
+		 * which return us all the PIDL's of the special folders. What if I want a PIDL 
+		 * which represents C:\temp\Divx? in this case we will use the SHParseDisplayName 
+		 * function. the example is quite simple, I set a string with the folder I want 
+		 * and call the SHParseDisplayName, the result is return in the pidlRoot variable.
+		 * and finally I'm not forgetting to free the PIDL memory when I finish using it.
+		 */
+		// Translates a Shell namespace object's display name into an item 
+		// identifier list and returns the attributes of the object. This function is 
+		// the preferred method to convert a string to a pointer to an item identifier 
+		// list (PIDL). 
+		[DllImport( "shell32.dll" )]
+		public static extern Int32 SHParseDisplayName(
+			[MarshalAs( UnmanagedType.LPWStr )]
+			String pszName,                // Pointer to a zero-terminated wide string that
+											// contains the display name 
+											// to parse. 
+			IntPtr pbc,                    // Optional bind context that controls the parsing
+											// operation. This parameter 
+											// is normally set to NULL.
+			out IntPtr ppidl,            // Address of a pointer to a variable of type
+											// ITEMIDLIST that receives the item
+											// identifier list for the object.
+			UInt32 sfgaoIn,                // ULONG value that specifies the attributes to query.
+			out UInt32 psfgaoOut );        // Pointer to a ULONG. On return, those attributes
+											// that are true for the 
+											// object and were requested in sfgaoIn will be set. 
+		#endregion
 
 
 
 
-        #region CSIDL
-        /// <summary>
+
+
+
+
+
+
+
+
+
+
+
+		#region CSIDL, SHGetFolderPath, SHGetSpecialFolderLocation
+
+		#region CSIDL
+		/// <summary>
         /// <para>
         /// CSIDL values provide a unique system-independent way to identify special folders used frequently by applications, 
         /// but which may not have the same name or location on any given system. For example, the system folder may be 
@@ -528,8 +524,171 @@ namespace Win32
         };
         #endregion
 
-        [DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+		/*
+			System.Text.StringBuilder path = new System.Text.StringBuilder(MAX_PATH);
+			SHGetFolderPath(IntPtr.Zero,CSIDL_WINDOWS,IntPtr.Zero,SHGFP_TYPE_CURRENT,path);
+		 */
+		// Takes the CSIDL of a folder and returns the pathname.
+		[DllImport( "shell32.dll" )]
+		public static extern Int32 SHGetFolderPath(
+			IntPtr hwndOwner,				// Handle to an owner window.
+			Int32 nFolder,					// A CSIDL value that identifies the folder whose
+			// path is to be retrieved.
+			IntPtr hToken,					// An access token that can be used to represent
+			// a particular user.
+			UInt32 dwFlags,					// Flags to specify which path is to be returned.
+			// It is used for cases where 
+			// the folder associated with a CSIDL may be moved
+			// or renamed by the user. 
+			StringBuilder pszPath );        // Pointer to a null-terminated string which will
+		// receive the path.
+		
+		[DllImport("shell32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         public static extern int SHGetSpecialFolderLocation(IntPtr hwndOwner, CSIDL nFolder, ref IntPtr ppidl);
+
+		#endregion
+
+
+
+		#region BrowseForFolderDialog
+
+		[Flags]
+		public enum BIF : uint
+		{
+			/// <summary>
+			/// Only return file system directories. 
+			/// 
+			/// If the user selects folders that are not part of the file system, 
+			/// the OK button is grayed. 
+			/// </summary>
+			RETURNONLYFSDIRS = 0x00000001,
+			/// <summary>
+			/// Do not include network folders below the domain level in the dialog box's tree view control.
+			/// </summary>
+			DONTGOBELOWDOMAIN = 0x00000002,
+			/// <summary>
+			/// Include a status area in the dialog box. 
+			/// The callback function can set the status text by sending messages to the dialog box. 
+			/// This flag is not supported when <bold>BIF_NEWDIALOGSTYLE</bold> is specified
+			/// </summary>
+			STATUSTEXT = 0x00000004,
+			/// <summary>
+			/// Only return file system ancestors. 
+			/// An ancestor is a subfolder that is beneath the root folder in the namespace hierarchy. 
+			/// If the user selects an ancestor of the root folder that is not part of the file system, the OK button is grayed
+			/// </summary>
+			RETURNFSANCESTORS = 0x00000008,
+			/// <summary>
+			/// Include an edit control in the browse dialog box that allows the user to type the name of an item.
+			/// </summary>
+			EDITBOX = 0x00000010,
+			/// <summary>
+			/// If the user types an invalid name into the edit box, the browse dialog box calls the application's BrowseCallbackProc with the BFFM_VALIDATEFAILED message. 
+			/// This flag is ignored if <bold>BIF_EDITBOX</bold> is not specified.
+			/// </summary>
+			VALIDATE = 0x00000020,
+			/// <summary>
+			/// Use the new user interface. 
+			/// Setting this flag provides the user with a larger dialog box that can be resized. 
+			/// The dialog box has several new capabilities, including: drag-and-drop capability within the 
+			/// dialog box, reordering, shortcut menus, new folders, delete, and other shortcut menu commands. 
+			/// </summary>
+			NEWDIALOGSTYLE = 0x00000040,
+			/// <summary>
+			/// The browse dialog box can display URLs. The <bold>BIF_USENEWUI</bold> and <bold>BIF_BROWSEINCLUDEFILES</bold> flags must also be set. 
+			/// If any of these three flags are not set, the browser dialog box rejects URLs.
+			/// </summary>
+			BROWSEINCLUDEURLS = 0x00000080,
+			/// <summary>
+			/// Use the new user interface, including an edit box. This flag is equivalent to <bold>BIF_EDITBOX | BIF_NEWDIALOGSTYLE</bold>
+			/// </summary>
+			USENEWUI = ( EDITBOX | NEWDIALOGSTYLE ),
+			/// <summary>
+			/// hen combined with <bold>BIF_NEWDIALOGSTYLE</bold>, adds a usage hint to the dialog box, in place of the edit box. <bold>BIF_EDITBOX</bold> overrides this flag.
+			/// </summary>
+			UAHINT = 0x00000100,
+			/// <summary>
+			/// Do not include the New Folder button in the browse dialog box.
+			/// </summary>
+			NONEWFOLDERBUTTON = 0x00000200,
+			/// <summary>
+			/// When the selected item is a shortcut, return the PIDL of the shortcut itself rather than its target.
+			/// </summary>
+			NOTRANSLATETARGETS = 0x00000400,
+			/// <summary>
+			/// Only return computers. If the user selects anything other than a computer, the OK button is grayed.
+			/// </summary>
+			BROWSEFORCOMPUTER = 0x00001000,
+			/// <summary>
+			/// Only allow the selection of printers. If the user selects anything other than a printer, the OK button is grayed
+			/// </summary>
+			BROWSEFORPRINTER = 0x00002000,
+			/// <summary>
+			/// The browse dialog box displays files as well as folders.
+			/// </summary>
+			BROWSEINCLUDEFILES = 0x00004000,
+			/// <summary>
+			/// The browse dialog box can display shareable resources on remote systems.
+			/// </summary>
+			SHAREABLE = 0x00008000,
+			/// <summary>
+			/// Allow folder junctions such as a library or a compressed file with a .zip file name extension to be browsed.
+			/// </summary>
+			BROWSEFILEJUNCTIONS = 0x00010000,
+		};
+
+		public enum BFFM : uint
+		{
+			INITIALIZED = 1,
+			SELCHANGED = 2,
+			VALIDATEFAILED = 3,
+
+			SETSTATUSTEXTA = ( (uint)Win32.WM.USER + 100 ),
+			SETSTATUSTEXTW = ( (uint)Win32.WM.USER + 104 ),
+			ENABLEOK = ( (uint)Win32.WM.USER + 101 ),
+			SETSELECTION = ( (uint)Win32.WM.USER + 102 ),
+		};
+
+		public delegate int BFFCALLBACK( IntPtr hwnd, UInt32 uMsg, IntPtr lParam, IntPtr lpData );
+
+		[StructLayout( LayoutKind.Sequential, Pack = 8 )]
+		public struct BROWSEINFO
+		{
+			public IntPtr hwndOwner;
+			public IntPtr pidlRoot;
+			public IntPtr pszDisplayName;
+			[MarshalAs( UnmanagedType.LPTStr )]
+			public string lpszTitle;
+			public int ulFlags;
+			[MarshalAs( UnmanagedType.FunctionPtr )]
+			public BFFCALLBACK lpfn;
+			public UInt32 lParam;
+			public int iImage;
+		}
+
+		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		public static extern IntPtr SHBrowseForFolder( ref BROWSEINFO bi );
+
+		#endregion
+
+
+
+		[StructLayout( LayoutKind.Sequential, CharSet = CharSet.Unicode )]
+        public struct SHITEMID
+        {
+              public ushort cb;
+              public byte[] abID;
+        }
+
+        [StructLayout(LayoutKind.Sequential, CharSet=CharSet.Unicode)]
+        public struct ITEMIDLIST
+        {
+            [MarshalAs(UnmanagedType.Struct)]
+            public SHITEMID mkid;
+        }
+
+
+
 
 
 
@@ -546,10 +705,12 @@ namespace Win32
         public static extern bool SHGetPathFromIDListW(IntPtr pidl, [MarshalAs(UnmanagedType.LPTStr)] StringBuilder pszPath);
 
 
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
-        public static extern IntPtr SHBrowseForFolder(ref BROWSEINFO bi);
 
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+
+
+		#region SHGetFileInfo
+
+		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
         public struct SHFILEINFO
         {
             public IntPtr hIcon;
@@ -584,13 +745,20 @@ namespace Win32
 		    OVERLAYINDEX = 0x000000040
 	    };
 
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+		public const uint FILE_ATTRIBUTE_NORMAL = 0x80;
+		public const uint FILE_ATTRIBUTE_DIRECTORY = 0x10;
+
+		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
 		public static extern IntPtr SHGetFileInfo( string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
 
 		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
 		public static extern IntPtr SHGetFileInfo( IntPtr pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
 
-        [DllImport("shell32.dll", CharSet = CharSet.Auto)]
+		#endregion
+
+
+
+		[DllImport("shell32.dll", CharSet = CharSet.Auto)]
         public static extern int SHGetDesktopFolder(ref IShellFolder ppshf);
 
         #region IShellFolder
@@ -790,7 +958,7 @@ namespace Win32
             public static Guid IID_IShellFolder = new Guid("{000214E6-0000-0000-C000-000000000046}");
         }
 
-    #endregion
+		#endregion
 
 		#region SHFileOperation
 		
@@ -884,6 +1052,32 @@ namespace Win32
 		[DllImport("shell32.dll", CharSet = CharSet.Unicode)]
 		public static extern int SHFileOperation([In] ref SHFILEOPSTRUCT lpFileOp);
 		#endregion
+
+
+		#region SHGetImageList
+
+		/// <summary>
+	    /// SHGetImageList is not exported correctly in XP.  See KB316931
+	    /// http://support.microsoft.com/default.aspx?scid=kb;EN-US;Q316931
+	    /// Apparently (and hopefully) ordinal 727 isn't going to change.
+	    /// </summary>
+	    [DllImport("shell32.dll", EntryPoint = "#727")]
+	    public static extern int SHGetImageList(
+		    int iImageList,
+		    ref Guid riid,
+		    ref IImageList ppv
+		    );
+
+	    [DllImport("shell32.dll", EntryPoint = "#727")]
+	    public static extern int SHGetImageListHandle(
+		    int iImageList,
+		    ref Guid riid,
+		    ref IntPtr handle
+		    );
+
+	    #endregion
+
+
 	}
 
 }
