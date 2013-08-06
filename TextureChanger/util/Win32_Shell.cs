@@ -572,7 +572,7 @@ namespace Win32
 			/// <param name="hwnd">If user input is required to perform the enumeration, this window handle should be used by the enumeration object as the parent window to take user input.</param>
 			/// <param name="grfFlags">Flags indicating which items to include in the  enumeration. For a list of possible values, see the SHCONTF enum. </param>
 			/// <param name="ppenumIDList">Address that receives a pointer to the IEnumIDList interface of the enumeration object created by this method. </param>
-			void EnumObjects( IntPtr hwnd, ESHCONTF grfFlags, out IntPtr ppenumIDList );
+			void EnumObjects( IntPtr hwnd, SHCONTF grfFlags, out IntPtr ppenumIDList );
 
 			/// <summary>
 			///Retrieves an IShellFolder object for a subfolder.
@@ -634,7 +634,7 @@ namespace Win32
 			/// requesting. On exit, this value contains the requested attributes that are common to all of the specified objects. this value can be from the SFGAO enum
 			/// </param>
 			void GetAttributesOf( UInt32 cidl, [MarshalAs( UnmanagedType.LPArray, SizeParamIndex = 0 )] IntPtr[] apidl,
-				 ref ESFGAO rgfInOut );
+				 ref SFGAO rgfInOut );
 
 			/// <summary>
 			/// Retrieves an OLE interface that can be used to carry out actions on the 
@@ -657,7 +657,7 @@ namespace Win32
 			/// <param name="pidl">Address of an ITEMIDLIST structure (PIDL)  that uniquely identifies the file  object or subfolder relative to the parent  folder. </param>
 			/// <param name="uFlags">Flags used to request the type of display name to return. For a list of possible values. </param>
 			/// <param name="pName"> Address of a STRRET structure in which to return the display name.</param>
-			void GetDisplayNameOf( IntPtr pidl, ESHGDN uFlags, out STRRET pName );
+			void GetDisplayNameOf( IntPtr pidl, SHGDN uFlags, out STRRET pName );
 
 			/// <summary>
 			/// Sets the display name of a file object or subfolder, changing the item
@@ -669,7 +669,7 @@ namespace Win32
 			/// <param name="pszName"> Pointer to a null-terminated string that specifies the new display name.</param>
 			/// <param name="uFlags">Flags indicating the type of name specified by  the lpszName parameter. For a list of possible values, see the description of the SHGNO enum.</param>
 			/// <param name="ppidlOut"></param>
-			void SetNameOf( IntPtr hwnd, IntPtr pidl, String pszName, ESHCONTF uFlags, out IntPtr ppidlOut );
+			void SetNameOf( IntPtr hwnd, IntPtr pidl, String pszName, SHCONTF uFlags, out IntPtr ppidlOut );
 		}
 
 		public enum SFGAO : uint

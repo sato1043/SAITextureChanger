@@ -164,8 +164,7 @@ namespace TextureChanger
 		private string RequestPathToSaiFolder()
 		{
 			#region フォルダ指定ダイアログの初期表示先取得
-			SH.IShellFolder desktopShellFolder = null;
-			SH.SHGetDesktopFolder(ref desktopShellFolder);
+			SH.IShellFolder desktopShellFolder = SH.GetDesktopFolder();
 
 			string defaultSaiExeFolder = "C:\\Program Files\\PaintToolSAI";
 		    if (_textureChangerOptions.PathToSaiFolder != "")

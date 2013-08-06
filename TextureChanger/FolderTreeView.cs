@@ -59,8 +59,8 @@ namespace TextureChanger
 
 		public void InitFolderTreeView()
 		{
-			InitFolderTreeImageLists();
-			//InitImageList();
+			//InitFolderTreeImageLists();
+			InitImageList();
 			ShellOperations.PopulateTree(this, ImageList);
 			if(Nodes.Count > 0)
 			{
@@ -501,7 +501,7 @@ namespace TextureChanger
 			// iterate through the Desktop namespace and populate the first level nodes
 			foreach(Shell32.FolderItem item in items)
 			{
-				if (item.IsFolder && !item.IsBrowsable) // this ensures that desktop shortcuts etc are not displayed
+				if (item.IsFileSystem && item.IsFolder && !item.IsBrowsable) // this ensures that desktop shortcuts etc are not displayed
 				{
 					TreeNode tn = AddTreeNode(item, ref imageCount, imageList, getIcons);
 					desktop.Nodes.Add(tn);
@@ -640,9 +640,21 @@ namespace TextureChanger
 
 			flags = flags | SH.SHGFI.PIDL;
 
+
 			
-			SH.SHGetFileInfo( item., 256, ref shfi, (uint)cbFileInfo, flags );
-			Icon.FromHandle(shfi.hIcon);
+
+			IMalloc pMalloc = SH.GetMalloc();
+			IntPtr pidl;
+			uint iAttribute;
+			SH.SHParseDisplayName(item.Path,IntPtr.Zero,out pidl,0,out iAttribute);
+
+			SH.SHGetFileInfo( pidl, 0, ref shfi, (uint)cbFileInfo, flags );
+			Icon.FromHandle( shfi.hIcon );
+
+			if( pidl != IntPtr.Zero )
+				pMalloc.Free(pidl);
+
+			Marshal.ReleaseComObject(pMalloc);
 
 			var icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
 			Api.DestroyIcon( shfi.hIcon );
@@ -651,11 +663,9 @@ namespace TextureChanger
 		}
 
 		#region Get Desktop Icon
-
 		// Retreive the desktop icon from Shell32.dll - it always appears at index 34 in all shell32 versions.
 		// This is probably NOT the best way to retreive this icon, but it works - if you have a better way
 		// by all means let me know..
-
 		public static Icon GetDesktopIcon()
 		{
 			IntPtr[] handlesIconLarge = new IntPtr[1];
@@ -665,7 +675,6 @@ namespace TextureChanger
 
 			return Icon.FromHandle(handlesIconSmall[0]);
 		}
-		
 		#endregion
 
 	}
