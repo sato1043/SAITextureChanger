@@ -473,10 +473,58 @@ namespace TextureChanger
 		#endregion
 
 		#region ツリービューのクリック
-		private void trvFolder_AfterSelect(object sender, TreeViewEventArgs e)
+		// 幅w、高さhのImageオブジェクトを作成
+		Image createThumbnail( Image image, int w, int h )
 		{
-			_textureChangerOptions.SetToUseFirstExpandingFixedFolder(
+			Bitmap canvas = new Bitmap( w, h );
+
+			Graphics g = Graphics.FromImage( canvas );
+			g.FillRectangle( new SolidBrush( Color.White ), 0, 0, w, h );
+
+			float fw = (float)w / (float)image.Width;
+			float fh = (float)h / (float)image.Height;
+
+			float scale = Math.Min( fw, fh );
+			fw = image.Width * scale;
+			fh = image.Height * scale;
+
+			g.DrawImage( image, ( w - fw ) / 2, ( h - fh ) / 2, fw, fh );
+			g.Dispose( );
+
+			return canvas;
+		}
+		
+		private void trvFolder_AfterSelect( object sender, TreeViewEventArgs e )
+		{
+			_textureChangerOptions.SetToUseFirstExpandingRecentFolder(
 				trvFolder.GetSelectedNodePath() );
+
+			lsvFileList.Items.Clear();
+
+			string imageDir = trvFolder.GetSelectedNodePath();
+
+			string[] bmpFiles = Directory.GetFiles( imageDir, "*.bmp" );
+
+			int width = 256;
+			int height = 256;
+
+			ilsFileList.ImageSize = new Size( width, height );
+			lsvFileList.LargeImageList = ilsFileList;
+
+			for( int i = 0; i < bmpFiles.Length; i++ )
+			{
+				Image original = Bitmap.FromFile( bmpFiles[ i ] );
+				Image thumbnail = createThumbnail( original, width, height );
+				
+				FileInfo fi = new FileInfo( bmpFiles[ i ] );
+
+				ilsFileList.Images.Add( thumbnail );
+				lsvFileList.Items.Add( fi.Name, i );
+
+				original.Dispose( );
+				thumbnail.Dispose( );
+			}
+
 		}
 		#endregion
 

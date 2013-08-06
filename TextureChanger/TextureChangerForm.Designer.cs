@@ -60,7 +60,6 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.btnTextureRemove = new System.Windows.Forms.Button( );
 			this.lsvTextureImages = new System.Windows.Forms.ListView( );
 			this.popTextureImage = new System.Windows.Forms.ContextMenuStrip( this.components );
@@ -71,11 +70,15 @@ namespace TextureChanger
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditElemap = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
+			this.lsvFileList = new System.Windows.Forms.ListView( );
+			this.ilsFileList = new System.Windows.Forms.ImageList( this.components );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.menuStrip1.SuspendLayout( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
 			this.splNorthSouth.Panel2.SuspendLayout( );
 			this.splNorthSouth.SuspendLayout( );
 			this.splTreeList.Panel1.SuspendLayout( );
+			this.splTreeList.Panel2.SuspendLayout( );
 			this.splTreeList.SuspendLayout( );
 			this.popTextureImage.SuspendLayout( );
 			this.grpEditTexture.SuspendLayout( );
@@ -312,24 +315,13 @@ namespace TextureChanger
 			// splTreeList.Panel2
 			// 
 			this.splTreeList.Panel2.BackColor = System.Drawing.SystemColors.Desktop;
+			this.splTreeList.Panel2.Controls.Add( this.lsvFileList );
 			this.splTreeList.Size = new System.Drawing.Size( 990, 270 );
 			this.splTreeList.SplitterDistance = 330;
 			this.splTreeList.SplitterWidth = 6;
 			this.splTreeList.TabIndex = 0;
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
-			// 
-			// trvFolder
-			// 
-			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-						| System.Windows.Forms.AnchorStyles.Left )
-						| System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
-			this.trvFolder.TabIndex = 0;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
 			// 
 			// btnTextureRemove
 			// 
@@ -361,12 +353,12 @@ namespace TextureChanger
 			this.popTextureImage.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
             this.mniTextureRemovePopup} );
 			this.popTextureImage.Name = "popTextureImage";
-			this.popTextureImage.Size = new System.Drawing.Size( 203, 26 );
+			this.popTextureImage.Size = new System.Drawing.Size( 245, 26 );
 			// 
 			// mniTextureRemovePopup
 			// 
 			this.mniTextureRemovePopup.Name = "mniTextureRemovePopup";
-			this.mniTextureRemovePopup.Size = new System.Drawing.Size( 202, 22 );
+			this.mniTextureRemovePopup.Size = new System.Drawing.Size( 244, 22 );
 			this.mniTextureRemovePopup.Text = "選択したテクスチャをゴミ箱へ";
 			this.mniTextureRemovePopup.Click += new System.EventHandler( this.mniTextureRemovePopup_Click );
 			// 
@@ -458,6 +450,37 @@ namespace TextureChanger
 			this.rdoEditBlotmap.UseVisualStyleBackColor = true;
 			this.rdoEditBlotmap.Click += new System.EventHandler( this.rdoEditTexture_Click );
 			// 
+			// lsvFileList
+			// 
+			this.lsvFileList.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.lsvFileList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.lsvFileList.Location = new System.Drawing.Point( 0, 0 );
+			this.lsvFileList.Margin = new System.Windows.Forms.Padding( 0 );
+			this.lsvFileList.Name = "lsvFileList";
+			this.lsvFileList.Size = new System.Drawing.Size( 650, 265 );
+			this.lsvFileList.TabIndex = 0;
+			this.lsvFileList.UseCompatibleStateImageBehavior = false;
+			// 
+			// ilsFileList
+			// 
+			this.ilsFileList.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
+			this.ilsFileList.ImageSize = new System.Drawing.Size( 256, 256 );
+			this.ilsFileList.TransparentColor = System.Drawing.Color.Transparent;
+			// 
+			// trvFolder
+			// 
+			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
+			this.trvFolder.TabIndex = 0;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size( 990, 588 );
@@ -478,6 +501,7 @@ namespace TextureChanger
 			this.splNorthSouth.Panel2.ResumeLayout( false );
 			this.splNorthSouth.ResumeLayout( false );
 			this.splTreeList.Panel1.ResumeLayout( false );
+			this.splTreeList.Panel2.ResumeLayout( false );
 			this.splTreeList.ResumeLayout( false );
 			this.popTextureImage.ResumeLayout( false );
 			this.grpEditTexture.ResumeLayout( false );
@@ -524,6 +548,8 @@ namespace TextureChanger
 		private ToolStripMenuItem mniTextureRemovePopup;
 		private Button btnTextureRemove;
 		private FolderTreeView trvFolder;
+		private ListView lsvFileList;
+		private ImageList ilsFileList;
 	}
 }
 
