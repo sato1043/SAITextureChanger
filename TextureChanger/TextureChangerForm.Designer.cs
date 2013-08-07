@@ -35,7 +35,7 @@ namespace TextureChanger
 		{
 			this.components = new System.ComponentModel.Container( );
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager( typeof( TextureChangerForm ) );
-			this.menuStrip1 = new System.Windows.Forms.MenuStrip( );
+			this.mnuMainMenu = new System.Windows.Forms.MenuStrip( );
 			this.mniFile = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniExit = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniEdit = new System.Windows.Forms.ToolStripMenuItem( );
@@ -48,6 +48,13 @@ namespace TextureChanger
 			this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripSeparator( );
 			this.mniTextureRemove = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniView = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
+			this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator( );
+			this.mniFileListRegist = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListRegistToBlotmap = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListRegistToElemap = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListRegistToBrushtex = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListRegistToPapertex = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniOption = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniRequestSaiFolder = new System.Windows.Forms.ToolStripMenuItem( );
 			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator( );
@@ -60,6 +67,16 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
+			this.lsvFileList = new System.Windows.Forms.ListView( );
+			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
+			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
+			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator( );
+			this.mniFileListPopupRegist = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListPopupRegistToBlotmap = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListPopupRegistToElemap = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListPopupRegistToBrushtex = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniFileListPopupRegistToPapertex = new System.Windows.Forms.ToolStripMenuItem( );
 			this.btnTextureRemove = new System.Windows.Forms.Button( );
 			this.lsvTextureImages = new System.Windows.Forms.ListView( );
 			this.popTextureImage = new System.Windows.Forms.ContextMenuStrip( this.components );
@@ -70,33 +87,32 @@ namespace TextureChanger
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditElemap = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
-			this.lsvFileList = new System.Windows.Forms.ListView( );
 			this.ilsFileList = new System.Windows.Forms.ImageList( this.components );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
-			this.menuStrip1.SuspendLayout( );
+			this.mnuMainMenu.SuspendLayout( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
 			this.splNorthSouth.Panel2.SuspendLayout( );
 			this.splNorthSouth.SuspendLayout( );
 			this.splTreeList.Panel1.SuspendLayout( );
 			this.splTreeList.Panel2.SuspendLayout( );
 			this.splTreeList.SuspendLayout( );
+			this.popFileList.SuspendLayout( );
 			this.popTextureImage.SuspendLayout( );
 			this.grpEditTexture.SuspendLayout( );
 			this.SuspendLayout( );
 			// 
-			// menuStrip1
+			// mnuMainMenu
 			// 
-			this.menuStrip1.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+			this.mnuMainMenu.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
             this.mniFile,
             this.mniEdit,
             this.mniView,
             this.mniOption,
             this.mniHelp} );
-			this.menuStrip1.Location = new System.Drawing.Point( 0, 0 );
-			this.menuStrip1.Name = "menuStrip1";
-			this.menuStrip1.Size = new System.Drawing.Size( 990, 26 );
-			this.menuStrip1.TabIndex = 0;
-			this.menuStrip1.Text = "menuStrip1";
+			this.mnuMainMenu.Location = new System.Drawing.Point( 0, 0 );
+			this.mnuMainMenu.Name = "mnuMainMenu";
+			this.mnuMainMenu.Size = new System.Drawing.Size( 990, 26 );
+			this.mnuMainMenu.TabIndex = 0;
+			this.mnuMainMenu.Text = "menuStrip1";
 			// 
 			// mniFile
 			// 
@@ -185,9 +201,64 @@ namespace TextureChanger
 			// 
 			// mniView
 			// 
+			this.mniView.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.mniFileListSelectAll,
+            this.toolStripMenuItem5,
+            this.mniFileListRegist} );
 			this.mniView.Name = "mniView";
 			this.mniView.Size = new System.Drawing.Size( 48, 22 );
 			this.mniView.Text = "&View";
+			// 
+			// mniFileListSelectAll
+			// 
+			this.mniFileListSelectAll.Name = "mniFileListSelectAll";
+			this.mniFileListSelectAll.Size = new System.Drawing.Size( 208, 22 );
+			this.mniFileListSelectAll.Text = "すべてのファイルを選択";
+			this.mniFileListSelectAll.Click += new System.EventHandler( this.mniFileListSelectAll_Click );
+			// 
+			// toolStripMenuItem5
+			// 
+			this.toolStripMenuItem5.Name = "toolStripMenuItem5";
+			this.toolStripMenuItem5.Size = new System.Drawing.Size( 205, 6 );
+			// 
+			// mniFileListRegist
+			// 
+			this.mniFileListRegist.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.mniFileListRegistToBlotmap,
+            this.mniFileListRegistToElemap,
+            this.mniFileListRegistToBrushtex,
+            this.mniFileListRegistToPapertex} );
+			this.mniFileListRegist.Name = "mniFileListRegist";
+			this.mniFileListRegist.Size = new System.Drawing.Size( 208, 22 );
+			this.mniFileListRegist.Text = "選択ファイルを登録";
+			// 
+			// mniFileListRegistToBlotmap
+			// 
+			this.mniFileListRegistToBlotmap.Name = "mniFileListRegistToBlotmap";
+			this.mniFileListRegistToBlotmap.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListRegistToBlotmap.Text = "「にじみ」へ登録";
+			this.mniFileListRegistToBlotmap.Click += new System.EventHandler( this.mniFileListRegistToBlotmap_Click );
+			// 
+			// mniFileListRegistToElemap
+			// 
+			this.mniFileListRegistToElemap.Name = "mniFileListRegistToElemap";
+			this.mniFileListRegistToElemap.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListRegistToElemap.Text = "「筆」へ登録";
+			this.mniFileListRegistToElemap.Click += new System.EventHandler( this.mniFileListRegistToElemap_Click );
+			// 
+			// mniFileListRegistToBrushtex
+			// 
+			this.mniFileListRegistToBrushtex.Name = "mniFileListRegistToBrushtex";
+			this.mniFileListRegistToBrushtex.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListRegistToBrushtex.Text = "「テクスチャ」へ登録";
+			this.mniFileListRegistToBrushtex.Click += new System.EventHandler( this.mniFileListRegistToBrushtex_Click );
+			// 
+			// mniFileListRegistToPapertex
+			// 
+			this.mniFileListRegistToPapertex.Name = "mniFileListRegistToPapertex";
+			this.mniFileListRegistToPapertex.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListRegistToPapertex.Text = "「用紙質感」へ登録";
+			this.mniFileListRegistToPapertex.Click += new System.EventHandler( this.mniFileListRegistToPapertex_Click );
 			// 
 			// mniOption
 			// 
@@ -323,6 +394,92 @@ namespace TextureChanger
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
 			// 
+			// trvFolder
+			// 
+			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
+			this.trvFolder.TabIndex = 0;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
+			// lsvFileList
+			// 
+			this.lsvFileList.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.lsvFileList.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.lsvFileList.ContextMenuStrip = this.popFileList;
+			this.lsvFileList.Location = new System.Drawing.Point( 0, 0 );
+			this.lsvFileList.Margin = new System.Windows.Forms.Padding( 0 );
+			this.lsvFileList.Name = "lsvFileList";
+			this.lsvFileList.Size = new System.Drawing.Size( 650, 265 );
+			this.lsvFileList.TabIndex = 0;
+			this.lsvFileList.UseCompatibleStateImageBehavior = false;
+			// 
+			// popFileList
+			// 
+			this.popFileList.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.mniFileListPopupSelectAll,
+            this.toolStripMenuItem4,
+            this.mniFileListPopupRegist} );
+			this.popFileList.Name = "popFileList";
+			this.popFileList.Size = new System.Drawing.Size( 185, 54 );
+			// 
+			// mniFileListPopupSelectAll
+			// 
+			this.mniFileListPopupSelectAll.Name = "mniFileListPopupSelectAll";
+			this.mniFileListPopupSelectAll.Size = new System.Drawing.Size( 184, 22 );
+			this.mniFileListPopupSelectAll.Text = "すべて選択";
+			this.mniFileListPopupSelectAll.Click += new System.EventHandler( this.mniFileListPopupSelectAll_Click );
+			// 
+			// toolStripMenuItem4
+			// 
+			this.toolStripMenuItem4.Name = "toolStripMenuItem4";
+			this.toolStripMenuItem4.Size = new System.Drawing.Size( 181, 6 );
+			// 
+			// mniFileListPopupRegist
+			// 
+			this.mniFileListPopupRegist.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
+            this.mniFileListPopupRegistToBlotmap,
+            this.mniFileListPopupRegistToElemap,
+            this.mniFileListPopupRegistToBrushtex,
+            this.mniFileListPopupRegistToPapertex} );
+			this.mniFileListPopupRegist.Name = "mniFileListPopupRegist";
+			this.mniFileListPopupRegist.Size = new System.Drawing.Size( 184, 22 );
+			this.mniFileListPopupRegist.Text = "選択ファイルを登録";
+			// 
+			// mniFileListPopupRegistToBlotmap
+			// 
+			this.mniFileListPopupRegistToBlotmap.Name = "mniFileListPopupRegistToBlotmap";
+			this.mniFileListPopupRegistToBlotmap.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListPopupRegistToBlotmap.Text = "「にじみ」へ登録";
+			this.mniFileListPopupRegistToBlotmap.Click += new System.EventHandler( this.mniRegistToBlotmap_Click );
+			// 
+			// mniFileListPopupRegistToElemap
+			// 
+			this.mniFileListPopupRegistToElemap.Name = "mniFileListPopupRegistToElemap";
+			this.mniFileListPopupRegistToElemap.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListPopupRegistToElemap.Text = "「筆」へ登録";
+			this.mniFileListPopupRegistToElemap.Click += new System.EventHandler( this.mniRegistToElemap_Click );
+			// 
+			// mniFileListPopupRegistToBrushtex
+			// 
+			this.mniFileListPopupRegistToBrushtex.Name = "mniFileListPopupRegistToBrushtex";
+			this.mniFileListPopupRegistToBrushtex.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListPopupRegistToBrushtex.Text = "「テクスチャ」に登録";
+			this.mniFileListPopupRegistToBrushtex.Click += new System.EventHandler( this.mniRegistToBrushtex_Click );
+			// 
+			// mniFileListPopupRegistToPapertex
+			// 
+			this.mniFileListPopupRegistToPapertex.Name = "mniFileListPopupRegistToPapertex";
+			this.mniFileListPopupRegistToPapertex.Size = new System.Drawing.Size( 196, 22 );
+			this.mniFileListPopupRegistToPapertex.Text = "「用紙質感」に登録";
+			this.mniFileListPopupRegistToPapertex.Click += new System.EventHandler( this.mniRegistToPapertex_Click );
+			// 
 			// btnTextureRemove
 			// 
 			this.btnTextureRemove.Location = new System.Drawing.Point( 2, 216 );
@@ -450,59 +607,35 @@ namespace TextureChanger
 			this.rdoEditBlotmap.UseVisualStyleBackColor = true;
 			this.rdoEditBlotmap.Click += new System.EventHandler( this.rdoEditTexture_Click );
 			// 
-			// lsvFileList
-			// 
-			this.lsvFileList.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-						| System.Windows.Forms.AnchorStyles.Left )
-						| System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.lsvFileList.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.lsvFileList.Location = new System.Drawing.Point( 0, 0 );
-			this.lsvFileList.Margin = new System.Windows.Forms.Padding( 0 );
-			this.lsvFileList.Name = "lsvFileList";
-			this.lsvFileList.Size = new System.Drawing.Size( 650, 265 );
-			this.lsvFileList.TabIndex = 0;
-			this.lsvFileList.UseCompatibleStateImageBehavior = false;
-			// 
 			// ilsFileList
 			// 
 			this.ilsFileList.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
 			this.ilsFileList.ImageSize = new System.Drawing.Size( 256, 256 );
 			this.ilsFileList.TransparentColor = System.Drawing.Color.Transparent;
 			// 
-			// trvFolder
-			// 
-			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-						| System.Windows.Forms.AnchorStyles.Left )
-						| System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
-			this.trvFolder.TabIndex = 0;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
-			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size( 990, 588 );
 			this.Controls.Add( this.splNorthSouth );
-			this.Controls.Add( this.menuStrip1 );
+			this.Controls.Add( this.mnuMainMenu );
 			this.Cursor = System.Windows.Forms.Cursors.Default;
 			this.DoubleBuffered = true;
 			this.Icon = ( (System.Drawing.Icon)( resources.GetObject( "$this.Icon" ) ) );
-			this.MainMenuStrip = this.menuStrip1;
+			this.MainMenuStrip = this.mnuMainMenu;
 			this.MinimumSize = new System.Drawing.Size( 998, 615 );
 			this.Name = "TextureChangerForm";
 			this.Text = "Texture Changer";
 			this.FormClosing += new System.Windows.Forms.FormClosingEventHandler( this.TextureChangerForm_FormClosing );
 			this.Load += new System.EventHandler( this.TextureChangerForm_Load );
-			this.menuStrip1.ResumeLayout( false );
-			this.menuStrip1.PerformLayout( );
+			this.mnuMainMenu.ResumeLayout( false );
+			this.mnuMainMenu.PerformLayout( );
 			this.splNorthSouth.Panel1.ResumeLayout( false );
 			this.splNorthSouth.Panel2.ResumeLayout( false );
 			this.splNorthSouth.ResumeLayout( false );
 			this.splTreeList.Panel1.ResumeLayout( false );
 			this.splTreeList.Panel2.ResumeLayout( false );
 			this.splTreeList.ResumeLayout( false );
+			this.popFileList.ResumeLayout( false );
 			this.popTextureImage.ResumeLayout( false );
 			this.grpEditTexture.ResumeLayout( false );
 			this.ResumeLayout( false );
@@ -512,7 +645,7 @@ namespace TextureChanger
 
 		#endregion
 
-		private MenuStrip menuStrip1;
+		private MenuStrip mnuMainMenu;
 		private ToolStripMenuItem mniFile;
 		private ToolStripMenuItem mniView;
 		private ToolStripMenuItem mniOption;
@@ -550,6 +683,21 @@ namespace TextureChanger
 		private FolderTreeView trvFolder;
 		private ListView lsvFileList;
 		private ImageList ilsFileList;
+		private ContextMenuStrip popFileList;
+		private ToolStripMenuItem mniFileListPopupSelectAll;
+		private ToolStripSeparator toolStripMenuItem4;
+		private ToolStripMenuItem mniFileListPopupRegist;
+		private ToolStripMenuItem mniFileListPopupRegistToBlotmap;
+		private ToolStripMenuItem mniFileListPopupRegistToElemap;
+		private ToolStripMenuItem mniFileListPopupRegistToBrushtex;
+		private ToolStripMenuItem mniFileListPopupRegistToPapertex;
+		private ToolStripMenuItem mniFileListSelectAll;
+		private ToolStripSeparator toolStripMenuItem5;
+		private ToolStripMenuItem mniFileListRegist;
+		private ToolStripMenuItem mniFileListRegistToBlotmap;
+		private ToolStripMenuItem mniFileListRegistToElemap;
+		private ToolStripMenuItem mniFileListRegistToBrushtex;
+		private ToolStripMenuItem mniFileListRegistToPapertex;
 	}
 }
 

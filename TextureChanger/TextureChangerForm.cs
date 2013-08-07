@@ -449,7 +449,6 @@ namespace TextureChanger
 					lsvTextureImage_UpdateImages(sender, e);
 				}
 			}
-
 		}
 		private void btnTextureRemove_Click( object sender, EventArgs e )
 		{
@@ -473,6 +472,7 @@ namespace TextureChanger
 		#endregion
 
 		#region ツリービューのクリック
+		
 		// 幅w、高さhのImageオブジェクトを作成
 		Image createThumbnail( Image image, int w, int h )
 		{
@@ -527,6 +527,97 @@ namespace TextureChanger
 
 		}
 		#endregion
+
+		#region ファイルリストのポップアップメニュー
+		private void mniFileListSelectAll_Click( object sender, EventArgs e )
+		{
+			foreach( ListViewItem item in lsvFileList.Items )
+			{
+				item.Selected = true;
+			}
+			lsvFileList.Focus();
+		}
+
+		private void mniFileListRegistToBlotmap_Click( object sender, EventArgs e )
+		{
+			//項目が１つも選択されていない場合処理を抜ける
+			if( lsvFileList.SelectedItems.Count == 0 )
+				return;
+
+			foreach( ListViewItem item in lsvFileList.SelectedItems )
+			{
+				DialogResult res = CenteredMessageBox.Show( this
+					, item.Text + "を「にじみ」へ登録しますか？", "登録確認"
+					, MessageBoxButtons.YesNoCancel
+					, MessageBoxIcon.Question );
+
+				if( res == DialogResult.Cancel )
+					break;
+				if( res == DialogResult.Yes )
+				{
+					_textureManager.AddImage(
+						TextureManager.BLOTMAP_NAME
+						, trvFolder.GetSelectedNodePath() +"\\"+item.Text
+						, this );
+
+					lsvTextureImage_UpdateImages( sender, e );
+				}
+			}
+		}
+
+		private void mniFileListRegistToElemap_Click( object sender, EventArgs e )
+		{
+			//項目が１つも選択されていない場合処理を抜ける
+			if( lsvFileList.SelectedItems.Count == 0 )
+				return;
+			;
+			;
+		}
+
+		private void mniFileListRegistToBrushtex_Click( object sender, EventArgs e )
+		{
+			//項目が１つも選択されていない場合処理を抜ける
+			if( lsvFileList.SelectedItems.Count == 0 )
+				return;
+			;
+			;
+		}
+
+		private void mniFileListRegistToPapertex_Click( object sender, EventArgs e )
+		{
+			//項目が１つも選択されていない場合処理を抜ける
+			if( lsvFileList.SelectedItems.Count == 0 )
+				return;
+			;
+			;
+		}
+
+		private void mniFileListPopupSelectAll_Click( object sender, EventArgs e )
+		{
+			mniFileListSelectAll_Click( sender, e );
+		}
+		private void mniRegistToBlotmap_Click( object sender, EventArgs e )
+		{
+			mniFileListRegistToBlotmap_Click( sender, e );
+		}
+		private void mniRegistToElemap_Click( object sender, EventArgs e )
+		{
+			mniFileListRegistToElemap_Click( sender, e );
+		}
+		private void mniRegistToBrushtex_Click( object sender, EventArgs e )
+		{
+			mniFileListRegistToBrushtex_Click( sender, e );
+		}
+		private void mniRegistToPapertex_Click( object sender, EventArgs e )
+		{
+			mniFileListRegistToPapertex_Click( sender, e );
+		}
+		#endregion
+
+
+
+
+
 
 
 	}
