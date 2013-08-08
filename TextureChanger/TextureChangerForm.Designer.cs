@@ -50,6 +50,7 @@ namespace TextureChanger
 			this.mniView = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
 			this.toolStripMenuItem5 = new System.Windows.Forms.ToolStripSeparator( );
+			this.mniFileListRegistToCurrent = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListRegist = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListRegistToBlotmap = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListRegistToElemap = new System.Windows.Forms.ToolStripMenuItem( );
@@ -72,6 +73,7 @@ namespace TextureChanger
 			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
 			this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripSeparator( );
+			this.mniFileListPopupRegistToCurrent = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListPopupRegist = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListPopupRegistToBlotmap = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListPopupRegistToElemap = new System.Windows.Forms.ToolStripMenuItem( );
@@ -204,6 +206,7 @@ namespace TextureChanger
 			this.mniView.DropDownItems.AddRange( new System.Windows.Forms.ToolStripItem[] {
             this.mniFileListSelectAll,
             this.toolStripMenuItem5,
+            this.mniFileListRegistToCurrent,
             this.mniFileListRegist} );
 			this.mniView.Name = "mniView";
 			this.mniView.Size = new System.Drawing.Size( 48, 22 );
@@ -212,14 +215,21 @@ namespace TextureChanger
 			// mniFileListSelectAll
 			// 
 			this.mniFileListSelectAll.Name = "mniFileListSelectAll";
-			this.mniFileListSelectAll.Size = new System.Drawing.Size( 208, 22 );
+			this.mniFileListSelectAll.Size = new System.Drawing.Size( 304, 22 );
 			this.mniFileListSelectAll.Text = "すべてのファイルを選択";
 			this.mniFileListSelectAll.Click += new System.EventHandler( this.mniFileListSelectAll_Click );
 			// 
 			// toolStripMenuItem5
 			// 
 			this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-			this.toolStripMenuItem5.Size = new System.Drawing.Size( 205, 6 );
+			this.toolStripMenuItem5.Size = new System.Drawing.Size( 301, 6 );
+			// 
+			// mniFileListRegistToCurrent
+			// 
+			this.mniFileListRegistToCurrent.Name = "mniFileListRegistToCurrent";
+			this.mniFileListRegistToCurrent.Size = new System.Drawing.Size( 304, 22 );
+			this.mniFileListRegistToCurrent.Text = "選択ファイルを編集中のテクスチャへ登録";
+			this.mniFileListRegistToCurrent.Click += new System.EventHandler( this.mniFileListRegistToCurrent_Click );
 			// 
 			// mniFileListRegist
 			// 
@@ -229,7 +239,7 @@ namespace TextureChanger
             this.mniFileListRegistToBrushtex,
             this.mniFileListRegistToPapertex} );
 			this.mniFileListRegist.Name = "mniFileListRegist";
-			this.mniFileListRegist.Size = new System.Drawing.Size( 208, 22 );
+			this.mniFileListRegist.Size = new System.Drawing.Size( 304, 22 );
 			this.mniFileListRegist.Text = "選択ファイルを登録";
 			// 
 			// mniFileListRegistToBlotmap
@@ -425,21 +435,29 @@ namespace TextureChanger
 			this.popFileList.Items.AddRange( new System.Windows.Forms.ToolStripItem[] {
             this.mniFileListPopupSelectAll,
             this.toolStripMenuItem4,
+            this.mniFileListPopupRegistToCurrent,
             this.mniFileListPopupRegist} );
 			this.popFileList.Name = "popFileList";
-			this.popFileList.Size = new System.Drawing.Size( 185, 54 );
+			this.popFileList.Size = new System.Drawing.Size( 305, 98 );
 			// 
 			// mniFileListPopupSelectAll
 			// 
 			this.mniFileListPopupSelectAll.Name = "mniFileListPopupSelectAll";
-			this.mniFileListPopupSelectAll.Size = new System.Drawing.Size( 184, 22 );
+			this.mniFileListPopupSelectAll.Size = new System.Drawing.Size( 304, 22 );
 			this.mniFileListPopupSelectAll.Text = "すべて選択";
 			this.mniFileListPopupSelectAll.Click += new System.EventHandler( this.mniFileListPopupSelectAll_Click );
 			// 
 			// toolStripMenuItem4
 			// 
 			this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-			this.toolStripMenuItem4.Size = new System.Drawing.Size( 181, 6 );
+			this.toolStripMenuItem4.Size = new System.Drawing.Size( 301, 6 );
+			// 
+			// mniFileListPopupRegistToCurrent
+			// 
+			this.mniFileListPopupRegistToCurrent.Name = "mniFileListPopupRegistToCurrent";
+			this.mniFileListPopupRegistToCurrent.Size = new System.Drawing.Size( 304, 22 );
+			this.mniFileListPopupRegistToCurrent.Text = "選択ファイルを編集中のテクスチャへ登録";
+			this.mniFileListPopupRegistToCurrent.Click += new System.EventHandler( this.mniFileListPopupRegistToCurrent_Click );
 			// 
 			// mniFileListPopupRegist
 			// 
@@ -449,7 +467,7 @@ namespace TextureChanger
             this.mniFileListPopupRegistToBrushtex,
             this.mniFileListPopupRegistToPapertex} );
 			this.mniFileListPopupRegist.Name = "mniFileListPopupRegist";
-			this.mniFileListPopupRegist.Size = new System.Drawing.Size( 184, 22 );
+			this.mniFileListPopupRegist.Size = new System.Drawing.Size( 304, 22 );
 			this.mniFileListPopupRegist.Text = "選択ファイルを登録";
 			// 
 			// mniFileListPopupRegistToBlotmap
@@ -457,28 +475,28 @@ namespace TextureChanger
 			this.mniFileListPopupRegistToBlotmap.Name = "mniFileListPopupRegistToBlotmap";
 			this.mniFileListPopupRegistToBlotmap.Size = new System.Drawing.Size( 196, 22 );
 			this.mniFileListPopupRegistToBlotmap.Text = "「にじみ」へ登録";
-			this.mniFileListPopupRegistToBlotmap.Click += new System.EventHandler( this.mniRegistToBlotmap_Click );
+			this.mniFileListPopupRegistToBlotmap.Click += new System.EventHandler( this.mniFileListPopupRegistToBlotmap_Click );
 			// 
 			// mniFileListPopupRegistToElemap
 			// 
 			this.mniFileListPopupRegistToElemap.Name = "mniFileListPopupRegistToElemap";
 			this.mniFileListPopupRegistToElemap.Size = new System.Drawing.Size( 196, 22 );
 			this.mniFileListPopupRegistToElemap.Text = "「筆」へ登録";
-			this.mniFileListPopupRegistToElemap.Click += new System.EventHandler( this.mniRegistToElemap_Click );
+			this.mniFileListPopupRegistToElemap.Click += new System.EventHandler( this.mniFileListPopupRegistToElemap_Click );
 			// 
 			// mniFileListPopupRegistToBrushtex
 			// 
 			this.mniFileListPopupRegistToBrushtex.Name = "mniFileListPopupRegistToBrushtex";
 			this.mniFileListPopupRegistToBrushtex.Size = new System.Drawing.Size( 196, 22 );
 			this.mniFileListPopupRegistToBrushtex.Text = "「テクスチャ」に登録";
-			this.mniFileListPopupRegistToBrushtex.Click += new System.EventHandler( this.mniRegistToBrushtex_Click );
+			this.mniFileListPopupRegistToBrushtex.Click += new System.EventHandler( this.mniFileListPopupRegistToBrushtex_Click );
 			// 
 			// mniFileListPopupRegistToPapertex
 			// 
 			this.mniFileListPopupRegistToPapertex.Name = "mniFileListPopupRegistToPapertex";
 			this.mniFileListPopupRegistToPapertex.Size = new System.Drawing.Size( 196, 22 );
 			this.mniFileListPopupRegistToPapertex.Text = "「用紙質感」に登録";
-			this.mniFileListPopupRegistToPapertex.Click += new System.EventHandler( this.mniRegistToPapertex_Click );
+			this.mniFileListPopupRegistToPapertex.Click += new System.EventHandler( this.mniFileListPopupRegistToPapertex_Click );
 			// 
 			// btnTextureRemove
 			// 
@@ -698,6 +716,8 @@ namespace TextureChanger
 		private ToolStripMenuItem mniFileListRegistToElemap;
 		private ToolStripMenuItem mniFileListRegistToBrushtex;
 		private ToolStripMenuItem mniFileListRegistToPapertex;
+		private ToolStripMenuItem mniFileListRegistToCurrent;
+		private ToolStripMenuItem mniFileListPopupRegistToCurrent;
 	}
 }
 

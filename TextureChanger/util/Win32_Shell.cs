@@ -794,13 +794,15 @@ namespace Win32
 
 		public static IShellFolder GetDesktopFolder( )
 		{
+
 			IntPtr ptrRet;
 			SH.SHGetDesktopFolder( out ptrRet );
 
-			return (IShellFolder)Marshal.GetTypedObjectForIUnknown(
-				ptrRet,
-				Type.GetType( "ShellLib.IShellFolder" )
-			);
+			Object obj = Marshal.GetTypedObjectForIUnknown( ptrRet, typeof( SH.IShellFolder ) );
+			IShellFolder ishellFolder = (IShellFolder)obj;
+
+			return ishellFolder;
+
 		}
 
 		/*

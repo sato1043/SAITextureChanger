@@ -446,6 +446,8 @@ namespace TextureChanger
 						_textureChangerOptions.LastEditingTextureName
 						, item.Text
 						, this);
+					_textureManager.SaveFormats( );
+
 					lsvTextureImage_UpdateImages(sender, e);
 				}
 			}
@@ -538,7 +540,7 @@ namespace TextureChanger
 			lsvFileList.Focus();
 		}
 
-		private void mniFileListRegistToBlotmap_Click( object sender, EventArgs e )
+		private void registTextureTo( object sender, EventArgs e, string targetConfName )
 		{
 			//項目が１つも選択されていない場合処理を抜ける
 			if( lsvFileList.SelectedItems.Count == 0 )
@@ -547,7 +549,7 @@ namespace TextureChanger
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 			{
 				DialogResult res = CenteredMessageBox.Show( this
-					, item.Text + "を「にじみ」へ登録しますか？", "登録確認"
+					, item.Text + "を" + targetConfName + "へ登録しますか？", "登録確認"
 					, MessageBoxButtons.YesNoCancel
 					, MessageBoxIcon.Question );
 
@@ -556,63 +558,65 @@ namespace TextureChanger
 				if( res == DialogResult.Yes )
 				{
 					_textureManager.AddImage(
-						TextureManager.BLOTMAP_NAME
-						, trvFolder.GetSelectedNodePath() +"\\"+item.Text
+						targetConfName
+						, trvFolder.GetSelectedNodePath( ) + "\\" + item.Text
 						, this );
+					_textureManager.SaveFormats( );
 
 					lsvTextureImage_UpdateImages( sender, e );
 				}
 			}
 		}
 
+		private void mniFileListRegistToCurrent_Click( object sender, EventArgs e )
+		{
+			registTextureTo( sender, e, _textureChangerOptions.LastEditingTextureName );
+		}
+		private void mniFileListRegistToBlotmap_Click( object sender, EventArgs e )
+		{
+			registTextureTo( sender, e, TextureManager.BLOTMAP_NAME );
+		}
 		private void mniFileListRegistToElemap_Click( object sender, EventArgs e )
 		{
-			//項目が１つも選択されていない場合処理を抜ける
-			if( lsvFileList.SelectedItems.Count == 0 )
-				return;
-			;
-			;
+			registTextureTo( sender, e, TextureManager.ELEMAP_NAME );
 		}
-
 		private void mniFileListRegistToBrushtex_Click( object sender, EventArgs e )
 		{
-			//項目が１つも選択されていない場合処理を抜ける
-			if( lsvFileList.SelectedItems.Count == 0 )
-				return;
-			;
-			;
+			registTextureTo( sender, e, TextureManager.BRUSHTEX_NAME );
 		}
-
 		private void mniFileListRegistToPapertex_Click( object sender, EventArgs e )
 		{
-			//項目が１つも選択されていない場合処理を抜ける
-			if( lsvFileList.SelectedItems.Count == 0 )
-				return;
-			;
-			;
+			registTextureTo( sender, e, TextureManager.PAPERTEX_NAME );
 		}
 
+		private void mniFileListPopupRegistToCurrent_Click( object sender, EventArgs e )
+		{
+			mniFileListRegistToCurrent_Click( sender, e );
+		}
 		private void mniFileListPopupSelectAll_Click( object sender, EventArgs e )
 		{
 			mniFileListSelectAll_Click( sender, e );
 		}
-		private void mniRegistToBlotmap_Click( object sender, EventArgs e )
+		private void mniFileListPopupRegistToBlotmap_Click( object sender, EventArgs e )
 		{
 			mniFileListRegistToBlotmap_Click( sender, e );
 		}
-		private void mniRegistToElemap_Click( object sender, EventArgs e )
+		private void mniFileListPopupRegistToElemap_Click( object sender, EventArgs e )
 		{
 			mniFileListRegistToElemap_Click( sender, e );
 		}
-		private void mniRegistToBrushtex_Click( object sender, EventArgs e )
+		private void mniFileListPopupRegistToBrushtex_Click( object sender, EventArgs e )
 		{
 			mniFileListRegistToBrushtex_Click( sender, e );
 		}
-		private void mniRegistToPapertex_Click( object sender, EventArgs e )
+		private void mniFileListPopupRegistToPapertex_Click( object sender, EventArgs e )
 		{
 			mniFileListRegistToPapertex_Click( sender, e );
 		}
 		#endregion
+
+
+
 
 
 

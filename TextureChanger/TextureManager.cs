@@ -421,7 +421,7 @@ namespace TextureChanger
 			};
 			if (SH.SHFileOperation(ref shfop) != 0)
 			{
-				throw new System.IO.IOException(); //something happened
+				return false; //throw new System.IO.IOException(); //something happened
 			}
 			if (shfop.fAnyOperationsAborted == true)
 			{
