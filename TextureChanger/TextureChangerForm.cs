@@ -9,11 +9,8 @@ using Win32;
 
 namespace TextureChanger
 {
-    // TODO : 現在のフォルダを逐次保存する。特にプログラム終了時
+ 	//TODO ファイル-バックアップ機能の実装
 
-	//TODO ファイル-バックアップ機能の実装
-
-    //TODO http://www.codeproject.com/KB/tree/
 	//TODO http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=4472
 
     public partial class TextureChangerForm : Form
@@ -151,8 +148,6 @@ namespace TextureChanger
 				_textureManager = new TextureManager(_textureChangerOptions.PathToSaiFolder,this);
 
 				lsvTextureImage_UpdateImages(sender, e);
-
-				// TODO : テクスチャ情報再読み込みに伴うUIの全更新
 			}
 
 			_saiProcessCheckTimer.Start();
@@ -376,6 +371,8 @@ namespace TextureChanger
 			 
 			lsvTextureImages.Items.Clear();
 
+			// TODO: 再表示後のリストビューのスクロール位置
+
 			var imagePathList = _textureManager.GetImagePathList(_textureChangerOptions.LastEditingTextureName);
 			for (int index = 0; index < imagePathList.Length; index++)
 			{
@@ -434,7 +431,9 @@ namespace TextureChanger
 			foreach (ListViewItem item in lsvTextureImages.SelectedItems)
 			{
 				DialogResult res = CenteredMessageBox.Show(this
-					, item.Text + "を削除しますか？", "削除確認"
+					, item.Text + "をSAIから登録解除しますか？\n"
+						+ "ファイルはゴミ箱へ移動されます。"
+					, "削除確認"
 					, MessageBoxButtons.YesNoCancel
 					, MessageBoxIcon.Question);
 				
@@ -531,6 +530,7 @@ namespace TextureChanger
 		#endregion
 
 		#region ファイルリストのポップアップメニュー
+
 		private void mniFileListSelectAll_Click( object sender, EventArgs e )
 		{
 			foreach( ListViewItem item in lsvFileList.Items )
@@ -557,11 +557,23 @@ namespace TextureChanger
 					break;
 				if( res == DialogResult.Yes )
 				{
-					_textureManager.AddImage(
+					if (_textureManager.AddImage(
 						targetConfName
-						, trvFolder.GetSelectedNodePath( ) + "\\" + item.Text
-						, this );
-					_textureManager.SaveFormats( );
+						, trvFolder.GetSelectedNodePath() + "\\" + item.Text
+						, this))
+					{
+						_textureManager.SaveFormats( );
+					}
+					else
+					{
+						CenteredMessageBox.Show( this
+							, "登録に失敗しました：\n"
+								+ trvFolder.GetSelectedNodePath( ) + "\\" + item.Text + "を\n"
+								+ targetConfName + "へ"
+							, "登録失敗"
+							, MessageBoxButtons.OK
+							, MessageBoxIcon.Warning );
+					}
 
 					lsvTextureImage_UpdateImages( sender, e );
 				}
@@ -614,15 +626,6 @@ namespace TextureChanger
 			mniFileListRegistToPapertex_Click( sender, e );
 		}
 		#endregion
-
-
-
-
-
-
-
-
-
 
 	}
 }

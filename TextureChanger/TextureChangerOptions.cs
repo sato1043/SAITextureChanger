@@ -8,16 +8,6 @@ using Win32;
 
 namespace TextureChanger
 {
-	// TODO : 設定オブジェクトを定義する
-
-	/*
-		[WindowPosition]
-		upperHigh = 284
-		upperLeftWide = 311
-		lowerLeftWide = 256
-	 */
-
-
 	public class TextureChangerOptions
 	{
 		readonly IniFile _iniFile;
@@ -95,7 +85,6 @@ namespace TextureChanger
 			get { return _promptToExitProgram; }
 			set { _iniFile["Settings", "PromptToExitProgram"] = (_promptToExitProgram = value).ToString(); }
 		}
-
 		#endregion
 
 		#region ウィンドウ位置保存プロパティ
@@ -167,6 +156,11 @@ namespace TextureChanger
 		}
 		#endregion
 
+		private const int DefaultSplitterDistanceNorthSouth = 270;
+		private const int DefaultSplitterDistanceTreeList   = 330;
+
+		private const int DefaultWindowBoundsWide = 998;
+		private const int DefaultWindowBoundsHigh = 615;
 
 		public TextureChangerOptions()
 		{
@@ -194,7 +188,7 @@ namespace TextureChanger
 			}
 			catch
 			{
-				_windowBounds = new Rectangle(0,0,998,615);
+				_windowBounds = new Rectangle( 0, 0, DefaultWindowBoundsWide, DefaultWindowBoundsHigh );
 			}
 			try
 			{
@@ -215,7 +209,7 @@ namespace TextureChanger
 			}
 			catch
 			{
-				_splitterDistanceNorthSouth = 270; //TODO const
+				_splitterDistanceNorthSouth = DefaultSplitterDistanceNorthSouth;
 			}
 			try
 			{
@@ -224,7 +218,7 @@ namespace TextureChanger
 			}
 			catch
 			{
-				_splitterDistanceTreeList = 330; //TODO const
+				_splitterDistanceTreeList = DefaultSplitterDistanceTreeList;
 			}
 			#endregion
 
@@ -233,30 +227,29 @@ namespace TextureChanger
 			LastEditingTextureImagePath = _iniFile["Settings", "LastEditingTextureImagePath"];
 			#endregion
 
-			#region 前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
+			#region 設定をひとつづつ判定して初期値を入れる
+			//想定しているのは、ファイルが既にあって特定の設定だけ抜けていた場合の正しい初期値を設定すること。
+			//iniFile[]で設定値がなかった場合、値は空文字に設定されるので、それでかまわない項目についてはそのままにしている。
 			if (_firstExpandingUseFixed == false
 				&& _firstExpandingRecentFolder == "")
 			{
-				
-				//TODO 設定をひとつづつ判定して初期値を入れる
-
+				//前回使用フォルダ名が空の場合は初期状態と判断して初期値を設定する
 				string temp = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
 				FirstExpandingUseFixed = false;
 				FirstExpandingRecentFolder = temp;
 				FirstExpandingFixedFolder = temp;
-				PathToSaiFolder = "";
+			}
+			if( _iniFile[ "Settings", "PromptToExitProgram" ] == "" )
+			{
 				PromptToExitProgram = true;
-				WindowBounds = new Rectangle(0, 0, 998, 615);//TODO const
-				WindowState = FormWindowState.Normal;
-				SplitterDistanceNorthSouth = 270; //TODO const
-				SplitterDistanceTreeList = 330; //TODO const
+			}
+			if( _iniFile[ "Settings", "LastEditingTextureName" ] == "" )
+			{
 				LastEditingTextureName = TextureManager.BLOTMAP_NAME;
-				LastEditingTextureImagePath = "";
 			}
 			#endregion
 
 		}
-
 
 	}
 }

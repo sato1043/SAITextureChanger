@@ -385,8 +385,6 @@ namespace TextureChanger
 			, IWin32Window owner
 		)
 		{
-			//TODO addImage() 単体テスト
-
 			var targetFormat =
 				_saiTextureFormatList
 					.FirstOrDefault(saiTextureFormat =>
@@ -406,8 +404,18 @@ namespace TextureChanger
 
 			if (File.Exists(dst))
 			{
-				; //TODO 追加先画像がすでにあった場合どうするか(今は上書きしてる)
-				//内容比較してエラーにする？
+				//シェルのコピーコマンドで「上書きかスキップ」を選択できるのでファイル操作はそれにまかせる。
+				//それだけだとSAIへの登録自体はそのまま続行されるので問い合わせ
+				DialogResult res = CenteredMessageBox.Show( owner
+					, "ビットマップファイルがすでに存在します\n"
+						+ "登録を続行しますか？：\n"
+						+ dst
+					, "登録確認"
+					, MessageBoxButtons.OKCancel
+					, MessageBoxIcon.Question );
+
+				if( res == DialogResult.Cancel )
+					return false;
 			}
 			
 			// Exploreシェルでファイルをコピーする。
