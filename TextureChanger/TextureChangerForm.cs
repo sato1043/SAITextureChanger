@@ -9,7 +9,7 @@ using Win32;
 
 namespace TextureChanger
 {
- 	//TODO ファイル-バックアップ機能の実装
+ 	//TODO ファイル-リストア機能の実装
 
 	//TODO http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=4472
 
@@ -28,7 +28,7 @@ namespace TextureChanger
 	    public TextureChangerForm( )
 		{
 			InitializeComponent( );
-		}
+        }
 
 		private void TextureChangerForm_Load(object sender, EventArgs e)
 		{
@@ -81,12 +81,12 @@ namespace TextureChanger
 
 			#region 起動確認
 			CenteredMessageBox.Show(this,
-				"SAIに対する編集は、直接即座に上書きされます。\n" +
+				"SAIに対するテクスチャの設定変更は、直接即座に上書きされます。　　　\n" +
+				"また、TextureChanger起動中にSAIを起動した場合、\n" +
+                "それまでの状況に関わらずSAIの設定が再読み込みされます。\n" +
 				"\n" +
-				"また、TextureChangerとSAIはお互いを知らないので、\n" +
-				"SAI起動中にTextureChangerを実行することができません。\n" +
-				"\n" +
-				"TextureChanger起動中にSAIを起動した場合、SAIでの変更が再読み込みされます。　　　\n"
+				"TextureChangerとSAIはお互いを知らないので、\n" +
+                "SAI起動中にTextureChangerを実行することができません。\n"
 				, "TexureChanger起動確認"
 				, MessageBoxButtons.OK, MessageBoxIcon.Information);
 			#endregion
@@ -103,7 +103,13 @@ namespace TextureChanger
 			trvFolder.InitFolderTreeView();
 			trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
 			#endregion
-		}
+
+            #region ステータスバーに編集中のテクスチャのフォルダのフルパスを表示する
+            lblStatus.Text = _textureChangerOptions.LastEditingTextureName + " - "
+                + _textureChangerOptions.PathToSaiFolder
+                + "\\" + _textureManager.GetDirectoryFromConfname(_textureChangerOptions.LastEditingTextureName);
+            #endregion
+        }
 
 		#region タイマーハンドラ: SAI起動中確認と最新情報読み込み
 		private void SaiProcessCheckTimerHandler(object sender, EventArgs e)
@@ -349,13 +355,21 @@ namespace TextureChanger
 			_textureChangerOptions.SaveLastEditings(((ToolStripMenuItem) sender).Text, "");
 
 			lsvTextureImage_UpdateImages(sender, e);
+
+            lblStatus.Text = ((ToolStripMenuItem) sender).Text + " - "
+                + _textureChangerOptions.PathToSaiFolder
+                + "\\" + _textureManager.GetDirectoryFromConfname(_textureChangerOptions.LastEditingTextureName);
 		}
 		private void rdoEditTexture_Click( object sender, EventArgs e )
 		{
 			_textureChangerOptions.SaveLastEditings((string)((RadioButton) sender).Tag, "");
 
 			lsvTextureImage_UpdateImages( sender, e );
-		}
+
+            lblStatus.Text = (string)((RadioButton)sender).Tag + " - "
+                + _textureChangerOptions.PathToSaiFolder
+                + "\\" + _textureManager.GetDirectoryFromConfname(_textureChangerOptions.LastEditingTextureName);
+        }
 		#endregion
 
 		#region テクスチャ画像のリストビューを内容更新する
@@ -366,10 +380,11 @@ namespace TextureChanger
 			foreach (var rdoEditTexture in new[] { rdoEditBlotmap, rdoEditElemap, rdoEditBrushtex, rdoEditPapertex })
 				rdoEditTexture.Checked = ((string)rdoEditTexture.Tag == _textureChangerOptions.LastEditingTextureName);
 
+            lsvTextureImages.Items.Clear();
+            ilsTextureImage.Images.Clear();
+
 			_textureManager.GetImageList(_textureChangerOptions.LastEditingTextureName
 				, lsvTextureImages.LargeImageList);
-			 
-			lsvTextureImages.Items.Clear();
 
 			// TODO: 再表示後のリストビューのスクロール位置
 
@@ -473,49 +488,30 @@ namespace TextureChanger
 		#endregion
 
 		#region ツリービューのクリック
-		
-		// 幅w、高さhのImageオブジェクトを作成
-		Image createThumbnail( Image image, int w, int h )
-		{
-			Bitmap canvas = new Bitmap( w, h );
 
-			Graphics g = Graphics.FromImage( canvas );
-			g.FillRectangle( new SolidBrush( Color.White ), 0, 0, w, h );
-
-			float fw = (float)w / (float)image.Width;
-			float fh = (float)h / (float)image.Height;
-
-			float scale = Math.Min( fw, fh );
-			fw = image.Width * scale;
-			fh = image.Height * scale;
-
-			g.DrawImage( image, ( w - fw ) / 2, ( h - fh ) / 2, fw, fh );
-			g.Dispose( );
-
-			return canvas;
-		}
-		
 		private void trvFolder_AfterSelect( object sender, TreeViewEventArgs e )
 		{
 			_textureChangerOptions.SetToUseFirstExpandingRecentFolder(
 				trvFolder.GetSelectedNodePath() );
 
 			lsvFileList.Items.Clear();
+            ilsFileList.Images.Clear();
 
 			string imageDir = trvFolder.GetSelectedNodePath();
 
 			string[] bmpFiles = Directory.GetFiles( imageDir, "*.bmp" );
 
-			int width = 256;
-			int height = 256;
-
-			ilsFileList.ImageSize = new Size( width, height );
-			lsvFileList.LargeImageList = ilsFileList;
+            int width = ilsFileList.ImageSize.Width;
+            int height = ilsFileList.ImageSize.Height;
 
 			for( int i = 0; i < bmpFiles.Length; i++ )
 			{
 				Image original = Bitmap.FromFile( bmpFiles[ i ] );
-				Image thumbnail = createThumbnail( original, width, height );
+
+                //TODO: ここでビットマップサイズのチェック
+
+
+				Image thumbnail = TextureManager.createThumbnail( original, width, height );
 				
 				FileInfo fi = new FileInfo( bmpFiles[ i ] );
 
@@ -627,5 +623,23 @@ namespace TextureChanger
 		}
 		#endregion
 
-	}
+        #region 最新の情報に更新
+        private void mniFileListPopupUpdateList_Click(object sender, EventArgs e)
+        {
+             mniFileListUpdateList_Click(sender,e);
+        }
+        private void mniFileListUpdateList_Click(object sender, EventArgs e)
+        {
+            trvFolder_AfterSelect(sender, new TreeViewEventArgs(null));
+        }
+        #endregion
+
+        #region バックアップ
+        private void mniBackup_Click(object sender, EventArgs e)
+        {
+            _textureManager.Backup(this);
+        }
+        #endregion
+
+    }
 }

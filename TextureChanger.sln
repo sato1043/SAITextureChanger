@@ -3,6 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TextureChanger", "TextureChanger\TextureChanger.csproj", "{FFEF5DE0-144A-4B90-BD52-DAD51EF9B8D2}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "zip-v1.9-Reduced", "zip-v1.9-Reduced", "{01593B4E-3229-45E0-B1D8-542048970B97}"
+	ProjectSection(SolutionItems) = preProject
+		zip-v1.9-Reduced\Readme.txt = zip-v1.9-Reduced\Readme.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Debug", "Debug", "{A5D0EBFE-4CA6-4CB6-9593-36259B1D9060}"
+	ProjectSection(SolutionItems) = preProject
+		zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.dll = zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.dll
+		zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.pdb = zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.pdb
+		zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.XML = zip-v1.9-Reduced\Debug\Ionic.Zip.Reduced.XML
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{EB9B9FD2-5C7F-4A5B-9E6C-E55FD377BA62}"
+	ProjectSection(SolutionItems) = preProject
+		zip-v1.9-Reduced\Release\Ionic.Zip.Reduced.dll = zip-v1.9-Reduced\Release\Ionic.Zip.Reduced.dll
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,5 +43,9 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A5D0EBFE-4CA6-4CB6-9593-36259B1D9060} = {01593B4E-3229-45E0-B1D8-542048970B97}
+		{EB9B9FD2-5C7F-4A5B-9E6C-E55FD377BA62} = {01593B4E-3229-45E0-B1D8-542048970B97}
 	EndGlobalSection
 EndGlobal

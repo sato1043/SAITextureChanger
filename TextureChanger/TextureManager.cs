@@ -7,6 +7,7 @@ using System.Text;
 using System.Windows.Forms;
 using TextureChanger.util;
 using Win32;
+using Ionic.Zip;
 
 namespace TextureChanger
 {
@@ -104,6 +105,9 @@ namespace TextureChanger
 		};
 		#endregion
 
+        public const int ListViewPreviewWidth = 200;
+        public const int ListViewPreviewHeight = 200;
+
 
 		private readonly List<SAITextureFormat> _saiTextureFormatList;
 
@@ -157,11 +161,91 @@ namespace TextureChanger
 
 			LoadFormats();
 
-			InitialBackupFormats(owner);
-		}
+            #region 初期バックアップ
+            string zipFileBaseName = "backup-" + System.DateTime.Now.ToString("yyyyMMdd-HHmm") + "(I)";
+            string[] files = Directory.GetFiles(_pathToSaiFolder, "backup-*(I).zip");
+            if (files.Length == 0)
+            {
+                try
+                {
+                    createBackupZipArchive(owner, zipFileBaseName);
+                    CenteredMessageBox.Show(owner,
+                        "あなたが指定したSAIフォルダに、現時点でのテクスチャ情報をバックアップしました。\n" +
+                        "バックアップファイルは「" + _pathToSaiFolder + "\\" + zipFileBaseName + ".zip」です。　　　\n" +
+                        "\n" +
+                        "SAIフォルダにある４つのconfと４つのフォルダ、\n" +
+                        "「blotmap」「elemap」「brushtex」「papertex」を元に戻すことで、設定を現時点の状態に戻せます。\n" +
+                        "（戻すときはSAIとTextureChangerと両方終了した状態で行なってください）"
+                        , "SAIのテクスチャ設定のバックアップ報告"
+                        , MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    CenteredMessageBox.Show(owner,
+                        "編集前のテクスチャ情報の、バックアップに失敗しました。\n" +
+                        "編集を行う前にSAIフォルダにある４つのconfと４つのフォルダ、\n" +
+                        "「blotmap」「elemap」「brushtex」「papertex」を手動でバックアップすることをおすすめします。　　\n" +
+                        "編集をした後でも、これらのファイルを元に戻すことで、設定を現時点の状態に戻せます。" +
+                        "（戻すときはSAIとTextureChangerと両方終了した状態で行なってください）"
+                        , "SAIのテクスチャ設定のバックアップ失敗"
+                        , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            #endregion
+        }
 
-		#region 文字列を改行コードまでに切り詰める
-		private void CutOffToCrLf(ref string line)
+        #region テクスチャ種別名からサブディレクトリ名を得る
+        public string GetDirectoryFromConfname(string targetConfName)
+        {
+            var targetFormat =
+                _saiTextureFormatList
+                    .FirstOrDefault(saiTextureFormat =>
+                        targetConfName == saiTextureFormat.name);
+            if (targetFormat == null)
+            {
+                throw new ArgumentOutOfRangeException("targetConfName");
+            }
+
+            return targetFormat.directory;
+        }
+        #endregion
+
+        #region バックアップZIPファイルを作る
+        private void createBackupZipArchive(IWin32Window owner, string zipFileBaseName)
+        {
+            try
+            {
+                using (ZipFile zip = new ZipFile(Encoding.GetEncoding(932)))
+                {
+                    zip.Comment = "This zip was created at " + System.DateTime.Now.ToString("G");
+
+                    var fileList = new List<string>();
+
+                    foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)
+                    {
+                        if (fileList.Contains(saiTextureFormat.confpath) == false)
+                        {
+                            fileList.Add(saiTextureFormat.confpath);
+                            zip.AddFile(_pathToSaiFolder + saiTextureFormat.confpath).FileName = saiTextureFormat.confpath;
+                        }
+
+                        foreach(var f in Directory.GetFiles(_pathToSaiFolder + "\\" + saiTextureFormat.directory)) 
+                        {
+                            zip.AddFile(f).FileName = "\\" + saiTextureFormat.directory + "\\" + Path.GetFileName(f);
+                        }
+                    }
+                    zip.Save(_pathToSaiFolder + "\\" + zipFileBaseName+".zip");
+                }
+            }
+            catch
+            {
+                throw;
+            }
+        }
+        #endregion
+
+        #region 文字列を改行コードまでに切り詰める
+        private void CutOffToCrLf(ref string line)
 		{
 			int pos = line.IndexOf("\r\n", System.StringComparison.OrdinalIgnoreCase);
 			if (0 < pos)
@@ -248,14 +332,47 @@ namespace TextureChanger
 		#endregion
 
 		#region テクスチャ情報ファイルのバックアップ・リストア
-		private void InitialBackupFormats(IWin32Window owner)
+		public void Backup(IWin32Window owner)
 		{
-			BackupOrRestoreFormats(false, true, owner);
-		}
-		private void BackupFormats(IWin32Window owner)
-		{
-			BackupOrRestoreFormats(false, false, owner);
-		}
+            string zipFileBaseName = "backup-" + System.DateTime.Now.ToString("yyyyMMdd-HHmm");
+            string[] files = Directory.GetFiles(_pathToSaiFolder, zipFileBaseName+".zip");
+            if (files.Length == 0)
+            {
+                try
+                {
+                    createBackupZipArchive(owner, zipFileBaseName);
+                    CenteredMessageBox.Show(owner,
+                        "あなたが指定したSAIフォルダに、現時点でのテクスチャ情報をバックアップしました。\n" +
+                        "バックアップファイルは「" + _pathToSaiFolder + "\\" + zipFileBaseName + ".zip」です。　　　\n" +
+                        "\n" +
+                        "SAIフォルダにある４つのconfと４つのフォルダ、\n" +
+                        "「blotmap」「elemap」「brushtex」「papertex」を元に戻すことで、設定を現時点の状態に戻せます。\n" +
+                        "（戻すときはSAIとTextureChangerと両方終了した状態で行なってください）"
+                        , "SAIのテクスチャ設定のバックアップ報告"
+                        , MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                catch
+                {
+                    CenteredMessageBox.Show(owner,
+                        "編集前のテクスチャ情報の、バックアップに失敗しました。\n" +
+                        "編集を行う前にSAIフォルダにある４つのconfと４つのフォルダ、\n" +
+                        "「blotmap」「elemap」「brushtex」「papertex」を手動でバックアップすることをおすすめします。　　\n" +
+                        "編集をした後でも、これらのファイルを元に戻すことで、設定を現時点の状態に戻せます。" +
+                        "（戻すときはSAIとTextureChangerと両方終了した状態で行なってください）"
+                        , "SAIのテクスチャ設定のバックアップ失敗"
+                        , MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            else
+            {
+                CenteredMessageBox.Show(owner,
+                    "バックアップファイルが既に存在しました。\n" +
+                    "バックアップファイルは「" + _pathToSaiFolder + "\\" + zipFileBaseName + ".zip」です。　　　\n"
+                    , "SAIのテクスチャ設定のバックアップ報告"
+                    , MessageBoxButtons.OK, MessageBoxIcon.Information);
+            }
+        }
+#if NOP
 		private void RestoreFormats(IWin32Window owner)
 		{
 			BackupOrRestoreFormats(true, false, owner);
@@ -317,10 +434,11 @@ namespace TextureChanger
 
 			}
 		}
-		#endregion
+#endif
+        #endregion
 
-		#region ImageListオブジェクトの生成
-		Image createThumbnail(Image image, int w, int h)
+        #region ImageListオブジェクトの生成
+        public static Image createThumbnail(Image image, int w, int h)
 		{
 			var canvas = new Bitmap(w, h);
 
@@ -364,12 +482,12 @@ namespace TextureChanger
 			}
 
 			imageList.Images.Clear();
-			imageList.ImageSize = targetFormat.sizes[0];
+			imageList.ImageSize = targetFormat.sizes[0];//GUI側ではサイズを決められない
 
 			foreach (var imagePath in targetFormat.image_vector)
 			{
 				var original = Bitmap.FromFile(_pathToSaiFolder + "\\" + imagePath);
-				var thumbnail = createThumbnail(original, 256, 256);
+                var thumbnail = createThumbnail(original, ListViewPreviewWidth, ListViewPreviewHeight);
 				imageList.Images.Add(thumbnail);
 				original.Dispose();
 				thumbnail.Dispose();
