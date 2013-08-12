@@ -512,6 +512,37 @@ namespace TextureChanger
 				throw new ArgumentOutOfRangeException("targetConfName");
 			}
 
+			//ビットマップサイズのチェック
+			var original = Bitmap.FromFile( fromPath );
+			bool sizeFound = false;
+			foreach(Size sz in targetFormat.sizes)
+			{
+				if (sz == original.Size)
+				{
+					sizeFound = true;
+					break;
+				}
+			}
+			if (sizeFound == false)
+			{
+
+				string availableSizesString = "";
+				foreach( Size sz in targetFormat.sizes )
+				{
+					availableSizesString += "「" + sz.Width + " x " + sz.Height + "」";
+				}
+				CenteredMessageBox.Show( owner
+					, targetConfName+"に登録可能な画像サイズではありませんでした。\n"
+						+"登録しようとしたサイズ： 幅 "+ original.Size.Width + " x 高さ "+ original.Height +"\n"
+						+ "登録可能なサイズ： " + availableSizesString
+					, "登録失敗"
+					, MessageBoxButtons.OK
+					, MessageBoxIcon.Error );
+				return false;
+			}
+			original.Dispose();
+
+			//登録済みでないかチェック
 			var imagePath = targetFormat.directory + "\\" + Path.GetFileName(fromPath);
 			if (targetFormat.image_vector.Contains(imagePath))
 			{

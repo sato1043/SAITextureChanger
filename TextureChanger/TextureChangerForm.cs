@@ -391,7 +391,7 @@ namespace TextureChanger
 			var imagePathList = _textureManager.GetImagePathList(_textureChangerOptions.LastEditingTextureName);
 			for (int index = 0; index < imagePathList.Length; index++)
 			{
-				lsvTextureImages.Items.Add(imagePathList[index], index);
+				lsvTextureImages.Items.Add( imagePathList[ index ], imagePathList[ index ], index );
 			}
 		}
 		#endregion
@@ -446,7 +446,7 @@ namespace TextureChanger
 			foreach (ListViewItem item in lsvTextureImages.SelectedItems)
 			{
 				DialogResult res = CenteredMessageBox.Show(this
-					, item.Text + "をSAIから登録解除しますか？\n"
+					, item.Name + "をSAIから登録解除しますか？\n"
 						+ "ファイルはゴミ箱へ移動されます。"
 					, "削除確認"
 					, MessageBoxButtons.YesNoCancel
@@ -458,7 +458,7 @@ namespace TextureChanger
 				{
 					_textureManager.RemoveImage(
 						_textureChangerOptions.LastEditingTextureName
-						, item.Text
+						, item.Name
 						, this);
 					_textureManager.SaveFormats( );
 
@@ -487,8 +487,7 @@ namespace TextureChanger
 		}
 		#endregion
 
-		#region ツリービューのクリック
-
+		#region ツリービューのクリックとファイルリストの一覧(再)作成
 		private void trvFolder_AfterSelect( object sender, TreeViewEventArgs e )
 		{
 			_textureChangerOptions.SetToUseFirstExpandingRecentFolder(
@@ -507,34 +506,37 @@ namespace TextureChanger
 			for( int i = 0; i < bmpFiles.Length; i++ )
 			{
 				Image original = Bitmap.FromFile( bmpFiles[ i ] );
-
-                //TODO: ここでビットマップサイズのチェック
-
+				string sizeString = "   （ 幅 " + original.Size.Width + " x 高さ " + original.Height + " ）";
 
 				Image thumbnail = TextureManager.createThumbnail( original, width, height );
 				
 				FileInfo fi = new FileInfo( bmpFiles[ i ] );
 
 				ilsFileList.Images.Add( thumbnail );
-				lsvFileList.Items.Add( fi.Name, i );
+				lsvFileList.Items.Add( fi.Name, fi.Name + sizeString, i );
 
 				original.Dispose( );
 				thumbnail.Dispose( );
 			}
-
 		}
 		#endregion
 
-		#region ファイルリストのポップアップメニュー
-
+		#region ファイルリストのすべて選択
 		private void mniFileListSelectAll_Click( object sender, EventArgs e )
 		{
 			foreach( ListViewItem item in lsvFileList.Items )
 			{
 				item.Selected = true;
 			}
-			lsvFileList.Focus();
+			lsvFileList.Focus( );
 		}
+		private void mniFileListPopupSelectAll_Click( object sender, EventArgs e )
+		{
+			mniFileListSelectAll_Click( sender, e );
+		}
+		#endregion
+
+		#region ファイルリストからテクスチャ登録
 
 		private void registTextureTo( object sender, EventArgs e, string targetConfName )
 		{
@@ -545,9 +547,11 @@ namespace TextureChanger
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 			{
 				DialogResult res = CenteredMessageBox.Show( this
-					, item.Text + "を" + targetConfName + "へ登録しますか？", "登録確認"
+					, item.Name + "を" + targetConfName + "へ登録しますか？", "登録確認"
 					, MessageBoxButtons.YesNoCancel
 					, MessageBoxIcon.Question );
+
+				string targetPath = trvFolder.GetSelectedNodePath( ) + "\\" + item.Name;
 
 				if( res == DialogResult.Cancel )
 					break;
@@ -555,7 +559,7 @@ namespace TextureChanger
 				{
 					if (_textureManager.AddImage(
 						targetConfName
-						, trvFolder.GetSelectedNodePath() + "\\" + item.Text
+						, targetPath
 						, this))
 					{
 						_textureManager.SaveFormats( );
@@ -564,7 +568,7 @@ namespace TextureChanger
 					{
 						CenteredMessageBox.Show( this
 							, "登録に失敗しました：\n"
-								+ trvFolder.GetSelectedNodePath( ) + "\\" + item.Text + "を\n"
+								+ targetPath + "を\n"
 								+ targetConfName + "へ"
 							, "登録失敗"
 							, MessageBoxButtons.OK
@@ -600,10 +604,6 @@ namespace TextureChanger
 		private void mniFileListPopupRegistToCurrent_Click( object sender, EventArgs e )
 		{
 			mniFileListRegistToCurrent_Click( sender, e );
-		}
-		private void mniFileListPopupSelectAll_Click( object sender, EventArgs e )
-		{
-			mniFileListSelectAll_Click( sender, e );
 		}
 		private void mniFileListPopupRegistToBlotmap_Click( object sender, EventArgs e )
 		{
