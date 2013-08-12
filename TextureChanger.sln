@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Release", "Release", "{EB9B
 		zip-v1.9-Reduced\Release\Ionic.Zip.Reduced.dll = zip-v1.9-Reduced\Release\Ionic.Zip.Reduced.dll
 	EndProjectSection
 EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "TextureChangerSetup", "TextureChangerSetup\TextureChangerSetup.vdproj", "{8870EF2B-9901-4769-AD38-8AB81E030979}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -40,6 +42,12 @@ Global
 		{FFEF5DE0-144A-4B90-BD52-DAD51EF9B8D2}.Release|Mixed Platforms.Build.0 = Release|x86
 		{FFEF5DE0-144A-4B90-BD52-DAD51EF9B8D2}.Release|x86.ActiveCfg = Release|x86
 		{FFEF5DE0-144A-4B90-BD52-DAD51EF9B8D2}.Release|x86.Build.0 = Release|x86
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Debug|Any CPU.ActiveCfg = Debug
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Debug|Mixed Platforms.ActiveCfg = Debug
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Debug|x86.ActiveCfg = Debug
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Release|Any CPU.ActiveCfg = Release
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Release|Mixed Platforms.ActiveCfg = Release
+		{8870EF2B-9901-4769-AD38-8AB81E030979}.Release|x86.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -72,6 +72,7 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.lsvFileList = new System.Windows.Forms.ListView( );
 			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
@@ -97,7 +98,6 @@ namespace TextureChanger
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditElemap = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.mnuMainMenu.SuspendLayout( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
 			this.splNorthSouth.Panel2.SuspendLayout( );
@@ -446,6 +446,18 @@ namespace TextureChanger
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
 			// 
+			// trvFolder
+			// 
+			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
+			this.trvFolder.TabIndex = 0;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
 			// lsvFileList
 			// 
 			this.lsvFileList.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
@@ -693,18 +705,6 @@ namespace TextureChanger
 			this.rdoEditBlotmap.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.rdoEditBlotmap.UseVisualStyleBackColor = true;
 			this.rdoEditBlotmap.Click += new System.EventHandler( this.rdoEditTexture_Click );
-			// 
-			// trvFolder
-			// 
-			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-						| System.Windows.Forms.AnchorStyles.Left )
-						| System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
-			this.trvFolder.TabIndex = 0;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
 			// 
 			// TextureChangerForm
 			// 
