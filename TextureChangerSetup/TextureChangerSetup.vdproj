@@ -15,14 +15,26 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_42C644059D864A6A8403A2FC0426E390"
+        "MsmKey" = "8:_0950D5C122CC4B6EA95D3B3963C02C2E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_4CADC5627C652D834929B8159E457AA2"
-        "OwnerKey" = "8:_42C644059D864A6A8403A2FC0426E390"
+        "MsmKey" = "8:_4A93DD77E47B4DFA84F77072FC1C8191"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6792000C4A9C9ABAFD5A1B2A0B91C276"
+        "OwnerKey" = "8:_0950D5C122CC4B6EA95D3B3963C02C2E"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_742B9A741017AE578B408A05180620F6"
+        "OwnerKey" = "8:_4A93DD77E47B4DFA84F77072FC1C8191"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -34,13 +46,19 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4CADC5627C652D834929B8159E457AA2"
+        "OwnerKey" = "8:_0950D5C122CC4B6EA95D3B3963C02C2E"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_42C644059D864A6A8403A2FC0426E390"
+        "OwnerKey" = "8:_4A93DD77E47B4DFA84F77072FC1C8191"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_UNDEFINED"
+        "OwnerKey" = "8:_742B9A741017AE578B408A05180620F6"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -61,6 +79,14 @@
         "PrivateKeyFile" = "8:"
         "TimeStampServer" = "8:"
         "InstallerBootstrapper" = "3:2"
+            "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
+            {
+            "Enabled" = "11:TRUE"
+            "PromptEnabled" = "11:TRUE"
+            "PrerequisitesLocation" = "2:1"
+            "Url" = "8:"
+            "ComponentsUrl" = "8:"
+            }
         }
         "Release"
         {
@@ -86,10 +112,10 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Client.3.5"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Net.Framework.3.5.SP1"
                     {
-                    "Name" = "8:.NET Framework 3.5 SP1 Client Profile"
-                    "ProductCode" = "8:Microsoft.Net.Client.3.5"
+                    "Name" = "8:.NET Framework 3.5 SP1"
+                    "ProductCode" = "8:Microsoft.Net.Framework.3.5.SP1"
                     }
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
                     {
@@ -119,7 +145,7 @@
                 {
                 "Name" = "8:.NET Framework"
                 "Message" = "8:[VSDNETMSG]"
-                "FrameworkVersion" = "8:.NETFramework,Version=v3.5,Profile=Client"
+                "FrameworkVersion" = "8:.NETFramework,Version=v3.5"
                 "AllowLaterVersions" = "11:FALSE"
                 "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
                 }
@@ -127,14 +153,65 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4CADC5627C652D834929B8159E457AA2"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_0950D5C122CC4B6EA95D3B3963C02C2E"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:Interop.Shell32, Version=1.0.0.0, Culture=neutral, processorArchitecture=x86"
+                "ScatterAssemblies"
+                {
+                    "_0950D5C122CC4B6EA95D3B3963C02C2E"
+                    {
+                    "Name" = "8:Interop.Shell32.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:..\\TextureChanger\\bin\\Release\\Interop.Shell32.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6792000C4A9C9ABAFD5A1B2A0B91C276"
+            {
+            "SourcePath" = "8:shell32.dll"
+            "TargetName" = "8:shell32.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_742B9A741017AE578B408A05180620F6"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_4CADC5627C652D834929B8159E457AA2"
+                    "_742B9A741017AE578B408A05180620F6"
                     {
                     "Name" = "8:Ionic.Zip.Reduced.dll"
                     "Attributes" = "3:512"
@@ -233,9 +310,9 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:TextureChangerSetup"
+        "ProductName" = "8:TextureChanger"
         "ProductCode" = "8:{E55CB708-BCE7-4216-A20C-94F5D572801C}"
-        "PackageCode" = "8:{2201BD35-C90E-49B8-BF58-EE0091238BDD}"
+        "PackageCode" = "8:{1EAE6FF2-602F-446A-878A-562F3E6D60C1}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -246,7 +323,7 @@
         "Manufacturer" = "8:sato1043"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
-        "Title" = "8:TextureChangerSetup"
+        "Title" = "8:InstallTextureChanger"
         "Subject" = "8:"
         "ARPCONTACT" = "8:sato1043@gmail.com"
         "Keywords" = "8:"
@@ -355,7 +432,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_7D898E799E5E40B1BD727232A467F21D"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_5AE1E78639F44A158E1E26CA683744EE"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -363,13 +440,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_42C644059D864A6A8403A2FC0426E390"
-            "Folder" = "8:_1E9E7C58F6134115AE857AA9123BB3DB"
+            "Target" = "8:_4A93DD77E47B4DFA84F77072FC1C8191"
+            "Folder" = "8:_6A3B879D0CA4458BB260F2CC52E06051"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
             "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_EF27E98CCEC34235AF26395B527397BE"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_918E7F3207574F2FB1B11862E7D321AE"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -377,10 +454,10 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_42C644059D864A6A8403A2FC0426E390"
-            "Folder" = "8:_6A3B879D0CA4458BB260F2CC52E06051"
+            "Target" = "8:_4A93DD77E47B4DFA84F77072FC1C8191"
+            "Folder" = "8:_1E9E7C58F6134115AE857AA9123BB3DB"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
-            "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
+            "Icon" = "8:"
             "Feature" = "8:"
             }
         }
@@ -782,7 +859,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_42C644059D864A6A8403A2FC0426E390"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4A93DD77E47B4DFA84F77072FC1C8191"
             {
             "SourcePath" = "8:..\\TextureChanger\\obj\\x86\\Release\\TextureChanger.exe"
             "TargetName" = "8:"
