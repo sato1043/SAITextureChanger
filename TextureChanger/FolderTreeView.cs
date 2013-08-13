@@ -472,7 +472,7 @@ namespace TextureChanger
 		#region Add Root Node
 		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, ShellFolder shellFolder, bool getIcons)
 		{
-			Shell32.Shell shell32 = new Shell32.ShellClass();
+			Shell32.Shell shell32 = new Shell32.Shell();
 			Shell32.Folder shell32Folder = shell32.NameSpace(shellFolder);
 			Shell32.FolderItems items = shell32Folder.Items();
 
