@@ -16,12 +16,12 @@
         "Entry"
         {
         "MsmKey" = "8:_4CADC5627C652D834929B8159E457AA2"
-        "OwnerKey" = "8:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+        "OwnerKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+        "MsmKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+        "OwnerKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -70,14 +70,14 @@
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0,Profile=Client"
+                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0"
                     {
-                    "Name" = "8:Microsoft .NET Framework 4 Client Profile (x86 and x64)"
-                    "ProductCode" = "8:.NETFramework,Version=v4.0,Profile=Client"
+                    "Name" = "8:Microsoft .NET Framework 4 (x86 および x64)"
+                    "ProductCode" = "8:.NETFramework,Version=v4.0"
                     }
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:Microsoft.Windows.Installer.3.1"
                     {
-                    "Name" = "8:Windows Installer 3.1"
+                    "Name" = "8:Windows インストーラー 3.1"
                     "ProductCode" = "8:Microsoft.Windows.Installer.3.1"
                     }
                 }
@@ -376,7 +376,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_8578F43971F543E698AF9947BF8134B7"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_761C6E8C8DEB4B558D19EE2B2A8BD9B9"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -384,13 +384,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+            "Target" = "8:_CF7F4E9A63E44B73802068960A8631D6"
             "Folder" = "8:_1E9E7C58F6134115AE857AA9123BB3DB"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
             "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_AC35676F3BE84AB6862DBDECE1D78759"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_CE46AD26585A49C89FE4A5FDB2DD12B4"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -398,7 +398,7 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+            "Target" = "8:_CF7F4E9A63E44B73802068960A8631D6"
             "Folder" = "8:_6A3B879D0CA4458BB260F2CC52E06051"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
             "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
@@ -803,7 +803,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_81FAB7E9ADEF47D19FF08EAE674EE5FB"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_CF7F4E9A63E44B73802068960A8631D6"
             {
             "SourcePath" = "8:..\\TextureChanger\\obj\\x86\\Release\\TextureChanger.exe"
             "TargetName" = "8:"

@@ -472,9 +472,16 @@ namespace TextureChanger
 		#region Add Root Node
 		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, ShellFolder shellFolder, bool getIcons)
 		{
-			Shell32.Shell shell32 = new Shell32.Shell();
-			Shell32.Folder shell32Folder = shell32.NameSpace(shellFolder);
-			Shell32.FolderItems items = shell32Folder.Items();
+			//Shell32.Shell shell32 = new Shell32.Shell();
+			//from
+			// Shell32 code compiled on Vista does not run on XP/2003
+			// http://nerdynotes.blogspot.jp/2008/06/vbnet-shell32-code-compiled-on-vista.html
+			Type ShellAppType = Type.GetTypeFromProgID("Shell.Application");
+			Object oShell = Activator.CreateInstance(ShellAppType);
+			Shell32.Shell shell32 = (Shell32.Shell) oShell;
+
+			Shell32.Folder shell32Folder = shell32.NameSpace( shellFolder );
+			Shell32.FolderItems items = shell32Folder.Items( );
 
 			tree.Nodes.Clear();
 	
