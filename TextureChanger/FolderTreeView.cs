@@ -115,7 +115,6 @@ namespace TextureChanger
 
 			ImageList = _folderTreeViewImageList;
 		}
-		#endregion
 
 
 		private void InitImageList()
@@ -141,6 +140,7 @@ namespace TextureChanger
 			}
 			ImageList = _folderTreeViewImageList;
 		}
+		#endregion
 
 		#endregion
 
@@ -470,8 +470,45 @@ namespace TextureChanger
 		#endregion
 
 		#region Add Root Node
-		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, ShellFolder shellFolder, bool getIcons)
+		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, bool getIcons)
 		{
+			SH.IShellFolder sfDesktop = SH.GetDesktopFolder();
+
+			IntPtr pidlRoot;
+			SH.SHGetFolderLocation(
+				IntPtr.Zero,
+				(short)SH.CSIDL.DESKTOP,
+				IntPtr.Zero,
+				0,
+				out pidlRoot
+			);
+			IntPtr[] pidlList = { pidlRoot };
+			SH.SFGAO attributesToRetrieve =
+				SH.SFGAO.CAPABILITYMASK
+			  | SH.SFGAO.HASSUBFOLDER
+			  | SH.SFGAO.SHARE
+			  | SH.SFGAO.FOLDER
+			  | SH.SFGAO.FILESYSTEM;
+
+			sfDesktop.GetAttributesOf(
+				  1  //ひと組のIDLについて
+				, pidlList
+				, attributesToRetrieve
+				);
+//			if (!((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER))
+//				return hPrev;
+			//フォルダでなかったらサブフォルダの列挙が不要なので
+			//ツリーへのアイテム挿入位置hPrevをそのままにして返してしまう
+
+
+
+
+			tree.Nodes.Clear();
+
+
+
+
+
 			//Shell32.Shell shell32 = new Shell32.Shell();
 			//from
 			// Shell32 code compiled on Vista does not run on XP/2003
@@ -607,8 +644,8 @@ namespace TextureChanger
 					tn.ImageIndex = imageCount;
 					imageCount++;
 					tn.SelectedImageIndex = imageCount;
-					imageList.Images.Add(ExtractIcons.GetIcon(item, false, imageList)); // normal icon
-					imageList.Images.Add(ExtractIcons.GetIcon(item, true, imageList)); // selected icon
+					imageList.Images.Add(ExtractIcons.GetIcon(item.Path, false, imageList)); // normal icon
+					imageList.Images.Add(ExtractIcons.GetIcon(item.Path, true, imageList)); // selected icon
 				}
 				catch // use default 
 				{
@@ -631,11 +668,11 @@ namespace TextureChanger
 
 	#endregion
 
-	#region ExtractIcons Class
-
+	#region パスからアイコンを得るstaticメソッドを持つのみのクラス
 	public class ExtractIcons
 	{
-		public static Icon GetIcon( Shell32.FolderItem item, bool selected, ImageList imageList )
+		#region GetIcon
+		public static Icon GetIcon( string path, bool selected, ImageList imageList )
 		{
 			SH.SHFILEINFO shfi = new SH.SHFILEINFO();
 			int cbFileInfo = Marshal.SizeOf(shfi);
@@ -646,14 +683,11 @@ namespace TextureChanger
 				flags = SH.SHGFI.ICON | SH.SHGFI.SMALLICON | SH.SHGFI.OPENICON;
 
 			flags = flags | SH.SHGFI.PIDL;
-
-
 			
-
 			IMalloc pMalloc = SH.GetMalloc();
 			IntPtr pidl;
 			uint iAttribute;
-			SH.SHParseDisplayName(item.Path,IntPtr.Zero,out pidl,0,out iAttribute);
+			SH.SHParseDisplayName(path,IntPtr.Zero,out pidl,0,out iAttribute);
 
 			SH.SHGetFileInfo( pidl, 0, ref shfi, (uint)cbFileInfo, flags );
 			Icon.FromHandle( shfi.hIcon );
@@ -668,7 +702,8 @@ namespace TextureChanger
 
 			return icon;
 		}
-
+		#endregion
+		
 		#region Get Desktop Icon
 		// Retreive the desktop icon from Shell32.dll - it always appears at index 34 in all shell32 versions.
 		// This is probably NOT the best way to retreive this icon, but it works - if you have a better way
@@ -685,7 +720,6 @@ namespace TextureChanger
 		#endregion
 
 	}
-
 	#endregion
 
 
