@@ -101,7 +101,7 @@ namespace TextureChanger
 
 			#region エクスプローラの初期表示
 			trvFolder.InitFolderTreeView();
-			trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
+			//trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
 			#endregion
 
             #region ステータスバーに編集中のテクスチャのフォルダのフルパスを表示する
@@ -497,6 +497,11 @@ namespace TextureChanger
             ilsFileList.Images.Clear();
 
 			string imageDir = trvFolder.GetSelectedNodePath();
+
+			if (imageDir == "")
+			{
+				return;
+			}
 
 			string[] bmpFiles = Directory.GetFiles( imageDir, "*.bmp" );
 

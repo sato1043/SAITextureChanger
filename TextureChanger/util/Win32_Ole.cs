@@ -74,8 +74,11 @@ namespace Win32
     }
     #endregion
 
+	public partial class Api {
 
+		[DllImport("ole32.dll")]
+		public static extern void CoTaskMemFree(IntPtr pv);
 
-
+	}
 
 }

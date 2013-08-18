@@ -188,6 +188,11 @@ namespace Win32
 		ASYNC = 0x00008000,
 	};
 
+	public enum ErrNo : uint
+	{
+		S_OK = 0x00000000,
+	};
+
     #region WIN32 API prototypes
     public partial class Api
     {
@@ -276,9 +281,32 @@ namespace Win32
 	    #endregion
 
 
+		#region ウィンドウの祖先ウィンドウを探す
+		
+		[DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+		public static extern IntPtr GetParent(IntPtr hWnd);
+
+		/**
+		 * ウィンドウの祖先ウィンドウを探す
+		 *
+		 *  @param hwnd 検索対象ウィンドウ
+		 */
+		public static IntPtr GetMainWindow(IntPtr hwnd)
+		{
+			IntPtr hwndMain = IntPtr.Zero;
+
+			while ((hwnd = GetParent(hwnd)) != IntPtr.Zero)
+			{
+				hwndMain = hwnd;
+			}
+
+			return hwndMain;///@return 祖先ウィンドウ
+		}
+		#endregion
 
 
-    };
+
+	};
     #endregion
 
 }
