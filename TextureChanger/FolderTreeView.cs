@@ -446,6 +446,8 @@ namespace TextureChanger
 		
 		#region FolderTreeView Methods
 
+		private static IntPtr _pidlDesktop = IntPtr.Zero;
+
 		#region GetFilePath
 		public static string GetFilePath(TreeNode tn)
 		{
@@ -494,18 +496,15 @@ namespace TextureChanger
 		{
 			SH.IShellFolder sfDesktop = SH.GetDesktopFolder();
 
-			IntPtr pidlDesktop;
-			SH.SHGetFolderLocation(
+			SH.SHGetSpecialFolderLocation(
 				IntPtr.Zero,
-				(short)SH.CSIDL.DESKTOP,
-				IntPtr.Zero,
-				0,
-				out pidlDesktop
+				SH.CSIDL.DESKTOP,
+				ref _pidlDesktop
 			);
 
-			IntPtr pidlRoot = SH.ILClone(pidlDesktop);
+			IntPtr pidlRoot = SH.ILClone(_pidlDesktop);
 
-			IntPtr[] pidlList = { pidlRoot };
+			IntPtr[] pidlList = { _pidlDesktop, IntPtr.Zero, IntPtr.Zero };
 			SH.SFGAO attributesToRetrieve =
 				SH.SFGAO.CAPABILITYMASK
 			  | SH.SFGAO.HASSUBFOLDER
@@ -517,10 +516,7 @@ namespace TextureChanger
 				, pidlList
 				, attributesToRetrieve
 				);
-//			if (!((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER))
-//				return hPrev;
-			//フォルダでなかったらサブフォルダの列挙が不要なので
-			//ツリーへのアイテム挿入位置hPrevをそのままにして返してしまう
+
 
 			SH.STRRET ptrString;
 			sfDesktop.GetDisplayNameOf(pidlRoot,

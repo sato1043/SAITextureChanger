@@ -33,7 +33,7 @@ namespace Win32
 			System.Runtime.InteropServices.Marshal.ReleaseComObject(pMalloc);
 		 */
 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		[DllImport( "shell32.dll" )]
 		private static extern int SHGetMalloc( out IMalloc ppMalloc );
 
 	    public static IMalloc GetMalloc()
@@ -897,12 +897,12 @@ namespace Win32
 
 		// Retrieves the IShellFolder interface for the desktop folder,
 		// which is the root of the Shell's namespace. 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		[DllImport( "shell32.dll" )]
 		public static extern Int32 SHGetDesktopFolder(
 			out IntPtr ppshf );			// Address that receives an IShellFolder interface
 										// pointer for the desktop folder.
 
-		//[DllImport("shell32.dll", CharSet = CharSet.Auto)]
+		//[DllImport("shell32.dll")]
 		//public static extern int SHGetDesktopFolder(ref IShellFolder ppshf);
 
 		public static IShellFolder GetDesktopFolder( )
@@ -1018,7 +1018,7 @@ namespace Win32
 
 		#region SHGetSpecialFolderLocation
 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto, SetLastError = true )]
+		[DllImport( "shell32.dll")]
 		public static extern int SHGetSpecialFolderLocation( IntPtr hwndOwner, CSIDL nFolder, ref IntPtr ppidl );
 
 		#endregion
@@ -1143,7 +1143,7 @@ namespace Win32
 			public int iImage;
 		}
 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		[DllImport( "shell32.dll" )]
 		public static extern IntPtr SHBrowseForFolder( ref BROWSEINFO bi );
 
 		#endregion
@@ -1187,7 +1187,7 @@ namespace Win32
 
 		#region SHGetFileInfo
 
-		[StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+		[StructLayout(LayoutKind.Sequential)]
         public struct SHFILEINFO
         {
             public IntPtr hIcon;
@@ -1225,10 +1225,10 @@ namespace Win32
 		public const uint FILE_ATTRIBUTE_NORMAL = 0x80;
 		public const uint FILE_ATTRIBUTE_DIRECTORY = 0x10;
 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		[DllImport( "shell32.dll" )]
 		public static extern IntPtr SHGetFileInfo( string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
 
-		[DllImport( "shell32.dll", CharSet = CharSet.Auto )]
+		[DllImport( "shell32.dll" )]
 		public static extern IntPtr SHGetFileInfo( IntPtr pidl, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbFileInfo, SHGFI uFlags );
 
 		#endregion

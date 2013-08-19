@@ -197,61 +197,61 @@ namespace Win32
     public partial class Api
     {
         #region WindowsLong
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr GetWindowLong(IntPtr hwnd, GWL nIndex);
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr SetWindowLong(IntPtr hwnd, GWL nIndex, int dwNewLong);
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr SetWindowLong(IntPtr hwnd, GWL nIndex, HOOKPROC dwNewLong);
         #endregion
 
         #region WindowsPos
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern bool SetWindowPos(IntPtr hWnd, int hWndInsertAfter, int X, int Y, int cx, int cy, SWP uFlags);
         #endregion
 
         #region some window operation
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr GetActiveWindow();
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr SetWindowsHookEx(WH idHook, HOOKPROC lpfn, IntPtr hInstance, IntPtr threadId);
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern bool UnhookWindowsHookEx(IntPtr hHook);
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr CallNextHookEx(IntPtr hHook, int nCode, IntPtr wParam, IntPtr lParam);
 
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         public static extern IntPtr CallWindowProc(int lpPrevWndFunc, IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam);
         #endregion
 
         #region thread something ;P
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll")]
         public static extern IntPtr GetCurrentThreadId();
         #endregion
 
 		#region icon manip
-		[DllImport("Shell32.dll", CharSet = CharSet.Auto)]
+		[DllImport("Shell32.dll")]
 		public static extern uint ExtractIconEx(
 			string lpszFile, int nIconIndex, IntPtr[] phiconLarge, IntPtr[] phiconSmall, uint nIcons);
 
-		[DllImport( "user32.dll", CharSet = CharSet.Auto, SetLastError = true )]
+		[DllImport( "user32.dll", SetLastError = true )]
 		[return: MarshalAs( UnmanagedType.Bool )]
 		public static extern bool DestroyIcon( IntPtr hIcon );
 		#endregion
 
 		#region ImageList manip
-		[DllImport("comctl32.dll", CharSet = CharSet.Auto, SetLastError=true)]
+		[DllImport("comctl32.dll", SetLastError=true)]
 		public static extern IntPtr ImageList_GetIcon(IntPtr himl, int i, ILD_FLAGS flags);
-		[DllImport("comctl32.dll", CharSet = CharSet.Auto)]
+		[DllImport("comctl32.dll")]
 		public static extern int ImageList_GetImageCount(IntPtr himl);
 		#endregion
 
-		[DllImport( "kernel32", CharSet = CharSet.Auto )]
+		[DllImport( "kernel32" )]
 	    public extern static int GetLastError( );
 
 
@@ -268,7 +268,7 @@ namespace Win32
 			MAX_WIDTH_MASK  = 0xFF,
 	    }
 
-		[DllImport( "kernel32", CharSet = CharSet.Auto )]
+		[DllImport( "kernel32" )]
 		public static extern int FormatMessage(
 		    int dwFlags,
 		    IntPtr lpSource,
@@ -283,7 +283,7 @@ namespace Win32
 
 		#region ウィンドウの祖先ウィンドウを探す
 		
-		[DllImport("user32.dll", ExactSpelling = true, CharSet = CharSet.Auto)]
+		[DllImport("user32.dll", ExactSpelling = true)]
 		public static extern IntPtr GetParent(IntPtr hWnd);
 
 		/**
