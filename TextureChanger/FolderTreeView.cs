@@ -56,7 +56,7 @@ namespace TextureChanger
 
 	public class FolderTreeView : System.Windows.Forms.TreeView
 	{
-		private ImageList _folderTreeViewImageList;
+		private ImageList _folderTreeViewImageList = new ImageList( );
 		private readonly System.Globalization.CultureInfo _cultureInfo = System.Globalization.CultureInfo.CurrentCulture;
 		private IntPtr _himlSystemSmall;
 
@@ -71,7 +71,7 @@ namespace TextureChanger
 		{
 			//InitFolderTreeImageLists();
 			InitImageList();
-			ShellOperations.PopulateTree(this, ImageList);
+			ShellOperations.PopulateTree( this, _folderTreeViewImageList );
 			if(Nodes.Count > 0)
 			{
 				Nodes[0].Expand();
@@ -415,35 +415,6 @@ namespace TextureChanger
 	public class ShellOperations
 	{
 
-		#region ShellFolder Enums
-		// Enums for standard Windows shell folders
-		public enum ShellFolder
-		{
-			Desktop = Shell32.ShellSpecialFolderConstants.ssfDESKTOP, 
-			DesktopDirectory = Shell32.ShellSpecialFolderConstants.ssfDESKTOPDIRECTORY,
-			MyComputer = Shell32.ShellSpecialFolderConstants.ssfDRIVES,
-			MyDocuments = Shell32.ShellSpecialFolderConstants.ssfPERSONAL,
-			MyPictures = Shell32.ShellSpecialFolderConstants.ssfMYPICTURES,
-			History = Shell32.ShellSpecialFolderConstants.ssfHISTORY,
-			Favorites = Shell32.ShellSpecialFolderConstants.ssfFAVORITES,
-			Fonts = Shell32.ShellSpecialFolderConstants.ssfFONTS,
-			ControlPanel = Shell32.ShellSpecialFolderConstants.ssfCONTROLS,
-			TemporaryInternetFiles = Shell32.ShellSpecialFolderConstants.ssfINTERNETCACHE,
-			MyNetworkPlaces = Shell32.ShellSpecialFolderConstants.ssfNETHOOD,
-			NetworkNeighborhood = Shell32.ShellSpecialFolderConstants.ssfNETWORK,
-			ProgramFiles = Shell32.ShellSpecialFolderConstants.ssfPROGRAMFILES,
-			RecentFiles = Shell32.ShellSpecialFolderConstants.ssfRECENT,
-			StartMenu = Shell32.ShellSpecialFolderConstants.ssfSTARTMENU,
-			Windows = Shell32.ShellSpecialFolderConstants.ssfWINDOWS,
-			Printers = Shell32.ShellSpecialFolderConstants.ssfPRINTERS,
-			RecycleBin = Shell32.ShellSpecialFolderConstants.ssfBITBUCKET,
-			Cookies = Shell32.ShellSpecialFolderConstants.ssfCOOKIES,
-			ApplicationData = Shell32.ShellSpecialFolderConstants.ssfAPPDATA,
-			SendTo = Shell32.ShellSpecialFolderConstants.ssfSENDTO,
-			StartUp = Shell32.ShellSpecialFolderConstants.ssfSTARTUP
-		}
-		#endregion
-		
 		#region FolderTreeView Methods
 
 		private static IntPtr _pidlDesktop = IntPtr.Zero;
@@ -558,8 +529,8 @@ namespace TextureChanger
 			  , SH.SHCONTF.SHCONTF_FOLDERS //| SH.SHCONTF.SHCONTF_INCLUDEHIDDEN
 			  , out ppEnumIDList);
 
-			Object obj = Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
-			SH.IEnumIDList enumIDList = (SH.IEnumIDList)obj;
+			SH.IEnumIDList enumIDList = (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
+
 
 			IntPtr pidlChildRelative;
 			IntPtr notUsed;
@@ -569,10 +540,20 @@ namespace TextureChanger
 				IntPtr pidlAbsolute;
 				pidlAbsolute = SH.ILClone(tnTag.pidlAbsolute);
 				pidlAbsolute = SH.ILCombine(pidlAbsolute, pidlChildRelative);
-				Api.CoTaskMemFree(pidlChildRelative);
+
+				//同じく絶対PIDLのIShellFolderオブジェクトを取得
+				IntPtr ppv;
+				tnTag.shellFolder.BindToObject(
+					pidlChildRelative
+					, IntPtr.Zero
+					, SH.Guid_IShellFolder.IID_IShellFolder
+					, out ppv );
+				SH.IShellFolder childShellFolder = (SH.IShellFolder)Marshal.GetTypedObjectForIUnknown( ppv, typeof( SH.IShellFolder ) );
+
+				Api.CoTaskMemFree( pidlChildRelative );
 
 				//絶対PIDLのファイル属性を取得
-				IntPtr[] pidlList = { pidlAbsolute };
+				IntPtr[] pidlList = { pidlAbsolute, IntPtr.Zero, IntPtr.Zero };
 				SH.SFGAO attributesToRetrieve =
 					SH.SFGAO.CAPABILITYMASK
 				  | SH.SFGAO.HASSUBFOLDER
@@ -592,6 +573,7 @@ namespace TextureChanger
 				}
 				else
 				{
+					Marshal.ReleaseComObject( childShellFolder );
 					continue;
 				}
 
@@ -602,22 +584,13 @@ namespace TextureChanger
 				StringBuilder strDisplay = new StringBuilder(256);
 				SH.StrRetToBuf(ref ptrString, pidlAbsolute, strDisplay,
 					(uint)strDisplay.Capacity);
-
-				//同じく絶対PIDLのIShellFolderオブジェクトを取得
-				IntPtr ppv;
-				tnTag.shellFolder.BindToObject(
-					pidlAbsolute
-					, IntPtr.Zero
-					, SH.Guid_IShellFolder.IID_IShellFolder
-					, out ppv);
-				Object objsf = Marshal.GetTypedObjectForIUnknown(ppv, typeof(SH.IShellFolder));
 				
 				//子ノードを生成して親ノードに追加
 				TreeNode babyNode = AddTreeNode(
 					new TreeViewTag()
 					{
 						isDummy = false,
-						shellFolder = (SH.IShellFolder)objsf,
+						shellFolder = childShellFolder,
 						pidlAbsolute = pidlAbsolute,
 						attributes = attributesToRetrieve,
 						path = strDisplay.ToString(),
@@ -626,6 +599,9 @@ namespace TextureChanger
 				tn.Nodes.Add(babyNode);
 				CheckForSubDirs(babyNode);
 			}
+
+			Marshal.ReleaseComObject( enumIDList );
+
 		}
 		#endregion
 
@@ -691,6 +667,7 @@ namespace TextureChanger
 						tn.Nodes.Add(babyNode);
 					}
 				}
+				Marshal.ReleaseComObject( enumIDList );
 			}
 			catch {}
 		}

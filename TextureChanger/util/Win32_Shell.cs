@@ -887,9 +887,9 @@ namespace Win32
 			retVal = ShellLib.ShellApi.StrRetToBuf(ref ptrString ,pidlSystem,strDisplay,
 				(uint)strDisplay.Capacity);
 
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(ishellParent);
+			Marshal.ReleaseComObject(ishellParent);
 			pMalloc.Free(pidlSystem);
-			System.Runtime.InteropServices.Marshal.ReleaseComObject(pMalloc); 		
+			Marshal.ReleaseComObject(pMalloc); 		
 		 */
 		#endregion
 
