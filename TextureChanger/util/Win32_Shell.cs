@@ -761,42 +761,39 @@ namespace Win32
 
 		public enum SFGAO : uint
 		{
-
 			CANCOPY = 0x1,                // Objects can be copied    (DROPEFFECT_COPY)
 			CANMOVE = 0x2,                // Objects can be moved     (DROPEFFECT_MOVE)
 			CANLINK = 0x4,                // Objects can be linked    (DROPEFFECT_LINK)
 			STORAGE = 0x00000008,         // supports BindToObject(IID_IStorage)
-			CANRENAME = 0x00000010,         // Objects can be renamed
-			CANDELETE = 0x00000020,         // Objects can be deleted
-			HASPROPSHEET = 0x00000040,         // Objects have property sheets
-			DROPTARGET = 0x00000100,         // Objects are drop target
-			CAPABILITYMASK = 0x00000177,
-			ENCRYPTED = 0x00002000,         // object is encrypted (use alt color)
-			ISSLOW = 0x00004000,         // 'slow' object
+			CANRENAME = 0x00000010,       // Objects can be renamed
+			CANDELETE = 0x00000020,       // Objects can be deleted
+			HASPROPSHEET = 0x00000040,    // Objects have property sheets
+			DROPTARGET = 0x00000100,      // Objects are drop target
+			CAPABILITYMASK = 0x00000177,  
+			ENCRYPTED = 0x00002000,       // object is encrypted (use alt color)
+			ISSLOW = 0x00004000,          // 'slow' object
 			GHOSTED = 0x00008000,         // ghosted icon
-			LINK = 0x00010000,         // Shortcut (link)
-			SHARE = 0x00020000,         // shared
-			READONLY = 0x00040000,         // read-only
-			HIDDEN = 0x00080000,         // hidden object
+			LINK = 0x00010000,            // Shortcut (link)
+			SHARE = 0x00020000,           // shared
+			READONLY = 0x00040000,        // read-only
+			HIDDEN = 0x00080000,          // hidden object
 			DISPLAYATTRMASK = 0x000FC000,
-			FILESYSANCESTOR = 0x10000000,         // may contain children with FILESYSTEM
-			FOLDER = 0x20000000,         // support BindToObject(IID_IShellFolder)
-			FILESYSTEM = 0x40000000,         // is a win32 file system object (file/folder/root)
-			HASSUBFOLDER = 0x80000000,         // may contain children with FOLDER
+			FILESYSANCESTOR = 0x10000000, // may contain children with FILESYSTEM
+			FOLDER = 0x20000000,          // support BindToObject(IID_IShellFolder)
+			FILESYSTEM = 0x40000000,      // is a win32 file system object (file/folder/root)
+			HASSUBFOLDER = 0x80000000,    // may contain children with FOLDER
 			CONTENTSMASK = 0x80000000,
-			VALIDATE = 0x01000000,         // invalidate cached information
-			REMOVABLE = 0x02000000,         // is this removeable media?
-			COMPRESSED = 0x04000000,         // Object is compressed (use alt color)
-			BROWSABLE = 0x08000000,         // supports IShellFolder, but only implements CreateViewObject() (non-folder view)
-			NONENUMERATED = 0x00100000,         // is a non-enumerated object
-			NEWCONTENT = 0x00200000,         // should show bold in explorer tree
-			CANMONIKER = 0x00400000,         // defunct
-			HASSTORAGE = 0x00400000,         // defunct
-			STREAM = 0x00400000,         // supports BindToObject(IID_IStream)
-			STORAGEANCESTOR = 0x00800000,         // may contain children with STORAGE or STREAM
-			STORAGECAPMASK = 0x70C50008,         // for determining storage capabilities, ie for open/save semantics
-
-
+			VALIDATE = 0x01000000,        // invalidate cached information
+			REMOVABLE = 0x02000000,       // is this removeable media?
+			COMPRESSED = 0x04000000,      // Object is compressed (use alt color)
+			BROWSABLE = 0x08000000,       // supports IShellFolder, but only implements CreateViewObject() (non-folder view)
+			NONENUMERATED = 0x00100000,   // is a non-enumerated object
+			NEWCONTENT = 0x00200000,      // should show bold in explorer tree
+			CANMONIKER = 0x00400000,      // defunct
+			HASSTORAGE = 0x00400000,      // defunct
+			STREAM = 0x00400000,          // supports BindToObject(IID_IStream)
+			STORAGEANCESTOR = 0x00800000, // may contain children with STORAGE or STREAM
+			STORAGECAPMASK = 0x70C50008,  // for determining storage capabilities, ie for open/save semantics
 		}
 
 		public enum SHCONTF

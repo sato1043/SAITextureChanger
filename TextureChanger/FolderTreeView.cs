@@ -159,7 +159,7 @@ namespace TextureChanger
 		private void TreeViewBeforeExpand(object sender, System.Windows.Forms.TreeViewCancelEventArgs e)
 		{
 			this.BeginUpdate();
-			ShellOperations.ExpandBranch(e.Node, this.ImageList);
+			ShellOperations.ExpandBranch( (TreeView)sender, e.Node, this.ImageList);
 			this.EndUpdate();
 		}
 
@@ -457,7 +457,7 @@ namespace TextureChanger
 			if(tree.Nodes.Count > 1)
 			{
 				tree.SelectedNode = tree.Nodes[1];
-				ExpandBranch(tree.Nodes[1], imageList);
+				ExpandBranch( tree, tree.Nodes[ 1 ], imageList );
 			}
 		}
 		#endregion
@@ -511,17 +511,17 @@ namespace TextureChanger
 
 			tree.Nodes.Add(desktop);
 
-			FillSubDirectories(desktop, ref imageCount, imageList, getIcons);
+			FillSubDirectories( tree, desktop, ref imageCount, imageList, getIcons );
 
 		}
 		#endregion
 
 		#region フォルダの子ノードを列挙してツリーに追加する
-		private static void FillSubDirectories(TreeNode tn, ref int imageCount, ImageList imageList, bool getIcons)
+		private static void FillSubDirectories( TreeView tree, TreeNode tn, ref int imageCount, ImageList imageList, bool getIcons )
 		{
 			TreeViewTag tnTag = (TreeViewTag)tn.Tag;
 
-			IntPtr hWndMain = Api.GetMainWindow(tn.Handle);
+			IntPtr hWndMain = Api.GetMainWindow( tree.Handle );
 
 			IntPtr ppEnumIDList;
 			tnTag.shellFolder.EnumObjects(
@@ -559,16 +559,18 @@ namespace TextureChanger
 				  | SH.SFGAO.HASSUBFOLDER
 				  | SH.SFGAO.SHARE
 				  | SH.SFGAO.FOLDER
-				  | SH.SFGAO.FILESYSTEM;
+				  | SH.SFGAO.FILESYSTEM
+				  | SH.SFGAO.STREAM;
 				tnTag.shellFolder.GetAttributesOf(
 					  1  //ひと組のIDLについて
 					, pidlList
 					, attributesToRetrieve
 				);
-				if (((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM) != 0
-					&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER) != 0
-					&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE) == 0)
-				{
+				if( ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM ) != 0
+					&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER ) != 0
+					//&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.STREAM ) == 0
+					&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE ) == 0
+				){
 					;
 				}
 				else
@@ -584,6 +586,12 @@ namespace TextureChanger
 				StringBuilder strDisplay = new StringBuilder(256);
 				SH.StrRetToBuf(ref ptrString, pidlAbsolute, strDisplay,
 					(uint)strDisplay.Capacity);
+
+				if( Path.GetExtension( strDisplay.ToString( ) ) == ".zip" ) //TODO  string.Compare(
+				{
+					Marshal.ReleaseComObject( childShellFolder );
+					continue;
+				}
 				
 				//子ノードを生成して親ノードに追加
 				TreeNode babyNode = AddTreeNode(
@@ -597,7 +605,7 @@ namespace TextureChanger
 					}
 					, ref imageCount, imageList, getIcons);
 				tn.Nodes.Add(babyNode);
-				CheckForSubDirs(babyNode);
+				CheckForSubDirs( tree, babyNode );
 			}
 
 			Marshal.ReleaseComObject( enumIDList );
@@ -606,7 +614,7 @@ namespace TextureChanger
 		#endregion
 
 		#region サブディレクトリが存在する場合にノード＋マークをつけるためにダミーを差し込んでおく（フォルダリストを遅延読み込みするため）
-		private static void CheckForSubDirs(TreeNode tn)
+		private static void CheckForSubDirs( TreeView tree, TreeNode tn )
 		{
 			if (tn.Nodes.Count != 0)
 				return;
@@ -624,8 +632,7 @@ namespace TextureChanger
 					, SH.SHCONTF.SHCONTF_FOLDERS //| SH.SHCONTF.SHCONTF_INCLUDEHIDDEN
 					, out ppEnumIDList);
 
-				Object obj = Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
-				SH.IEnumIDList enumIDList = (SH.IEnumIDList)obj;
+				SH.IEnumIDList enumIDList = (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
 
 				IntPtr pidlChildRelative;
 				IntPtr notUsed;
@@ -638,7 +645,7 @@ namespace TextureChanger
 					Api.CoTaskMemFree(pidlChildRelative);
 
 					//絶対PIDLのファイル属性を取得
-					IntPtr[] pidlList = { pidlAbsolute };
+					IntPtr[] pidlList = { pidlAbsolute, IntPtr.Zero, IntPtr.Zero };
 					SH.SFGAO attributesToRetrieve =
 						SH.SFGAO.CAPABILITYMASK
 						| SH.SFGAO.HASSUBFOLDER
@@ -655,26 +662,30 @@ namespace TextureChanger
 						&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE) == 0 )
 					{
 						hasFolders = true;
+						SH.ILFree( pidlAbsolute );
 						break;
 					}
-					if (hasFolders)
-					{
-						TreeNode babyNode = new TreeNode();
-						babyNode.Tag = new TreeViewTag()
-						{
-							isDummy = true,
-						}; 
-						tn.Nodes.Add(babyNode);
-					}
+					SH.ILFree( pidlAbsolute );
 				}
+
 				Marshal.ReleaseComObject( enumIDList );
+				
+				if( hasFolders )
+				{
+					TreeNode babyNode = new TreeNode( );
+					babyNode.Tag = new TreeViewTag( )
+					{
+						isDummy = true,
+					};
+					tn.Nodes.Add( babyNode );
+				}
 			}
 			catch {}
 		}
 		#endregion
 
 		#region Expand Branch
-		public static void ExpandBranch(TreeNode tn, ImageList imageList)
+		public static void ExpandBranch(TreeView tree, TreeNode tn, ImageList imageList)
 		{
 			// if there's a dummy node present, clear it and replace with actual contents
 			if(tn.Nodes.Count != 1)
@@ -688,7 +699,7 @@ namespace TextureChanger
 				tn.Nodes.Clear();
 
 				int imageCount = imageList.Images.Count - 1;
-				FillSubDirectories(tn, ref imageCount, imageList, true);
+				FillSubDirectories( tree, tn, ref imageCount, imageList, true );
 			}
 		}
 		#endregion
@@ -755,15 +766,11 @@ namespace TextureChanger
 				flags = flags | SH.SHGFI.ICON | SH.SHGFI.SMALLICON | SH.SHGFI.OPENICON;
 
 			SH.SHGetFileInfo( pidl, 0, ref shfi, (uint)cbFileInfo, flags );
-			Icon.FromHandle( shfi.hIcon );
 
-			if (pidl != IntPtr.Zero)
+			if( shfi.hIcon == IntPtr.Zero )
 			{
-				IMalloc pMalloc = SH.GetMalloc();
-				pMalloc.Free(pidl);
-				Marshal.ReleaseComObject(pMalloc);
+				throw new System.ArgumentNullException();
 			}
-
 			var icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
 			Api.DestroyIcon( shfi.hIcon );
 

@@ -293,7 +293,7 @@ namespace Win32
 		 */
 		public static IntPtr GetMainWindow(IntPtr hwnd)
 		{
-			IntPtr hwndMain = IntPtr.Zero;
+			IntPtr hwndMain = hwnd;
 
 			while ((hwnd = GetParent(hwnd)) != IntPtr.Zero)
 			{
