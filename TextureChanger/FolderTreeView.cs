@@ -50,17 +50,29 @@ namespace TextureChanger
 		public bool isDummy;
 		public SH.IShellFolder shellFolder;
 		public IntPtr pidlAbsolute;
+		public IntPtr pidlRelative;
 		public SH.SFGAO attributes;
 		public string path;
 	}
+
+	//TODO COMを使うところのエラー処理を追加する
 
 	public class FolderTreeView : System.Windows.Forms.TreeView
 	{
 		private ImageList _folderTreeViewImageList = new ImageList( );
 		private readonly System.Globalization.CultureInfo _cultureInfo = System.Globalization.CultureInfo.CurrentCulture;
-		private IntPtr _himlSystemSmall;
 
-		#region Constructors
+		private static IntPtr _pidlDesktop = IntPtr.Zero;
+
+
+		#region コンストラクタと初期化処理
+
+		private void TreeViewBeforeExpand( object sender, System.Windows.Forms.TreeViewCancelEventArgs e )
+		{
+			this.BeginUpdate( );
+			ExpandBranch( (TreeView)sender, e.Node, this.ImageList );
+			this.EndUpdate( );
+		}
 
 		public FolderTreeView()
 		{
@@ -69,64 +81,27 @@ namespace TextureChanger
 
 		public void InitFolderTreeView()
 		{
-			//InitFolderTreeImageLists();
 			InitImageList();
-			ShellOperations.PopulateTree( this, _folderTreeViewImageList );
+			PopulateTree( this, _folderTreeViewImageList );
 			if(Nodes.Count > 0)
 			{
 				Nodes[0].Expand();
 			}
 		}
 
-		#region システムイメージリストの登録 リストビューにイメージリストを登録する
-		void InitFolderTreeImageLists()
+		public static void PopulateTree( TreeView tree, ImageList imageList )
 		{
-			var shfi = new SH.SHFILEINFO();
-
-			//次のようにして、イメージリストのハンドルを得る
-			_himlSystemSmall = SH.SHGetFileInfo(
-				"C:\\"
-				, 0
-				, ref shfi
-				, (uint) Marshal.SizeOf(shfi)
-				, SH.SHGFI.SYSICONINDEX | SH.SHGFI.SMALLICON
-				);
-			if (_himlSystemSmall == IntPtr.Zero)
+			int imageCount = imageList.Images.Count - 1;
+			tree.Nodes.Clear( );
+			AddRootNode( tree, ref imageCount, imageList, true );
+			if( tree.Nodes.Count > 1 )
 			{
-				throw new NullReferenceException();
+				tree.SelectedNode = tree.Nodes[ 1 ];
+				ExpandBranch( tree, tree.Nodes[ 1 ], imageList );
 			}
-
-			_folderTreeViewImageList = new ImageList
-			{
-				ColorDepth = ColorDepth.Depth32Bit,
-				ImageSize = new Size(16, 16),
-				TransparentColor = Color.Transparent
-			};
-
-			var nIcons = Api.ImageList_GetImageCount(_himlSystemSmall);
-
-			for (int i = 0; i < nIcons; ++i)
-			{
-				var hIcon = Api.ImageList_GetIcon(_himlSystemSmall, i, ILD_FLAGS.NORMAL);
-				if (hIcon == IntPtr.Zero)
-				{
-					var bmp = new Bitmap(16, 16);
-					var img = (Image)bmp;
-					_folderTreeViewImageList.Images.Add((Image)img.Clone());
-					bmp.Dispose();
-				}
-				else
-				{
-					var icon = (Icon)Icon.FromHandle(hIcon).Clone();
-					_folderTreeViewImageList.Images.Add(icon);
-					Api.DestroyIcon(hIcon);
-				}
-			}
-
-			ImageList = _folderTreeViewImageList;
 		}
 
-
+		#region システムイメージリストの登録 リストビューにイメージリストを登録する
 		private void InitImageList()
 		{
 			// setup the image list to hold the folder icons
@@ -154,23 +129,56 @@ namespace TextureChanger
 
 		#endregion
 
-		#region Event Handlers
-
-		private void TreeViewBeforeExpand(object sender, System.Windows.Forms.TreeViewCancelEventArgs e)
+		#region ツリーノードを展開表示する
+		public static void ExpandBranch( TreeView tree, TreeNode tn, ImageList imageList )
 		{
-			this.BeginUpdate();
-			ShellOperations.ExpandBranch( (TreeView)sender, e.Node, this.ImageList);
-			this.EndUpdate();
+			// if there's a dummy node present, clear it and replace with actual contents
+			if( tn.Nodes.Count != 1 )
+				return;
+
+			TreeViewTag tnTag = (TreeViewTag)tn.Nodes[ 0 ].Tag;
+
+
+			if( tnTag.isDummy )
+			{
+				tn.Nodes.Clear( );
+
+				int imageCount = imageList.Images.Count - 1;
+				FillSubDirectories( tree, tn, ref imageCount, imageList, true );
+			}
 		}
+		#endregion
+
+		#region ノードのパスを返すプロパティ郡
+
+		#region 選択中ノードのパスを返すプロパティ
+		public string GetSelectedNodePath( )
+		{
+			return GetFilePath( SelectedNode );
+		}
+		#endregion
+
+		#region 指定ノードのファイルパスを返すプロパティ（ファイルシステムにマップできないときは空文字列）
+		public static string GetFilePath( TreeNode tn )
+		{
+			try
+			{
+				TreeViewTag tag = (TreeViewTag)tn.Tag;
+				StringBuilder strDisplay = new StringBuilder( (int)MAX.PATH );
+				SH.SHGetPathFromIDList( tag.pidlAbsolute, strDisplay );
+				if( Directory.Exists( strDisplay.ToString( ) ) )
+					return strDisplay.ToString( );
+			}
+			catch
+			{
+			}
+			return "";
+		}
+		#endregion
 
 		#endregion
 
-		#region Furty.Windows.Forms.FolderTreeView Properties & Methods
-
-		public string GetSelectedNodePath()
-		{
-			return ShellOperations.GetFilePath(SelectedNode);
-		}
+		#region ツリービューのノードの展開を行うメソッド郡
 
 		public bool DrillToFolder(string folderPath)
 		{
@@ -197,7 +205,7 @@ namespace TextureChanger
 				if(!folderFound)
 				{
 					this.SelectedNode = tn;
-					string tnPath = ShellOperations.GetFilePath(tn).ToUpper(_cultureInfo);
+					string tnPath = GetFilePath(tn).ToUpper(_cultureInfo);
 					if(path == tnPath && !folderFound)
 					{
 						this.SelectedNode = tn;
@@ -213,7 +221,6 @@ namespace TextureChanger
 				}
 			}
 		}
-
 
 		#endregion
         
@@ -406,63 +413,7 @@ namespace TextureChanger
 
 		#endregion
 
-    }
-
-	#endregion
-
-	#region ShellOperations Class
-
-	public class ShellOperations
-	{
-
-		#region FolderTreeView Methods
-
-		private static IntPtr _pidlDesktop = IntPtr.Zero;
-
-		#region GetFilePath
-		public static string GetFilePath(TreeNode tn)
-		{
-			try
-			{
-				TreeViewTag tag = (TreeViewTag)tn.Tag;
-
-				SH.STRRET ptrString;
-				tag.shellFolder.GetDisplayNameOf(tag.pidlAbsolute,
-					(uint)SH.SHGDN.SHGDN_NORMAL, out ptrString);
-
-				StringBuilder strDisplay = new StringBuilder(256);
-				SH.StrRetToBuf(ref ptrString, tag.pidlAbsolute, strDisplay,
-					(uint)strDisplay.Capacity);
-
-				//Shell32.FolderItem folderItem = (Shell32.FolderItem)tn.Tag;
-				string folderPath = strDisplay.ToString();// folderItem.Path;
-				if(Directory.Exists(folderPath))
-					return folderPath;
-				else
-					return "";
-			}
-			catch
-			{
-				return "";
-			}
-		}
-		#endregion
-
-		#region Populate Tree
-		public static void PopulateTree(TreeView tree, ImageList imageList)
-		{
-			int imageCount = imageList.Images.Count -1;//TODO なぜ -1する？
-			tree.Nodes.Clear();
-			AddRootNode(tree, ref imageCount, imageList, true);
-			if(tree.Nodes.Count > 1)
-			{
-				tree.SelectedNode = tree.Nodes[1];
-				ExpandBranch( tree, tree.Nodes[ 1 ], imageList );
-			}
-		}
-		#endregion
-
-		#region Add Root Node
+		#region デスクトップ（初期ノード）を追加する
 		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, bool getIcons)
 		{
 			SH.IShellFolder sfDesktop = SH.GetDesktopFolder();
@@ -475,7 +426,7 @@ namespace TextureChanger
 
 			IntPtr pidlRoot = SH.ILClone(_pidlDesktop);
 
-			IntPtr[] pidlList = { _pidlDesktop, IntPtr.Zero, IntPtr.Zero };
+			IntPtr[] pidlList = { pidlRoot, IntPtr.Zero, IntPtr.Zero };
 			SH.SFGAO attributesToRetrieve =
 				SH.SFGAO.CAPABILITYMASK
 			  | SH.SFGAO.HASSUBFOLDER
@@ -505,6 +456,7 @@ namespace TextureChanger
 				isDummy = false,
 				shellFolder = sfDesktop,
 				pidlAbsolute = pidlRoot,
+				pidlRelative = pidlRoot,
 				attributes = attributesToRetrieve,
 				path = strDisplay.ToString(),
 			};
@@ -536,24 +488,8 @@ namespace TextureChanger
 			IntPtr notUsed;
 			while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint)ErrNo.S_OK)
 			{
-				//相対PIDLを親の絶対PIDLと連結して絶対PIDLに加工する
-				IntPtr pidlAbsolute;
-				pidlAbsolute = SH.ILClone(tnTag.pidlAbsolute);
-				pidlAbsolute = SH.ILCombine(pidlAbsolute, pidlChildRelative);
-
-				//同じく絶対PIDLのIShellFolderオブジェクトを取得
-				IntPtr ppv;
-				tnTag.shellFolder.BindToObject(
-					pidlChildRelative
-					, IntPtr.Zero
-					, SH.Guid_IShellFolder.IID_IShellFolder
-					, out ppv );
-				SH.IShellFolder childShellFolder = (SH.IShellFolder)Marshal.GetTypedObjectForIUnknown( ppv, typeof( SH.IShellFolder ) );
-
-				Api.CoTaskMemFree( pidlChildRelative );
-
-				//絶対PIDLのファイル属性を取得
-				IntPtr[] pidlList = { pidlAbsolute, IntPtr.Zero, IntPtr.Zero };
+				//子PIDLのファイル属性を取得
+				IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
 				SH.SFGAO attributesToRetrieve =
 					SH.SFGAO.CAPABILITYMASK
 				  | SH.SFGAO.HASSUBFOLDER
@@ -575,23 +511,38 @@ namespace TextureChanger
 				}
 				else
 				{
-					Marshal.ReleaseComObject( childShellFolder );
+					Api.CoTaskMemFree( pidlChildRelative );
 					continue;
 				}
 
+				//相対PIDLを親の絶対PIDLと連結して絶対PIDLに加工する
+				IntPtr pidlAbsolute;
+				pidlAbsolute = SH.ILClone( tnTag.pidlAbsolute );
+				pidlAbsolute = SH.ILCombine( pidlAbsolute, pidlChildRelative );
+
 				//同じく絶対PIDLの表示名を取得
 				SH.STRRET ptrString;
-				tnTag.shellFolder.GetDisplayNameOf(pidlAbsolute,
+				tnTag.shellFolder.GetDisplayNameOf( pidlChildRelative,
 					(uint)SH.SHGDN.SHGDN_NORMAL, out ptrString);
 				StringBuilder strDisplay = new StringBuilder(256);
 				SH.StrRetToBuf(ref ptrString, pidlAbsolute, strDisplay,
 					(uint)strDisplay.Capacity);
 
-				if( Path.GetExtension( strDisplay.ToString( ) ) == ".zip" ) //TODO  string.Compare(
+				if( String.Compare( Path.GetExtension( strDisplay.ToString( ) ), ".zip" , true) == 0 )
 				{
-					Marshal.ReleaseComObject( childShellFolder );
+					Api.CoTaskMemFree( pidlChildRelative );
+					SH.ILFree( pidlAbsolute );
 					continue;
 				}
+
+				//子PIDLのIShellFolderオブジェクトを取得
+				IntPtr ppv;
+				tnTag.shellFolder.BindToObject(
+					pidlChildRelative
+					, IntPtr.Zero
+					, SH.Guid_IShellFolder.IID_IShellFolder
+					, out ppv );
+				SH.IShellFolder childShellFolder = (SH.IShellFolder)Marshal.GetTypedObjectForIUnknown( ppv, typeof( SH.IShellFolder ) );
 				
 				//子ノードを生成して親ノードに追加
 				TreeNode babyNode = AddTreeNode(
@@ -600,6 +551,7 @@ namespace TextureChanger
 						isDummy = false,
 						shellFolder = childShellFolder,
 						pidlAbsolute = pidlAbsolute,
+						pidlRelative = pidlChildRelative,
 						attributes = attributesToRetrieve,
 						path = strDisplay.ToString(),
 					}
@@ -638,14 +590,8 @@ namespace TextureChanger
 				IntPtr notUsed;
 				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint)ErrNo.S_OK)
 				{
-					//相対PIDLを親の絶対PIDLと連結して絶対PIDLに加工する
-					IntPtr pidlAbsolute;
-					pidlAbsolute = SH.ILClone(tnTag.pidlAbsolute);
-					pidlAbsolute = SH.ILCombine(pidlAbsolute, pidlChildRelative);
-					Api.CoTaskMemFree(pidlChildRelative);
-
 					//絶対PIDLのファイル属性を取得
-					IntPtr[] pidlList = { pidlAbsolute, IntPtr.Zero, IntPtr.Zero };
+					IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
 					SH.SFGAO attributesToRetrieve =
 						SH.SFGAO.CAPABILITYMASK
 						| SH.SFGAO.HASSUBFOLDER
@@ -662,10 +608,10 @@ namespace TextureChanger
 						&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE) == 0 )
 					{
 						hasFolders = true;
-						SH.ILFree( pidlAbsolute );
+						Api.CoTaskMemFree( pidlChildRelative );
 						break;
 					}
-					SH.ILFree( pidlAbsolute );
+					Api.CoTaskMemFree( pidlChildRelative );
 				}
 
 				Marshal.ReleaseComObject( enumIDList );
@@ -684,27 +630,7 @@ namespace TextureChanger
 		}
 		#endregion
 
-		#region Expand Branch
-		public static void ExpandBranch(TreeView tree, TreeNode tn, ImageList imageList)
-		{
-			// if there's a dummy node present, clear it and replace with actual contents
-			if(tn.Nodes.Count != 1)
-				return;
-
-			TreeViewTag tnTag = (TreeViewTag)tn.Nodes[0].Tag;
-
-
-			if(tnTag.isDummy)
-			{
-				tn.Nodes.Clear();
-
-				int imageCount = imageList.Images.Count - 1;
-				FillSubDirectories( tree, tn, ref imageCount, imageList, true );
-			}
-		}
-		#endregion
-
-		#region Add Tree Node
+		#region ツリーにノードを追加する
 		private static TreeNode AddTreeNode(TreeViewTag tag, ref int imageCount, ImageList imageList, bool getIcons)
 		{
 			TreeNode tn = new TreeNode();
@@ -715,18 +641,10 @@ namespace TextureChanger
 			{
 				try
 				{
-					imageCount++;
-					tn.ImageIndex = imageCount;
-					imageCount++;
-					tn.SelectedImageIndex = imageCount;
-
-					IntPtr pidl = SH.ILClone(tag.pidlAbsolute);
-
-
-					imageList.Images.Add(ExtractIcons.GetIcon(pidl, false, imageList)); // normal icon
-					imageList.Images.Add(ExtractIcons.GetIcon(pidl, true, imageList)); // selected icon
-
-					SH.ILFree(pidl);
+					tn.ImageIndex         = ++imageCount;
+					tn.SelectedImageIndex = ++imageCount;
+					imageList.Images.Add( ExtractIcons.GetIcon( tag.pidlAbsolute, false, imageList ) ); // normal icon
+					imageList.Images.Add( ExtractIcons.GetIcon( tag.pidlAbsolute, true , imageList ) ); // selected icon
 				}
 				catch // use default 
 				{
@@ -741,8 +659,6 @@ namespace TextureChanger
 			}
 			return tn;
 		}
-
-		#endregion
 
 		#endregion
 	}

@@ -998,16 +998,13 @@ namespace Win32
 		[DllImport( "shlwapi.dll" )]
 		public static extern Int32 StrRetToBuf(
 			ref STRRET pstr,		// Pointer to the STRRET structure. When the function
-									// returns, this pointer will no
-									// longer be valid.
+									// returns, this pointer will no longer be valid.
 			IntPtr pidl,			// Pointer to the item's ITEMIDLIST structure.
 			StringBuilder pszBuf,	// Buffer to hold the display name. It will be returned
-									// as a null-terminated
-									// string. If cchBuf is too small, the name will be
-									// truncated to fit. 
+									// as a null-terminated string. If cchBuf is too small, 
+									// the name will be truncated to fit. 
 			UInt32 cchBuf );        // Size of pszBuf, in characters. If cchBuf is too small,
-									// the string will be 
-									// truncated to fit. 
+									// the string will be truncated to fit. 
 		#endregion
 
 
