@@ -844,6 +844,25 @@ namespace Win32
 			public STRRETinternal data;
 		}
 
+
+	    public static string ExtractDisplayName( IShellFolder shellFolder,  IntPtr pidlRelative, IntPtr pidlAbsolute )
+	    {
+		    try
+		    {
+				STRRET ptrString;
+				shellFolder.GetDisplayNameOf( pidlRelative,
+					(uint)SHGDN.SHGDN_NORMAL, out ptrString );
+				StringBuilder strDisplay = new StringBuilder( (int)MAX.PATH );
+				StrRetToBuf( ref ptrString, pidlAbsolute, strDisplay, (uint)strDisplay.Capacity );
+				return strDisplay.ToString( );
+			}
+		    catch
+		    {
+			    throw;
+		    }
+		}
+
+
 		public class Guid_IShellFolder
 		{
 			public static Guid IID_IShellFolder = new Guid( "{000214E6-0000-0000-C000-000000000046}" );
@@ -907,6 +926,11 @@ namespace Win32
 
 			IntPtr ptrRet;
 			SH.SHGetDesktopFolder( out ptrRet );
+
+			if (ptrRet == IntPtr.Zero)
+			{
+				return null;
+			}
 
 			Object obj = Marshal.GetTypedObjectForIUnknown( ptrRet, typeof( SH.IShellFolder ) );
 			IShellFolder ishellFolder = (IShellFolder)obj;

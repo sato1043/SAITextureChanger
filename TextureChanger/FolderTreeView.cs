@@ -38,6 +38,7 @@ using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using TextureChanger.util;
 using Win32;
 using System.Text;
 
@@ -70,7 +71,7 @@ namespace TextureChanger
 		private void TreeViewBeforeExpand( object sender, System.Windows.Forms.TreeViewCancelEventArgs e )
 		{
 			this.BeginUpdate( );
-			ExpandBranch( (TreeView)sender, e.Node, this.ImageList );
+			ExpandBranch( this, (TreeView)sender, e.Node, this.ImageList );
 			this.EndUpdate( );
 		}
 
@@ -79,25 +80,25 @@ namespace TextureChanger
 			BeforeExpand += new TreeViewCancelEventHandler(TreeViewBeforeExpand);
 		}
 
-		public void InitFolderTreeView()
+		public void InitFolderTreeView(IWin32Window owner)
 		{
 			InitImageList();
-			PopulateTree( this, _folderTreeViewImageList );
+			PopulateTree( owner, this, _folderTreeViewImageList );
 			if(Nodes.Count > 0)
 			{
 				Nodes[0].Expand();
 			}
 		}
 
-		public static void PopulateTree( TreeView tree, ImageList imageList )
+		public static void PopulateTree( IWin32Window owner, TreeView tree, ImageList imageList )
 		{
 			int imageCount = imageList.Images.Count - 1;
 			tree.Nodes.Clear( );
-			AddRootNode( tree, ref imageCount, imageList, true );
+			AddRootNode( owner, tree, ref imageCount, imageList, true );
 			if( tree.Nodes.Count > 1 )
 			{
 				tree.SelectedNode = tree.Nodes[ 1 ];
-				ExpandBranch( tree, tree.Nodes[ 1 ], imageList );
+				ExpandBranch( owner, tree, tree.Nodes[ 1 ], imageList );
 			}
 		}
 
@@ -130,7 +131,7 @@ namespace TextureChanger
 		#endregion
 
 		#region ツリーノードを展開表示する
-		public static void ExpandBranch( TreeView tree, TreeNode tn, ImageList imageList )
+		public static void ExpandBranch( IWin32Window owner, TreeView tree, TreeNode tn, ImageList imageList )
 		{
 			// if there's a dummy node present, clear it and replace with actual contents
 			if( tn.Nodes.Count != 1 )
@@ -144,7 +145,7 @@ namespace TextureChanger
 				tn.Nodes.Clear( );
 
 				int imageCount = imageList.Images.Count - 1;
-				FillSubDirectories( tree, tn, ref imageCount, imageList, true );
+				FillSubDirectories( owner, tree, tn, ref imageCount, imageList, true );
 			}
 		}
 		#endregion
@@ -414,42 +415,68 @@ namespace TextureChanger
 		#endregion
 
 		#region デスクトップ（初期ノード）を追加する
-		private static void AddRootNode(TreeView tree, ref int imageCount, ImageList imageList, bool getIcons)
+		private static void AddRootNode( IWin32Window owner, TreeView tree, ref int imageCount, ImageList imageList, bool getIcons)
 		{
-			SH.IShellFolder sfDesktop = SH.GetDesktopFolder();
-
-			SH.SHGetSpecialFolderLocation(
-				IntPtr.Zero,
-				SH.CSIDL.DESKTOP,
-				ref _pidlDesktop
-			);
-
-			IntPtr pidlRoot = SH.ILClone(_pidlDesktop);
-
-			IntPtr[] pidlList = { pidlRoot, IntPtr.Zero, IntPtr.Zero };
+			SH.IShellFolder sfDesktop = null;
+			IntPtr pidlRoot = IntPtr.Zero;
 			SH.SFGAO attributesToRetrieve =
-				SH.SFGAO.CAPABILITYMASK
-			  | SH.SFGAO.HASSUBFOLDER
-			  | SH.SFGAO.SHARE
-			  | SH.SFGAO.FOLDER
-			  | SH.SFGAO.FILESYSTEM;
-			sfDesktop.GetAttributesOf(
-				  1  //ひと組のIDLについて
-				, pidlList
-				, attributesToRetrieve
+							SH.SFGAO.CAPABILITYMASK
+						  | SH.SFGAO.HASSUBFOLDER
+						  | SH.SFGAO.SHARE
+						  | SH.SFGAO.FOLDER
+						  | SH.SFGAO.FILESYSTEM;
+			string strDisplay = "";
+			try
+			{
+				sfDesktop = SH.GetDesktopFolder();
+				if( sfDesktop == null )
+				{
+					throw new ArgumentNullException( );
+				}
+
+				SH.SHGetSpecialFolderLocation(
+					IntPtr.Zero,
+					SH.CSIDL.DESKTOP,
+					ref _pidlDesktop
 				);
 
+				pidlRoot = SH.ILClone(_pidlDesktop);
+				if (pidlRoot == IntPtr.Zero)
+				{
+					throw new ArgumentNullException();
+				}
 
-			SH.STRRET ptrString;
-			sfDesktop.GetDisplayNameOf(pidlRoot,
-				(uint)SH.SHGDN.SHGDN_NORMAL, out ptrString);
-			StringBuilder strDisplay = new StringBuilder(256);
-			SH.StrRetToBuf(ref ptrString ,pidlRoot,strDisplay,
-				(uint)strDisplay.Capacity);
+				IntPtr[] pidlList = { pidlRoot, IntPtr.Zero, IntPtr.Zero };
+				sfDesktop.GetAttributesOf(
+					  1  //ひと組のIDLについて
+					, pidlList
+					, attributesToRetrieve
+					);
+
+				strDisplay = SH.ExtractDisplayName( sfDesktop, pidlRoot, pidlRoot );
+
+			}
+			catch
+			{
+				if (pidlRoot != IntPtr.Zero)
+				{
+					SH.ILFree(pidlRoot);
+				}
+				if( sfDesktop != null )
+				{
+					Marshal.ReleaseComObject( sfDesktop );
+				}
+				CenteredMessageBox.Show( owner
+					, "フォルダツリーの作成に失敗しました。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
+			}
 			
 			tree.Nodes.Clear();
 			
-			TreeNode desktop = new TreeNode( strDisplay.ToString(), 0, 0 );
+			TreeNode desktop = new TreeNode( strDisplay, 0, 0 );
 
 			desktop.Tag = new TreeViewTag()
 			{
@@ -458,175 +485,296 @@ namespace TextureChanger
 				pidlAbsolute = pidlRoot,
 				pidlRelative = pidlRoot,
 				attributes = attributesToRetrieve,
-				path = strDisplay.ToString(),
+				path = strDisplay,
 			};
 
 			tree.Nodes.Add(desktop);
 
-			FillSubDirectories( tree, desktop, ref imageCount, imageList, getIcons );
+			FillSubDirectories( owner, tree, desktop, ref imageCount, imageList, getIcons );
 
 		}
 		#endregion
 
 		#region フォルダの子ノードを列挙してツリーに追加する
-		private static void FillSubDirectories( TreeView tree, TreeNode tn, ref int imageCount, ImageList imageList, bool getIcons )
+		private static void FillSubDirectories( IWin32Window owner, TreeView tree, TreeNode tn, ref int imageCount, ImageList imageList, bool getIcons )
 		{
 			TreeViewTag tnTag = (TreeViewTag)tn.Tag;
+			try
+			{
+				if (tnTag.shellFolder == null
+				    || tnTag.pidlAbsolute == IntPtr.Zero
+				    || tnTag.pidlRelative == IntPtr.Zero)
+				{
+					throw new ArgumentNullException();
+				}
+			}
+			catch
+			{
+				CenteredMessageBox.Show( owner
+					, "フォルダツリーの子ノードが不正な値でした。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+				return;
+			}
 
 			IntPtr hWndMain = Api.GetMainWindow( tree.Handle );
 
-			IntPtr ppEnumIDList;
-			tnTag.shellFolder.EnumObjects(
-				hWndMain
-			  , SH.SHCONTF.SHCONTF_FOLDERS //| SH.SHCONTF.SHCONTF_INCLUDEHIDDEN
-			  , out ppEnumIDList);
-
-			SH.IEnumIDList enumIDList = (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
-
-
-			IntPtr pidlChildRelative;
-			IntPtr notUsed;
-			while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint)ErrNo.S_OK)
+			try
 			{
-				//子PIDLのファイル属性を取得
-				IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
-				SH.SFGAO attributesToRetrieve =
-					SH.SFGAO.CAPABILITYMASK
-				  | SH.SFGAO.HASSUBFOLDER
-				  | SH.SFGAO.SHARE
-				  | SH.SFGAO.FOLDER
-				  | SH.SFGAO.FILESYSTEM
-				  | SH.SFGAO.STREAM;
-				tnTag.shellFolder.GetAttributesOf(
-					  1  //ひと組のIDLについて
-					, pidlList
-					, attributesToRetrieve
-				);
-				if( ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM ) != 0
-					&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER ) != 0
-					//&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.STREAM ) == 0
-					&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE ) == 0
-				){
-					;
-				}
-				else
+				IntPtr pidlChildRelative = IntPtr.Zero;
+				IntPtr notUsed;
+
+				IntPtr ppEnumIDList = IntPtr.Zero;
+				tnTag.shellFolder.EnumObjects(
+					hWndMain
+				  , SH.SHCONTF.SHCONTF_FOLDERS //| SH.SHCONTF.SHCONTF_INCLUDEHIDDEN
+				  , out ppEnumIDList );
+				if( ppEnumIDList == IntPtr.Zero )
 				{
-					Api.CoTaskMemFree( pidlChildRelative );
-					continue;
+					throw new ArgumentNullException( );
 				}
-
-				//相対PIDLを親の絶対PIDLと連結して絶対PIDLに加工する
-				IntPtr pidlAbsolute;
-				pidlAbsolute = SH.ILClone( tnTag.pidlAbsolute );
-				pidlAbsolute = SH.ILCombine( pidlAbsolute, pidlChildRelative );
-
-				//同じく絶対PIDLの表示名を取得
-				SH.STRRET ptrString;
-				tnTag.shellFolder.GetDisplayNameOf( pidlChildRelative,
-					(uint)SH.SHGDN.SHGDN_NORMAL, out ptrString);
-				StringBuilder strDisplay = new StringBuilder(256);
-				SH.StrRetToBuf(ref ptrString, pidlAbsolute, strDisplay,
-					(uint)strDisplay.Capacity);
-
-				if( String.Compare( Path.GetExtension( strDisplay.ToString( ) ), ".zip" , true) == 0 )
+				SH.IEnumIDList enumIDList= (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown( ppEnumIDList, typeof( SH.IEnumIDList ) );
+				if( enumIDList == null )
 				{
-					Api.CoTaskMemFree( pidlChildRelative );
-					SH.ILFree( pidlAbsolute );
-					continue;
+					throw new ArgumentNullException( );
 				}
 
-				//子PIDLのIShellFolderオブジェクトを取得
-				IntPtr ppv;
-				tnTag.shellFolder.BindToObject(
-					pidlChildRelative
-					, IntPtr.Zero
-					, SH.Guid_IShellFolder.IID_IShellFolder
-					, out ppv );
-				SH.IShellFolder childShellFolder = (SH.IShellFolder)Marshal.GetTypedObjectForIUnknown( ppv, typeof( SH.IShellFolder ) );
-				
-				//子ノードを生成して親ノードに追加
-				TreeNode babyNode = AddTreeNode(
-					new TreeViewTag()
+				while( enumIDList.Next( 1, out pidlChildRelative, out notUsed ) == (uint)ErrNo.S_OK )
+				{
+					if (pidlChildRelative == IntPtr.Zero)
 					{
-						isDummy = false,
-						shellFolder = childShellFolder,
-						pidlAbsolute = pidlAbsolute,
-						pidlRelative = pidlChildRelative,
-						attributes = attributesToRetrieve,
-						path = strDisplay.ToString(),
+						continue;
 					}
-					, ref imageCount, imageList, getIcons);
-				tn.Nodes.Add(babyNode);
-				CheckForSubDirs( tree, babyNode );
+
+					SH.SFGAO attributesToRetrieve =
+						SH.SFGAO.CAPABILITYMASK
+					  | SH.SFGAO.HASSUBFOLDER
+					  | SH.SFGAO.SHARE
+					  | SH.SFGAO.FOLDER
+					  | SH.SFGAO.FILESYSTEM
+					  | SH.SFGAO.STREAM;
+					IntPtr pidlAbsolute = IntPtr.Zero;
+					string strDisplay = "";
+					SH.IShellFolder childShellFolder = null;
+
+					try
+					{
+						//子PIDLのファイル属性を取得
+						IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
+						tnTag.shellFolder.GetAttributesOf(
+							  1  //ひと組のIDLについて
+							, pidlList
+							, attributesToRetrieve
+						);
+						if( ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM ) != 0
+							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER ) != 0
+							//&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.STREAM ) == 0
+							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE ) == 0
+						)
+						{
+							;
+						}
+						else
+						{
+							Api.CoTaskMemFree( pidlChildRelative );
+							continue;
+						}
+
+						//相対PIDLを親の絶対PIDLと連結して絶対PIDLに加工する
+						pidlAbsolute = SH.ILClone( tnTag.pidlAbsolute );
+						if( pidlAbsolute == IntPtr.Zero )
+						{
+							throw new ArgumentNullException( );
+						}
+						pidlAbsolute = SH.ILCombine( pidlAbsolute, pidlChildRelative );
+						if( pidlAbsolute == IntPtr.Zero )
+						{
+							throw new ArgumentNullException( );
+						}
+
+						//表示名を取得
+						strDisplay = SH.ExtractDisplayName( tnTag.shellFolder, pidlChildRelative, pidlAbsolute );
+						if( String.Compare( Path.GetExtension( strDisplay ), ".zip", true ) == 0 )
+						{
+							Api.CoTaskMemFree( pidlChildRelative );
+							SH.ILFree( pidlAbsolute );
+							continue;
+						}
+
+						//子PIDLのIShellFolderオブジェクトを取得
+						IntPtr ppv;
+						tnTag.shellFolder.BindToObject(
+							pidlChildRelative
+							, IntPtr.Zero
+							, SH.Guid_IShellFolder.IID_IShellFolder
+							, out ppv );
+						if (ppv == IntPtr.Zero)
+						{
+							throw new ArgumentNullException();
+						}
+						childShellFolder = (SH.IShellFolder)Marshal.GetTypedObjectForIUnknown( ppv, typeof( SH.IShellFolder ) );
+						if (childShellFolder == null)
+						{
+							throw new ArgumentNullException();
+						}
+
+						//子ノードを生成して親ノードに追加
+						TreeNode babyNode = AddTreeNode(
+							new TreeViewTag( )
+							{
+								isDummy = false,
+								shellFolder = childShellFolder,
+								pidlAbsolute = pidlAbsolute,
+								pidlRelative = pidlChildRelative,
+								attributes = attributesToRetrieve,
+								path = strDisplay,
+							}
+							, ref imageCount, imageList, getIcons );
+
+						tn.Nodes.Add( babyNode );
+						CheckForSubDirs( owner, tree, babyNode );
+					}
+					catch
+					{
+						if( pidlAbsolute != IntPtr.Zero )
+						{
+							SH.ILFree( pidlAbsolute );
+						}
+						if( childShellFolder != null )
+						{
+							Marshal.ReleaseComObject( childShellFolder );
+						}
+						CenteredMessageBox.Show( owner
+							, "フォルダツリーの子ノードを列挙中に不正な処理をした要素が存在しました。\n" +
+							  "プログラムを再起動してみてください。"
+							, "TexureChanger内部処理エラー"
+							, MessageBoxButtons.OK, MessageBoxIcon.Error );
+					}
+				}
+
+				Marshal.ReleaseComObject( enumIDList );
+
 			}
-
-			Marshal.ReleaseComObject( enumIDList );
-
+			catch
+			{
+				CenteredMessageBox.Show( owner
+					, "フォルダツリーの子ノードを列挙に失敗しました。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+			}
 		}
 		#endregion
 
 		#region サブディレクトリが存在する場合にノード＋マークをつけるためにダミーを差し込んでおく（フォルダリストを遅延読み込みするため）
-		private static void CheckForSubDirs( TreeView tree, TreeNode tn )
+		private static void CheckForSubDirs( IWin32Window owner, TreeView tree, TreeNode tn )
 		{
 			if (tn.Nodes.Count != 0)
 				return;
+
+			TreeViewTag tnTag = (TreeViewTag)tn.Tag;
 			try
 			{
-				bool hasFolders = false;
+				if( tnTag.shellFolder == null
+					|| tnTag.pidlAbsolute == IntPtr.Zero
+					|| tnTag.pidlRelative == IntPtr.Zero )
+				{
+					throw new ArgumentNullException( );
+				}
+			}
+			catch
+			{
+				CenteredMessageBox.Show( owner
+					, "フォルダツリーの子ノードが不正な値でした。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+				return;
+			}
 
-				TreeViewTag tnTag = (TreeViewTag)tn.Tag;
-				
-				IntPtr hWndMain = Api.GetMainWindow(tn.Handle);
+			IntPtr hWndMain = Api.GetMainWindow( tn.Handle );
 
+			bool hasFolders = false;
+
+			try
+			{
 				IntPtr ppEnumIDList;
 				tnTag.shellFolder.EnumObjects(
 					hWndMain
 					, SH.SHCONTF.SHCONTF_FOLDERS //| SH.SHCONTF.SHCONTF_INCLUDEHIDDEN
 					, out ppEnumIDList);
-
-				SH.IEnumIDList enumIDList = (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
-
-				IntPtr pidlChildRelative;
-				IntPtr notUsed;
-				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint)ErrNo.S_OK)
+				if (ppEnumIDList == IntPtr.Zero)
 				{
-					//絶対PIDLのファイル属性を取得
-					IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
+					throw new ArgumentNullException();
+				}
+
+				SH.IEnumIDList enumIDList =
+					(SH.IEnumIDList) Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof (SH.IEnumIDList));
+				if (enumIDList == null)
+				{
+					throw new ArgumentNullException( );
+				}
+
+				IntPtr pidlChildRelative = IntPtr.Zero;
+				IntPtr notUsed;
+				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint) ErrNo.S_OK)
+				{
+					if (pidlChildRelative == IntPtr.Zero)
+					{
+						continue;
+					}
+
 					SH.SFGAO attributesToRetrieve =
 						SH.SFGAO.CAPABILITYMASK
 						| SH.SFGAO.HASSUBFOLDER
 						| SH.SFGAO.SHARE
 						| SH.SFGAO.FOLDER
 						| SH.SFGAO.FILESYSTEM;
-					tnTag.shellFolder.GetAttributesOf(
-							1  //ひと組のIDLについて
-						, pidlList
-						, attributesToRetrieve
-					);
-					if ( ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM) != 0
-						&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER) != 0
-						&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE) == 0 )
+					try
 					{
-						hasFolders = true;
-						Api.CoTaskMemFree( pidlChildRelative );
-						break;
+						//絶対PIDLのファイル属性を取得
+						IntPtr[] pidlList = { pidlChildRelative, IntPtr.Zero, IntPtr.Zero };
+						tnTag.shellFolder.GetAttributesOf(
+							1 //ひと組のIDLについて
+							, pidlList
+							, attributesToRetrieve
+							);
+						if( ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM ) != 0
+							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER ) != 0
+							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE ) == 0 )
+						{
+							hasFolders = true;
+							Api.CoTaskMemFree( pidlChildRelative );
+							break;
+						}
+					}
+					catch
+					{
 					}
 					Api.CoTaskMemFree( pidlChildRelative );
 				}
 
-				Marshal.ReleaseComObject( enumIDList );
-				
-				if( hasFolders )
-				{
-					TreeNode babyNode = new TreeNode( );
-					babyNode.Tag = new TreeViewTag( )
-					{
-						isDummy = true,
-					};
-					tn.Nodes.Add( babyNode );
-				}
+				Marshal.ReleaseComObject(enumIDList);
 			}
-			catch {}
+			catch
+			{
+				CenteredMessageBox.Show( owner
+					, "フォルダツリーの子フォルダの検査に失敗しました。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+			}
+			
+			if( hasFolders )
+			{
+				TreeNode babyNode = new TreeNode( );
+				babyNode.Tag = new TreeViewTag( )
+				{
+					isDummy = true,
+				};
+				tn.Nodes.Add( babyNode );
+			}
 		}
 		#endregion
 
@@ -681,15 +829,19 @@ namespace TextureChanger
 			else
 				flags = flags | SH.SHGFI.ICON | SH.SHGFI.SMALLICON | SH.SHGFI.OPENICON;
 
-			SH.SHGetFileInfo( pidl, 0, ref shfi, (uint)cbFileInfo, flags );
-
-			if( shfi.hIcon == IntPtr.Zero )
+			Icon icon = null;
+			try
 			{
-				throw new System.ArgumentNullException();
-			}
-			var icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
-			Api.DestroyIcon( shfi.hIcon );
+				SH.SHGetFileInfo( pidl, 0, ref shfi, (uint)cbFileInfo, flags );
+				if( shfi.hIcon == IntPtr.Zero )
+					return null;
 
+				icon = (Icon)Icon.FromHandle( shfi.hIcon ).Clone( );
+				Api.DestroyIcon( shfi.hIcon );
+			}
+			catch
+			{
+			}
 			return icon;
 		}
 		#endregion
@@ -700,12 +852,19 @@ namespace TextureChanger
 		// by all means let me know..
 		public static Icon GetDesktopIcon()
 		{
-			IntPtr[] handlesIconLarge = new IntPtr[1];
-			IntPtr[] handlesIconSmall = new IntPtr[1];
-			uint i = Api.ExtractIconEx(Environment.SystemDirectory + "\\shell32.dll", 34, 
-				handlesIconLarge, handlesIconSmall, 1);
+			try
+			{
+				IntPtr[] handlesIconLarge = new IntPtr[ 1 ];
+				IntPtr[] handlesIconSmall = new IntPtr[ 1 ];
+				uint i = Api.ExtractIconEx( Environment.SystemDirectory + "\\shell32.dll", 34,
+					handlesIconLarge, handlesIconSmall, 1 );
 
-			return Icon.FromHandle(handlesIconSmall[0]);
+				return Icon.FromHandle( handlesIconSmall[ 0 ] );
+			}
+			catch
+			{
+			}
+			return null;
 		}
 		#endregion
 

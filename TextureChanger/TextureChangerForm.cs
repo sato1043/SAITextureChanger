@@ -44,11 +44,12 @@ namespace TextureChanger
 				}
 				else
 				{
-					MessageBox.Show(this,
-						"SAIのインストール先を設定できませんでした。\n" +
-						"操作先のSAIがわからないため、処理を継続できません。\n"+
-						"申し訳ありませんが、プログラムの起動を中断します。"
-						);
+					CenteredMessageBox.Show( this
+						, "SAIのインストール先を設定できませんでした。\n" +
+						  "操作先のSAIがわからないため、処理を継続できません。\n"+
+						  "申し訳ありませんが、プログラムの起動を中断します。"
+						, "TexureChanger起動確認"
+						, MessageBoxButtons.OK, MessageBoxIcon.Error);
 					_forceExitProgram = true;
 					Application.Exit();
 					return;
@@ -100,7 +101,7 @@ namespace TextureChanger
 			#endregion
 
 			#region エクスプローラの初期表示
-			trvFolder.InitFolderTreeView();
+			trvFolder.InitFolderTreeView(this);
 			//trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
 			#endregion
 
