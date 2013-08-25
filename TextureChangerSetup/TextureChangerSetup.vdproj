@@ -15,13 +15,13 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_4CADC5627C652D834929B8159E457AA2"
-        "OwnerKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
+        "MsmKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
+        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
+        "MsmKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -34,13 +34,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4CADC5627C652D834929B8159E457AA2"
+        "OwnerKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_CF7F4E9A63E44B73802068960A8631D6"
+        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -148,14 +148,14 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4CADC5627C652D834929B8159E457AA2"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_2A4164DF5088A7BCCE94CA6C7E6B2446"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_4CADC5627C652D834929B8159E457AA2"
+                    "_2A4164DF5088A7BCCE94CA6C7E6B2446"
                     {
                     "Name" = "8:Ionic.Zip.Reduced.dll"
                     "Attributes" = "3:512"
@@ -376,7 +376,7 @@
         }
         "Shortcut"
         {
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_761C6E8C8DEB4B558D19EE2B2A8BD9B9"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_3C34A45BACF545AB9AF4365DED1D9119"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -384,13 +384,13 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_CF7F4E9A63E44B73802068960A8631D6"
-            "Folder" = "8:_1E9E7C58F6134115AE857AA9123BB3DB"
+            "Target" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
+            "Folder" = "8:_6A3B879D0CA4458BB260F2CC52E06051"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
             "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
             "Feature" = "8:"
             }
-            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_CE46AD26585A49C89FE4A5FDB2DD12B4"
+            "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_FDAB52FA75944E75B36B4EABB24C4A25"
             {
             "Name" = "8:TextureChanger"
             "Arguments" = "8:"
@@ -398,8 +398,8 @@
             "ShowCmd" = "3:1"
             "IconIndex" = "3:0"
             "Transitive" = "11:FALSE"
-            "Target" = "8:_CF7F4E9A63E44B73802068960A8631D6"
-            "Folder" = "8:_6A3B879D0CA4458BB260F2CC52E06051"
+            "Target" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
+            "Folder" = "8:_1E9E7C58F6134115AE857AA9123BB3DB"
             "WorkingFolder" = "8:_9A399E59084C40DA90D169CAF8386C5C"
             "Icon" = "8:_F9BC816E4C5F4D4A9F6DDE8A9FE7FFB9"
             "Feature" = "8:"
@@ -803,7 +803,7 @@
         }
         "ProjectOutput"
         {
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_CF7F4E9A63E44B73802068960A8631D6"
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_3A52AB340CDD4A679C3A46956475D1ED"
             {
             "SourcePath" = "8:..\\TextureChanger\\obj\\x86\\Release\\TextureChanger.exe"
             "TargetName" = "8:"

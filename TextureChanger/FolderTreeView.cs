@@ -520,11 +520,13 @@ namespace TextureChanger
 
 			IntPtr hWndMain = Api.GetMainWindow( tree.Handle );
 
+			IntPtr pidlChildRelative = IntPtr.Zero;
+			IntPtr pceltFetched;
+
+			SH.IEnumIDList enumIDList = null;
+
 			try
 			{
-				IntPtr pidlChildRelative = IntPtr.Zero;
-				IntPtr notUsed;
-
 				IntPtr ppEnumIDList = IntPtr.Zero;
 				tnTag.shellFolder.EnumObjects(
 					hWndMain
@@ -534,13 +536,26 @@ namespace TextureChanger
 				{
 					throw new ArgumentNullException( );
 				}
-				SH.IEnumIDList enumIDList= (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown( ppEnumIDList, typeof( SH.IEnumIDList ) );
+				enumIDList= (SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown( ppEnumIDList, typeof( SH.IEnumIDList ) );
 				if( enumIDList == null )
 				{
 					throw new ArgumentNullException( );
 				}
+			}
+			catch
+			{
+				// http://msdn.microsoft.com/en-us/library/bb775066(v=vs.85).aspx
+				// Returns S_OK if successful, or an error value otherwise. 
+				// Some implementations may also return S_FALSE, 
+				// indicating that there are no children matching the grfFlags that were passed in.
+				// If S_FALSE is returned, ppenumIDList is set to NULL.
+				return;
+			}
 
-				while( enumIDList.Next( 1, out pidlChildRelative, out notUsed ) == (uint)ErrNo.S_OK )
+
+			try
+			{
+				while (enumIDList.Next(1, out pidlChildRelative, out pceltFetched) == (uint)ErrNo.S_OK)
 				{
 					if (pidlChildRelative == IntPtr.Zero)
 					{
@@ -697,6 +712,7 @@ namespace TextureChanger
 
 			bool hasFolders = false;
 
+			SH.IEnumIDList enumIDList = null;
 			try
 			{
 				IntPtr ppEnumIDList;
@@ -709,16 +725,28 @@ namespace TextureChanger
 					throw new ArgumentNullException();
 				}
 
-				SH.IEnumIDList enumIDList =
-					(SH.IEnumIDList) Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof (SH.IEnumIDList));
+				enumIDList =
+					(SH.IEnumIDList)Marshal.GetTypedObjectForIUnknown(ppEnumIDList, typeof(SH.IEnumIDList));
 				if (enumIDList == null)
 				{
-					throw new ArgumentNullException( );
+					throw new ArgumentNullException();
 				}
+			}
+			catch
+			{
+				// http://msdn.microsoft.com/en-us/library/bb775066(v=vs.85).aspx
+				// Returns S_OK if successful, or an error value otherwise. 
+				// Some implementations may also return S_FALSE, 
+				// indicating that there are no children matching the grfFlags that were passed in.
+				// If S_FALSE is returned, ppenumIDList is set to NULL.
+				return;
+			}
 
+			try
+			{
 				IntPtr pidlChildRelative = IntPtr.Zero;
 				IntPtr notUsed;
-				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint) ErrNo.S_OK)
+				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) != (uint)ErrNo.S_OK)
 				{
 					if (pidlChildRelative == IntPtr.Zero)
 					{
@@ -740,30 +768,38 @@ namespace TextureChanger
 							, pidlList
 							, attributesToRetrieve
 							);
-						if( ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM ) != 0
-							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER ) != 0
-							&& ( (ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE ) == 0 )
+						if (((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FILESYSTEM) != 0
+							&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.FOLDER) != 0
+							&& ((ulong)attributesToRetrieve & (ulong)SH.SFGAO.BROWSABLE) == 0)
 						{
 							hasFolders = true;
-							Api.CoTaskMemFree( pidlChildRelative );
+							Api.CoTaskMemFree(pidlChildRelative);
 							break;
 						}
 					}
 					catch
 					{
 					}
-					Api.CoTaskMemFree( pidlChildRelative );
+					Api.CoTaskMemFree(pidlChildRelative);
 				}
 
 				Marshal.ReleaseComObject(enumIDList);
 			}
-			catch
+			catch (System.Runtime.InteropServices.COMException e)
 			{
-				CenteredMessageBox.Show( owner
+				CenteredMessageBox.Show(owner
 					, "フォルダツリーの子フォルダの検査に失敗しました。\n" +
 					  "プログラムを再起動してみてください。"
 					, "TexureChanger内部処理エラー"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+					, MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
+			catch
+			{
+				CenteredMessageBox.Show(owner
+					, "フォルダツリーの子フォルダの検査に失敗しました。\n" +
+					  "プログラムを再起動してみてください。"
+					, "TexureChanger内部処理エラー"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 			
 			if( hasFolders )
