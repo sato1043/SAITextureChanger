@@ -34,13 +34,13 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
+        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
+        "OwnerKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -256,7 +256,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
         "ProductCode" = "8:{E55CB708-BCE7-4216-A20C-94F5D572801C}"
-        "PackageCode" = "8:{0E53130E-F6CE-476C-9A3F-4A839941F856}"
+        "PackageCode" = "8:{370AC78A-5D06-4226-A6B6-590E161A9230}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
