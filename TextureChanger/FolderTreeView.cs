@@ -56,8 +56,6 @@ namespace TextureChanger
 		public string path;
 	}
 
-	//TODO COMÇégÇ§Ç∆Ç±ÇÎÇÃÉGÉâÅ[èàóùÇí«â¡Ç∑ÇÈ
-
 	public class FolderTreeView : System.Windows.Forms.TreeView
 	{
 		private ImageList _folderTreeViewImageList = new ImageList( );
@@ -520,9 +518,6 @@ namespace TextureChanger
 
 			IntPtr hWndMain = Api.GetMainWindow( tree.Handle );
 
-			IntPtr pidlChildRelative = IntPtr.Zero;
-			IntPtr pceltFetched;
-
 			SH.IEnumIDList enumIDList = null;
 
 			try
@@ -555,6 +550,9 @@ namespace TextureChanger
 
 			try
 			{
+				IntPtr pidlChildRelative = IntPtr.Zero;
+				IntPtr pceltFetched;
+
 				while (enumIDList.Next(1, out pidlChildRelative, out pceltFetched) == (uint)ErrNo.S_OK)
 				{
 					if (pidlChildRelative == IntPtr.Zero)
@@ -746,7 +744,7 @@ namespace TextureChanger
 			{
 				IntPtr pidlChildRelative = IntPtr.Zero;
 				IntPtr notUsed;
-				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) != (uint)ErrNo.S_OK)
+				while (enumIDList.Next(1, out pidlChildRelative, out notUsed) == (uint)ErrNo.S_OK)
 				{
 					if (pidlChildRelative == IntPtr.Zero)
 					{
