@@ -34,6 +34,18 @@ namespace TextureChanger
 		{
 			_textureChangerOptions = new TextureChangerOptions();
 
+
+
+
+			HttpUpdater httpUpdater = new HttpUpdater( );
+			httpUpdater.CheckUpdate( this );
+
+
+
+
+
+
+
 			#region SAIのフォルダが未指定のときはユーザに指定してもらう
 			if (_textureChangerOptions.PathToSaiFolder == "")
 			{
