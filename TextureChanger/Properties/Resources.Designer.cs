@@ -59,14 +59,5 @@ namespace TextureChanger.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   1.0.1 に類似しているローカライズされた文字列を検索します。
-        /// </summary>
-        internal static string Release {
-            get {
-                return ResourceManager.GetString("Release", resourceCulture);
-            }
-        }
     }
 }
