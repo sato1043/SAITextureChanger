@@ -37,8 +37,8 @@ namespace TextureChanger
 
 
 
-			HttpUpdater httpUpdater = new HttpUpdater( );
-			httpUpdater.CheckUpdate( this );
+			HttpUpdater httpUpdater = new HttpUpdater( this );
+			httpUpdater.BeginAsyncCheckAppConfigUpdated( );
 
 
 

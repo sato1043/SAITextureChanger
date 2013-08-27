@@ -783,14 +783,6 @@ namespace TextureChanger
 
 				Marshal.ReleaseComObject(enumIDList);
 			}
-			catch (System.Runtime.InteropServices.COMException e)
-			{
-				CenteredMessageBox.Show(owner
-					, "フォルダツリーの子フォルダの検査に失敗しました。\n" +
-					  "プログラムを再起動してみてください。"
-					, "TexureChanger内部処理エラー"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error);
-			}
 			catch
 			{
 				CenteredMessageBox.Show(owner
