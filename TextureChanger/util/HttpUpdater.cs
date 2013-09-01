@@ -5,25 +5,26 @@ using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
 using System.Xml.Linq;
+using System.Diagnostics;
 
 namespace TextureChanger.util
 {
 	class HttpUpdater
 	{
 		private const string UpdateSetupUri
-			= "https://github.com/sato1043/SAITextureChanger/blob/master/TextureChangerSetup/Release/TextureChangerSetup.msi";
+			= "https://github.com/sato1043/SAITextureChanger/raw/master/TextureChangerSetup/Release/TextureChangerSetup.msi";
 
 		private const string AppConfigUri
-			= "https://raw.github.com/sato1043/SAITextureChanger/master/TextureChanger/bin/Release/TextureChanger.exe.config";
+			= "https://github.com/sato1043/SAITextureChanger/raw/master/TextureChangerSetup/TextureChanger.exe.config";
 
 		private const int DefaultTimeoutMs = 10000;
 
 		private const int HttpStreamTempBufferSize = 8000;
 
 		#region メッセージボックスのオーナーウィンドウ
-		private IWin32Window _owner = null;
+		private Form _owner = null;
 
-		public IWin32Window Owner
+		public Form Owner
 		{
 			get
 			{
@@ -32,44 +33,9 @@ namespace TextureChanger.util
 		}
 		#endregion
 
-		public HttpUpdater(IWin32Window owner)
+		public HttpUpdater(Form owner)
 		{
 			this._owner = owner;
-		}
-
-		public void CheckUpdate( IWin32Window owner )
-		{
-			bool needUpdate = false;
-			try
-			{
-				needUpdate = NeedUpdate();
-				if( needUpdate == false )
-					return;
-			}
-			catch
-			{
-			}
-
-			DialogResult res = CenteredMessageBox.Show( owner
-				, "TextureChangerの更新プログラムが存在します。\n" +
-					"ダウンロード・インストールしますか？"
-				, "TexureChanger起動確認"
-				, MessageBoxButtons.YesNo, MessageBoxIcon.Information );
-			if( res == DialogResult.No )
-				return;
-			
-			try
-			{
-				GetOnlineFile(owner);
-			}
-			catch (Exception)
-			{
-				CenteredMessageBox.Show( owner
-					, "申し訳ありません。\n" +
- 					  "TextureChangerのアップデートに失敗してしまいした。"
-					, "TexureChanger起動確認"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error );
-			}
 		}
 
 		public string GetExeFullPath( )
@@ -123,39 +89,22 @@ namespace TextureChanger.util
 				{
 					xr.ReadToFollowing( "appSettings" );
 
-					while( xr.Read( ) )
+					while (xr.ReadToFollowing("add"))
 					{
-						if (xr.LocalName != "add")
+						if (xr.GetAttribute("key") != "AppVers")
 							continue;
-
-						if (xr.HasAttributes == false)
-							continue;
-
-						for (int i = 0; i < xr.AttributeCount; i++)
-						{
-							xr.MoveToAttribute( i );
-							if( xr.Name( "key" ) == "AppVers" )
-							{
-								//xr.MoveToNextAttribute( );
-
-								string value = xr.GetAttribute( "value" );
-
-								Console.WriteLine( value );
-
-
-								//自分自身のバージョン情報を取得する
-								System.Diagnostics.FileVersionInfo ver =
-									System.Diagnostics.FileVersionInfo.GetVersionInfo(
-									System.Reflection.Assembly.GetExecutingAssembly( ).Location );
-								//結果を表示
-								Console.WriteLine( ver );
-							}
-						}
-
-
-						//xr.MoveToFirstAttribute();
-
+						string value = xr.GetAttribute("value");
 						
+						System.Diagnostics.FileVersionInfo ver =
+							System.Diagnostics.FileVersionInfo.GetVersionInfo(
+							System.Reflection.Assembly.GetExecutingAssembly( ).Location );
+						
+						// プロジェクトプロパティのアセンブリ情報、ファイルバージョンと比較します。
+						if (ver.FileVersion.CompareTo(value) < 0)
+						{
+							DownloadFileExisted();
+							break;
+						}
 					}
 				}
 			}
@@ -165,42 +114,34 @@ namespace TextureChanger.util
 			}
 		}
 
-		public bool NeedUpdate(  )
+		public void DownloadFileExisted()
 		{
-			FileInfo localFile = GetExeFileInfo( GetExeFullPath() );
+			DialogResult res = CenteredMessageBox.Show(this.Owner
+				, "TextureChangerの更新プログラムが存在します。\n" +
+					"ダウンロード・インストールしますか？"
+				, "TexureChanger起動確認"
+				, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
+			if (res == DialogResult.No)
+				return;
 
-			bool result = true;
-			WebRequest req = WebRequest.Create( UpdateSetupUri );
-			req.Method = "HEAD";
-			req.Timeout = DefaultTimeoutMs;
-			req.PreAuthenticate = false;
-			//req.Credentials = CredentialCache.DefaultCredentials;
-
-			WebResponse resp = null;
 			try
 			{
-				resp = req.GetResponse();
-				if (localFile.Exists)
-				{
-					string date = resp.Headers["Date"];//["Last-Modified"];
-					DateTime remoteDate = DateTime.Parse(date);
-					DateTime localDate = localFile.LastWriteTime;
-					result = remoteDate > localDate;
-				}
+				Process.Start("msiexec.exe", @"/i " + UpdateSetupUri);
+				//string tempfilename = GetOnlineFile();
+				//Process.Start("msiexec.exe", @"/i " + tempfilename);
+				this.Owner.Close();
 			}
 			catch
 			{
-				throw; // needs your handler. Timeout or something.
+				CenteredMessageBox.Show(this.Owner
+					, "申し訳ありません。\n" +
+					  "TextureChangerのアップデートに失敗してしまいした。"
+					, "TexureChanger起動確認"
+					, MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
-			finally
-			{
-				if( resp != null )
-					resp.Close( );
-			}
-			return result;
 		}
 
-		public void GetOnlineFile( IWin32Window owner )
+		public string GetOnlineFile()
 		{
 			WebRequest req = WebRequest.Create( UpdateSetupUri );
 			req.Method = "GET"; // 規定値なので設定は不要
@@ -209,14 +150,14 @@ namespace TextureChanger.util
 			//req.Credentials = CredentialCache.DefaultCredentials;
 
 			WebResponse resp = null;
-			string tempf = null;
+			string tempfilename = null;
 			string lastModified = null;
 			try
 			{
 				resp = req.GetResponse();
 				Stream stm = resp.GetResponseStream();
-				tempf = Path.GetTempFileName();
-				using (FileStream dest = new FileStream(tempf, FileMode.Create))
+				tempfilename = Path.GetTempFileName();
+				using (FileStream dest = new FileStream(tempfilename, FileMode.Create))
 				{
 					byte[] buff = new Byte[HttpStreamTempBufferSize];
 					int len = 0;
@@ -236,6 +177,7 @@ namespace TextureChanger.util
 				if( resp != null )
 					resp.Close( );
 			}
+			return tempfilename;
 		}
 
 

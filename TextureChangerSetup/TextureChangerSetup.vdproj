@@ -256,7 +256,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
         "ProductCode" = "8:{E55CB708-BCE7-4216-A20C-94F5D572801C}"
-        "PackageCode" = "8:{370AC78A-5D06-4226-A6B6-590E161A9230}"
+        "PackageCode" = "8:{7B03D14A-A254-44EF-9D6A-22D0FA57072F}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"

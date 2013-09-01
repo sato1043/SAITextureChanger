@@ -20,6 +20,8 @@ namespace TextureChanger
 
 		private bool _promptToExitProgram;
 
+		private bool _checkUpdateAtStartUp;
+
 		private Rectangle _windowBounds;
 		private FormWindowState _windowState;
 
@@ -84,6 +86,14 @@ namespace TextureChanger
 		{
 			get { return _promptToExitProgram; }
 			set { _iniFile["Settings", "PromptToExitProgram"] = (_promptToExitProgram = value).ToString(); }
+		}
+		#endregion
+
+		#region 起動時の更新確認プロパティ
+		public bool CheckUpdateAtStartUp
+		{
+			get { return _checkUpdateAtStartUp; }
+			set { _iniFile["Settings", "CheckUpdateAtStartUp"] = (_checkUpdateAtStartUp = value).ToString(); }
 		}
 		#endregion
 
@@ -180,6 +190,10 @@ namespace TextureChanger
 			_promptToExitProgram = (_iniFile["Settings", "PromptToExitProgram"] == Boolean.TrueString);
 			#endregion
 
+			#region 起動時に更新を確認する
+			_checkUpdateAtStartUp = (_iniFile["Settings", "CheckUpdateAtStartUp"] == Boolean.TrueString);
+			#endregion
+
 			#region 前回のウィンドウ位置
 			try
 			{
@@ -243,7 +257,11 @@ namespace TextureChanger
 			{
 				PromptToExitProgram = true;
 			}
-			if( _iniFile[ "Settings", "LastEditingTextureName" ] == "" )
+			if (_iniFile["Settings", "CheckUpdateAtStartUp"] == "")
+			{
+				CheckUpdateAtStartUp = true;
+			}
+			if (_iniFile["Settings", "LastEditingTextureName"] == "")
 			{
 				LastEditingTextureName = TextureManager.BLOTMAP_NAME;
 			}

@@ -34,18 +34,6 @@ namespace TextureChanger
 		{
 			_textureChangerOptions = new TextureChangerOptions();
 
-
-
-
-			HttpUpdater httpUpdater = new HttpUpdater( this );
-			httpUpdater.BeginAsyncCheckAppConfigUpdated( );
-
-
-
-
-
-
-
 			#region SAIのフォルダが未指定のときはユーザに指定してもらう
 			if (_textureChangerOptions.PathToSaiFolder == "")
 			{
@@ -114,7 +102,7 @@ namespace TextureChanger
 
 			#region エクスプローラの初期表示
 			trvFolder.InitFolderTreeView(this);
-			//trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
+			trvFolder.DrillToFolder(_textureChangerOptions.FirstExpandingFolder);
 			#endregion
 
             #region ステータスバーに編集中のテクスチャのフォルダのフルパスを表示する
@@ -122,7 +110,15 @@ namespace TextureChanger
                 + _textureChangerOptions.PathToSaiFolder
                 + "\\" + _textureManager.GetDirectoryFromConfname(_textureChangerOptions.LastEditingTextureName);
             #endregion
-        }
+
+			#region アプリケーションの準備ができた時点で更新を確認
+			if (_textureChangerOptions.CheckUpdateAtStartUp)
+			{
+				HttpUpdater httpUpdater = new HttpUpdater(this);
+				httpUpdater.BeginAsyncCheckAppConfigUpdated();
+			}
+			#endregion
+		}
 
 		#region タイマーハンドラ: SAI起動中確認と最新情報読み込み
 		private void SaiProcessCheckTimerHandler(object sender, EventArgs e)
@@ -658,6 +654,15 @@ namespace TextureChanger
             _textureManager.Backup(this);
         }
         #endregion
+
+		#region オプションメニュー：起動時に更新を確認する
+		private void mniCheckUpdateAtStartUp_Click(object sender, EventArgs e)
+		{
+			mniCheckUpdateAtStartUp.Checked
+				= _textureChangerOptions.CheckUpdateAtStartUp
+				= !_textureChangerOptions.CheckUpdateAtStartUp;
+		}
+		#endregion
 
     }
 }
