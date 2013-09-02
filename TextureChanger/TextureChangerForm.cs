@@ -24,7 +24,7 @@ namespace TextureChanger
 	{
 		private TextureChangerOptions _textureChangerOptions;
 
-	    private bool _forceExitProgram = false;
+	    public bool ForceExitProgram = false;
 
 	    private const string SAI = "sai";
 		
@@ -57,7 +57,7 @@ namespace TextureChanger
 						  "申し訳ありませんが、プログラムの起動を中断します。"
 						, "TexureChanger起動確認"
 						, MessageBoxButtons.OK, MessageBoxIcon.Error);
-					_forceExitProgram = true;
+					ForceExitProgram = true;
 					Application.Exit();
 					return;
 				}
@@ -153,7 +153,7 @@ namespace TextureChanger
 
 				if (res == DialogResult.Cancel)
 				{
-					_forceExitProgram = true;
+					ForceExitProgram = true;
 					Application.Exit();
 					return;
 				}
@@ -261,7 +261,7 @@ namespace TextureChanger
         private void TextureChangerForm_FormClosing( object sender, FormClosingEventArgs e )
         {
             #region 終了問い合わせ
-			if (_forceExitProgram == false 
+			if (ForceExitProgram == false 
 				&& _textureChangerOptions.PromptToExitProgram)
 			{
 				DialogResult result = CenteredMessageBox.Show(this
@@ -362,6 +362,15 @@ namespace TextureChanger
             mniPromptToExitProgram.Checked
 			    = _textureChangerOptions.PromptToExitProgram
 				= !_textureChangerOptions.PromptToExitProgram;
+		}
+		#endregion
+
+		#region オプションメニュー：起動時に更新を確認する
+		private void mniCheckUpdateAtStartUp_Click( object sender, EventArgs e )
+		{
+			mniCheckUpdateAtStartUp.Checked
+				= _textureChangerOptions.CheckUpdateAtStartUp
+				= !_textureChangerOptions.CheckUpdateAtStartUp;
 		}
 		#endregion
 
@@ -662,14 +671,23 @@ namespace TextureChanger
         }
         #endregion
 
-		#region オプションメニュー：起動時に更新を確認する
-		private void mniCheckUpdateAtStartUp_Click(object sender, EventArgs e)
+		#region ヘルプメニュー：更新を確認
+		private void mniCheckUpdate_Click( object sender, EventArgs e )
 		{
-			mniCheckUpdateAtStartUp.Checked
-				= _textureChangerOptions.CheckUpdateAtStartUp
-				= !_textureChangerOptions.CheckUpdateAtStartUp;
+			DialogResult res = CenteredMessageBox.Show( this,
+				"オンラインでTextureChangerの更新あるかを確認します。\n" +
+				"更新がある場合、プログラムが終了してインストーラが起動します。\n" +
+				"更新がない場合は特になにもしません。\n" +
+				"よろしいですか？"
+				, "TexureChanger更新を確認"
+				, MessageBoxButtons.OKCancel, MessageBoxIcon.Information );
+			if (res == DialogResult.Cancel)
+				return;
+
+			HttpUpdater httpUpdater = new HttpUpdater( this );
+			httpUpdater.BeginAsyncCheckAppConfigUpdated( );
 		}
 		#endregion
 
-    }
+	}
 }

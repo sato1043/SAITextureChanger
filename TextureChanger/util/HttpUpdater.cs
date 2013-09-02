@@ -22,9 +22,9 @@ namespace TextureChanger.util
 		private const int HttpStreamTempBufferSize = 8000;
 
 		#region メッセージボックスのオーナーウィンドウ
-		private Form _owner = null;
+		private TextureChangerForm _owner = null;
 
-		public Form Owner
+		public TextureChangerForm Owner
 		{
 			get
 			{
@@ -33,7 +33,7 @@ namespace TextureChanger.util
 		}
 		#endregion
 
-		public HttpUpdater(Form owner)
+		public HttpUpdater( TextureChangerForm owner )
 		{
 			this._owner = owner;
 		}
@@ -118,7 +118,8 @@ namespace TextureChanger.util
 		{
 			DialogResult res = CenteredMessageBox.Show(this.Owner
 				, "TextureChangerの更新プログラムが存在します。\n" +
-					"ダウンロード・インストールしますか？"
+				  "起動を中断して、更新をダウンロード・インストールしますか？\n" +
+				  "  （更新はいつでもヘルプメニューから確認できます）"
 				, "TexureChanger起動確認"
 				, MessageBoxButtons.YesNo, MessageBoxIcon.Information);
 			if (res == DialogResult.No)
@@ -129,6 +130,7 @@ namespace TextureChanger.util
 				Process.Start("msiexec.exe", @"/i " + UpdateSetupUri);
 				//string tempfilename = GetOnlineFile();
 				//Process.Start("msiexec.exe", @"/i " + tempfilename);
+				this.Owner.ForceExitProgram = true;
 				this.Owner.Close();
 			}
 			catch
