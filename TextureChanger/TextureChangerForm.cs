@@ -13,6 +13,13 @@ namespace TextureChanger
 
 	//TODO http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=4472
 
+	// TODO バージョンをあげるとき
+	//  Releaseビルドに切り替えてから
+	//   1) app.config
+	//   2) TextureChangerプロジェクトのプロパティのアセンブリ情報
+	//   2) セットアッププロジェクトのTextureChangerSetupのプロパティウィンドウ
+
+
     public partial class TextureChangerForm : Form
 	{
 		private TextureChangerOptions _textureChangerOptions;
