@@ -70,6 +70,8 @@ namespace TextureChanger
 			this.mniPromptToExitProgram = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniCheckUpdateAtStartUp = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniHelp = new System.Windows.Forms.ToolStripMenuItem( );
+			this.mniCheckUpdate = new System.Windows.Forms.ToolStripMenuItem( );
+			this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator( );
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
@@ -98,8 +100,6 @@ namespace TextureChanger
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditElemap = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
-			this.mniCheckUpdate = new System.Windows.Forms.ToolStripMenuItem( );
-			this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripSeparator( );
 			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.mnuMainMenu.SuspendLayout( );
 			( (System.ComponentModel.ISupportInitialize)( this.splNorthSouth ) ).BeginInit( );
@@ -150,10 +150,10 @@ namespace TextureChanger
 			// 
 			// mniRestore
 			// 
-			this.mniRestore.Enabled = false;
 			this.mniRestore.Name = "mniRestore";
 			this.mniRestore.Size = new System.Drawing.Size( 202, 22 );
-			this.mniRestore.Text = "バックアップに戻す";
+			this.mniRestore.Text = "バックアップから戻す";
+			this.mniRestore.Click += new System.EventHandler( this.mniRestore_Click );
 			// 
 			// toolStripMenuItem6
 			// 
@@ -400,6 +400,18 @@ namespace TextureChanger
 			this.mniHelp.Size = new System.Drawing.Size( 46, 22 );
 			this.mniHelp.Text = "&Help";
 			// 
+			// mniCheckUpdate
+			// 
+			this.mniCheckUpdate.Name = "mniCheckUpdate";
+			this.mniCheckUpdate.Size = new System.Drawing.Size( 167, 22 );
+			this.mniCheckUpdate.Text = "更新を確認(&U)...";
+			this.mniCheckUpdate.Click += new System.EventHandler( this.mniCheckUpdate_Click );
+			// 
+			// toolStripMenuItem7
+			// 
+			this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+			this.toolStripMenuItem7.Size = new System.Drawing.Size( 164, 6 );
+			// 
 			// mniAbout
 			// 
 			this.mniAbout.Name = "mniAbout";
@@ -474,7 +486,7 @@ namespace TextureChanger
 			this.lsvFileList.Location = new System.Drawing.Point( 0, 0 );
 			this.lsvFileList.Margin = new System.Windows.Forms.Padding( 0 );
 			this.lsvFileList.Name = "lsvFileList";
-			this.lsvFileList.Size = new System.Drawing.Size( 648, 265 );
+			this.lsvFileList.Size = new System.Drawing.Size( 646, 265 );
 			this.lsvFileList.TabIndex = 0;
 			this.lsvFileList.UseCompatibleStateImageBehavior = false;
 			// 
@@ -606,7 +618,7 @@ namespace TextureChanger
 			this.lsvTextureImages.Location = new System.Drawing.Point( 0, 54 );
 			this.lsvTextureImages.Margin = new System.Windows.Forms.Padding( 0 );
 			this.lsvTextureImages.Name = "lsvTextureImages";
-			this.lsvTextureImages.Size = new System.Drawing.Size( 986, 195 );
+			this.lsvTextureImages.Size = new System.Drawing.Size( 986, 191 );
 			this.lsvTextureImages.TabIndex = 3;
 			this.lsvTextureImages.UseCompatibleStateImageBehavior = false;
 			// 
@@ -710,18 +722,6 @@ namespace TextureChanger
 			this.rdoEditBlotmap.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.rdoEditBlotmap.UseVisualStyleBackColor = true;
 			this.rdoEditBlotmap.Click += new System.EventHandler( this.rdoEditTexture_Click );
-			// 
-			// mniCheckUpdate
-			// 
-			this.mniCheckUpdate.Name = "mniCheckUpdate";
-			this.mniCheckUpdate.Size = new System.Drawing.Size( 167, 22 );
-			this.mniCheckUpdate.Text = "更新を確認(&U)...";
-			this.mniCheckUpdate.Click += new System.EventHandler( this.mniCheckUpdate_Click );
-			// 
-			// toolStripMenuItem7
-			// 
-			this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-			this.toolStripMenuItem7.Size = new System.Drawing.Size( 164, 6 );
 			// 
 			// trvFolder
 			// 

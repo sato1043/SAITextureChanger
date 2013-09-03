@@ -11,9 +11,7 @@ namespace TextureChanger
 {
  	//TODO ファイル-リストア機能の実装
 
-	//TODO http://www.codeproject.com/script/Articles/ViewDownloads.aspx?aid=4472
-
-	// TODO バージョンをあげるとき
+	// バージョンをあげるとき
 	//  Releaseビルドに切り替えてから
 	//   1) app.config
 	//   2) TextureChangerプロジェクトのプロパティのアセンブリ情報
@@ -670,6 +668,13 @@ namespace TextureChanger
             _textureManager.Backup(this);
         }
         #endregion
+
+		#region リストア
+		private void mniRestore_Click( object sender, EventArgs e )
+		{
+			_textureManager.Restore(this);
+		}
+		#endregion
 
 		#region ヘルプメニュー：更新を確認
 		private void mniCheckUpdate_Click( object sender, EventArgs e )

@@ -108,6 +108,8 @@ namespace TextureChanger
         public const int ListViewPreviewWidth = 200;
         public const int ListViewPreviewHeight = 200;
 
+		private const string SignFileName = "\\TextureChangerBackup";
+
 
 		private readonly List<SAITextureFormat> _saiTextureFormatList;
 
@@ -159,10 +161,12 @@ namespace TextureChanger
 				);
 			#endregion
 
+			#region SAIのテクスチャ種毎書式をロード
 			LoadFormats();
+			#endregion
 
-            #region 初期バックアップ
-            string zipFileBaseName = "backup-" + System.DateTime.Now.ToString("yyyyMMdd-HHmm") + "(I)";
+			#region 初期バックアップ
+			string zipFileBaseName = "backup-" + System.DateTime.Now.ToString("yyyyMMdd-HHmm") + "(I)";
             string[] files = Directory.GetFiles(_pathToSaiFolder, "backup-*(I).zip");
             if (files.Length == 0)
             {
@@ -217,9 +221,15 @@ namespace TextureChanger
             {
                 using (ZipFile zip = new ZipFile(Encoding.GetEncoding(932)))
                 {
-                    zip.Comment = "This zip was created at " + System.DateTime.Now.ToString("G");
+                    zip.Comment = "This zip was created at " + DateTime.Now.ToString("G");
 
-                    var fileList = new List<string>();
+					string signFilePath = _pathToSaiFolder + SignFileName;
+	                StreamWriter sw = new StreamWriter(signFilePath, false, Encoding.GetEncoding("shift_jis"));
+	                sw.Write("Date: " + DateTime.Now.ToString("G"));
+	                sw.Close();
+					zip.AddFile( signFilePath ).FileName = SignFileName;
+					
+					var fileList = new List<string>( );
 
                     foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)
                     {
@@ -235,6 +245,9 @@ namespace TextureChanger
                         }
                     }
                     zip.Save(_pathToSaiFolder + "\\" + zipFileBaseName+".zip");
+
+	                File.Delete(signFilePath);
+
                 }
             }
             catch
@@ -331,7 +344,7 @@ namespace TextureChanger
 		}
 		#endregion
 
-		#region テクスチャ情報ファイルのバックアップ・リストア
+		#region テクスチャ情報ファイルのバックアップ
 		public void Backup(IWin32Window owner)
 		{
             string zipFileBaseName = "backup-" + System.DateTime.Now.ToString("yyyyMMdd-HHmm");
@@ -373,72 +386,68 @@ namespace TextureChanger
             }
         }
 #if NOP
-		private void RestoreFormats(IWin32Window owner)
+
+		//パスを合成して
+		var src = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "$" : "");
+		var dst = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "" : "$");
+
+		// Exploreシェルでファイルをコピーする。
+		var shfop = new SH.SHFILEOPSTRUCT
 		{
-			BackupOrRestoreFormats(true, false, owner);
-		}
-		private void BackupOrRestoreFormats(bool isRestore, bool isInitial, IWin32Window owner)
+			hwnd = owner.Handle,
+			wFunc = SH.FileFuncFlags.FO_COPY,
+			pFrom = src + '\0' + '\0',
+			pTo = dst + '\0' + '\0',
+			fFlags = SH.FILEOP_FLAGS.FOF_SILENT
+						| SH.FILEOP_FLAGS.FOF_ALLOWUNDO
+						| SH.FILEOP_FLAGS.FOF_NOCONFIRMATION
+		};
+		if (SH.SHFileOperation(ref shfop) != 0)
 		{
-			var fileList = new List<string>();
-			bool initialMessageDone = false;
-
-			foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)
-			{
-				if (fileList.Contains(saiTextureFormat.confpath) == true)
-				{
-					continue; //filesetに登録済み、すなわちバックアップ済み
-				}
-
-				fileList.Add(saiTextureFormat.confpath);
-
-				//パスを合成して
-				var src = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "$" : "");
-				var dst = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "" : "$");
-
-				if (!isRestore && isInitial)
-				{
-					if (File.Exists(dst))
-						continue;
-					if (initialMessageDone == false)
-					{
-						CenteredMessageBox.Show(owner,
-							"貴方が指定したSAIのフォルダにテクスチャ情報の現時点のバックアップが作成されます。　　　\n" +
-							"\n" +
-							"バックアップファイル名は「～.conf$」です。\n" +
-							"同名の「～.conf」をこのバックアップで置き換えることで現時点の状態に戻せます。"
-							, "SAIのテクスチャ設定のバックアップ報告"
-							, MessageBoxButtons.OK, MessageBoxIcon.Information);
-						initialMessageDone = true;
-					}
-				}
-
-				// Exploreシェルでファイルをコピーする。
-				var shfop = new SH.SHFILEOPSTRUCT
-				{
-					hwnd = owner.Handle,
-					wFunc = SH.FileFuncFlags.FO_COPY,
-					pFrom = src + '\0' + '\0',
-					pTo = dst + '\0' + '\0',
-					fFlags = SH.FILEOP_FLAGS.FOF_SILENT
-							 | SH.FILEOP_FLAGS.FOF_ALLOWUNDO
-							 | SH.FILEOP_FLAGS.FOF_NOCONFIRMATION
-				};
-				if (SH.SHFileOperation(ref shfop) != 0)
-				{
-					throw new System.IO.IOException();
-				}
-				if (shfop.fAnyOperationsAborted == true)
-				{
-					; //ファイル処理中断
-				}
-
-			}
+			throw new System.IO.IOException();
 		}
+		if (shfop.fAnyOperationsAborted == true)
+		{
+			; //ファイル処理中断
+		}
+
 #endif
         #endregion
 
-        #region ImageListオブジェクトの生成
-        public static Image createThumbnail(Image image, int w, int h)
+		#region テクスチャ情報ファイルのリストア
+		public void Restore(IWin32Window owner)
+		{
+			string filepath = "";
+
+			// ファイルパスを問合せ
+			var openFileDialog = new OpenFileDialog
+			{
+				FileName = "",
+				InitialDirectory = _pathToSaiFolder,
+				Filter = @"ZIPファイル(*.zip)|*.zip|すべてのファイル(*.*)|*.*",
+				FilterIndex = 1,
+				Title = "リストア対象のZIPファイルの選択",
+				RestoreDirectory = true,
+				CheckFileExists = true,
+				CheckPathExists = true
+			};
+			if (openFileDialog.ShowDialog() == DialogResult.Cancel)
+				return;
+
+			//Console.WriteLine( openFileDialog.FileName );
+			
+			// zipファイルの内容確認
+			using (ZipFile zip = new ZipFile(Encoding.GetEncoding(932)))
+			{
+			}
+
+			// zipファイルを展開
+
+		}
+		#endregion
+
+		#region ImageListオブジェクトの生成
+		public static Image createThumbnail(Image image, int w, int h)
 		{
 			var canvas = new Bitmap(w, h);
 
