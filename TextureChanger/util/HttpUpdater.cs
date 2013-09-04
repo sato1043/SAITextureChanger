@@ -95,9 +95,9 @@ namespace TextureChanger.util
 							continue;
 						string value = xr.GetAttribute("value");
 						
-						System.Diagnostics.FileVersionInfo ver =
-							System.Diagnostics.FileVersionInfo.GetVersionInfo(
-							System.Reflection.Assembly.GetExecutingAssembly( ).Location );
+						FileVersionInfo ver =
+							FileVersionInfo.GetVersionInfo(
+								Assembly.GetExecutingAssembly( ).Location );
 						
 						// プロジェクトプロパティのアセンブリ情報、ファイルバージョンと比較します。
 						if (ver.FileVersion.CompareTo(value) < 0)

@@ -214,49 +214,6 @@ namespace TextureChanger
         }
         #endregion
 
-        #region バックアップZIPファイルを作る
-        private void createBackupZipArchive(IWin32Window owner, string zipFileBaseName)
-        {
-            try
-            {
-                using (ZipFile zip = new ZipFile(Encoding.GetEncoding(932)))
-                {
-                    zip.Comment = "This zip was created at " + DateTime.Now.ToString("G");
-
-					string signFilePath = _pathToSaiFolder + SignFileName;
-	                StreamWriter sw = new StreamWriter(signFilePath, false, Encoding.GetEncoding("shift_jis"));
-	                sw.Write("Date: " + DateTime.Now.ToString("G"));
-	                sw.Close();
-					zip.AddFile( signFilePath ).FileName = SignFileName;
-					
-					var fileList = new List<string>( );
-
-                    foreach (SAITextureFormat saiTextureFormat in _saiTextureFormatList)
-                    {
-                        if (fileList.Contains(saiTextureFormat.confpath) == false)
-                        {
-                            fileList.Add(saiTextureFormat.confpath);
-                            zip.AddFile(_pathToSaiFolder + saiTextureFormat.confpath).FileName = saiTextureFormat.confpath;
-                        }
-
-                        foreach(var f in Directory.GetFiles(_pathToSaiFolder + "\\" + saiTextureFormat.directory)) 
-                        {
-                            zip.AddFile(f).FileName = "\\" + saiTextureFormat.directory + "\\" + Path.GetFileName(f);
-                        }
-                    }
-                    zip.Save(_pathToSaiFolder + "\\" + zipFileBaseName+".zip");
-
-	                File.Delete(signFilePath);
-
-                }
-            }
-            catch
-            {
-                throw;
-            }
-        }
-        #endregion
-
         #region 文字列を改行コードまでに切り詰める
         private void CutOffToCrLf(ref string line)
 		{
@@ -385,6 +342,53 @@ namespace TextureChanger
                     , MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
+		#endregion
+
+		#region バックアップZIPファイルを作る
+		private void createBackupZipArchive( IWin32Window owner, string zipFileBaseName )
+		{
+			try
+			{
+				using( ZipFile zip = new ZipFile( Encoding.GetEncoding( 932 ) ) )
+				{
+					zip.Comment = "This zip was created at " + DateTime.Now.ToString( "G" );
+
+					string signFilePath = _pathToSaiFolder + SignFileName;
+					StreamWriter sw = new StreamWriter( signFilePath, false, Encoding.GetEncoding( "shift_jis" ) );
+					sw.Write( "Date: " + DateTime.Now.ToString( "G" ) );
+					sw.Close( );
+					zip.AddFile( signFilePath ).FileName = SignFileName;
+
+					var fileList = new List<string>( );
+
+					foreach( SAITextureFormat saiTextureFormat in _saiTextureFormatList )
+					{
+						if( fileList.Contains( saiTextureFormat.confpath ) == false )
+						{
+							fileList.Add( saiTextureFormat.confpath );
+							zip.AddFile( _pathToSaiFolder + saiTextureFormat.confpath ).FileName = saiTextureFormat.confpath;
+						}
+
+						foreach( var f in Directory.GetFiles( _pathToSaiFolder + "\\" + saiTextureFormat.directory ) )
+						{
+							zip.AddFile( f ).FileName = "\\" + saiTextureFormat.directory + "\\" + Path.GetFileName( f );
+						}
+					}
+					zip.Save( _pathToSaiFolder + "\\" + zipFileBaseName + ".zip" );
+
+					File.Delete( signFilePath );
+
+				}
+			}
+			catch
+			{
+				throw;
+			}
+		}
+		#endregion
+
+
+
 #if NOP
 
 		//パスを合成して
@@ -412,7 +416,6 @@ namespace TextureChanger
 		}
 
 #endif
-        #endregion
 
 		#region テクスチャ情報ファイルのリストア
 		public void Restore(IWin32Window owner)
@@ -426,7 +429,7 @@ namespace TextureChanger
 				InitialDirectory = _pathToSaiFolder,
 				Filter = @"ZIPファイル(*.zip)|*.zip|すべてのファイル(*.*)|*.*",
 				FilterIndex = 1,
-				Title = "リストア対象のZIPファイルの選択",
+				Title = @"リストア対象のZIPファイルの選択",
 				RestoreDirectory = true,
 				CheckFileExists = true,
 				CheckPathExists = true
@@ -435,13 +438,70 @@ namespace TextureChanger
 				return;
 
 			//Console.WriteLine( openFileDialog.FileName );
-			
+
+
 			// zipファイルの内容確認
-			using (ZipFile zip = new ZipFile(Encoding.GetEncoding(932)))
+			bool signFileFound = false;
+			ReadOptions options = new ReadOptions
+				{ Encoding = Encoding.GetEncoding( "shift_jis" ) };
+			using( ZipFile zip = ZipFile.Read( openFileDialog.FileName, options ) )
 			{
+				foreach (ZipEntry entry in zip)
+				{
+					if (entry.FileName == SignFileName)
+					{
+						signFileFound = true;
+						break;
+					}
+				}
+			}
+
+			if (signFileFound == false)
+			{
+				CenteredMessageBox.Show( owner,
+					"TextureChangerが作成したZIPファイルではありませんでした：\n"
+					+ openFileDialog.FileName + "\n"
+					, "SAIのテクスチャ設定のリストア報告"
+					, MessageBoxButtons.OK, MessageBoxIcon.Information );
+				return;
+			}
+
+			// 現在のファイルを退避
+			string zipFileBaseName = "backup-" + DateTime.Now.ToString( "yyyyMMdd-HHmm" );
+			string[] files = Directory.GetFiles(_pathToSaiFolder, zipFileBaseName+".zip");
+			if (files.Length != 0)
+			{
+				DialogResult res = CenteredMessageBox.Show( owner,
+					"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
+					+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
+					+ "続行しますか？"
+					, "SAIのテクスチャ設定のリストア報告"
+					, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
+				if (res == DialogResult.No)
+					return;
+			}
+			try
+			{
+				createBackupZipArchive(owner, zipFileBaseName);
+			}
+			catch
+			{
+				DialogResult res = CenteredMessageBox.Show( owner,
+					"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
+					+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
+					+ "続行しますか？"
+					, "SAIのテクスチャ設定のリストア報告"
+					, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
+				if( res == DialogResult.No )
+					return;
 			}
 
 			// zipファイルを展開
+			using( ZipFile zip = ZipFile.Read( openFileDialog.FileName, options ) )
+			{
+				zip.ExtractExistingFile = ExtractExistingFileAction.OverwriteSilently;
+				zip.ExtractAll( _pathToSaiFolder );
+			}
 
 		}
 		#endregion

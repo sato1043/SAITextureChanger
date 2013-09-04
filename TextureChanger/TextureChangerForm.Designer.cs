@@ -75,6 +75,7 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.lsvFileList = new System.Windows.Forms.ListView( );
 			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
@@ -100,7 +101,6 @@ namespace TextureChanger
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditElemap = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.mnuMainMenu.SuspendLayout( );
 			( (System.ComponentModel.ISupportInitialize)( this.splNorthSouth ) ).BeginInit( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
@@ -144,27 +144,27 @@ namespace TextureChanger
 			// mniBackup
 			// 
 			this.mniBackup.Name = "mniBackup";
-			this.mniBackup.Size = new System.Drawing.Size( 202, 22 );
+			this.mniBackup.Size = new System.Drawing.Size( 208, 22 );
 			this.mniBackup.Text = "現状をバックアップ(&B)";
 			this.mniBackup.Click += new System.EventHandler( this.mniBackup_Click );
 			// 
 			// mniRestore
 			// 
 			this.mniRestore.Name = "mniRestore";
-			this.mniRestore.Size = new System.Drawing.Size( 202, 22 );
-			this.mniRestore.Text = "バックアップから戻す";
+			this.mniRestore.Size = new System.Drawing.Size( 208, 22 );
+			this.mniRestore.Text = "バックアップ状態へ復元";
 			this.mniRestore.Click += new System.EventHandler( this.mniRestore_Click );
 			// 
 			// toolStripMenuItem6
 			// 
 			this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-			this.toolStripMenuItem6.Size = new System.Drawing.Size( 199, 6 );
+			this.toolStripMenuItem6.Size = new System.Drawing.Size( 205, 6 );
 			// 
 			// mniExit
 			// 
 			this.mniExit.Name = "mniExit";
 			this.mniExit.ShortcutKeys = ( (System.Windows.Forms.Keys)( ( System.Windows.Forms.Keys.Alt | System.Windows.Forms.Keys.Q ) ) );
-			this.mniExit.Size = new System.Drawing.Size( 202, 22 );
+			this.mniExit.Size = new System.Drawing.Size( 208, 22 );
 			this.mniExit.Text = "終了(&X)";
 			this.mniExit.Click += new System.EventHandler( this.mniExit_Click );
 			// 
@@ -475,6 +475,18 @@ namespace TextureChanger
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
 			// 
+			// trvFolder
+			// 
+			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
+						| System.Windows.Forms.AnchorStyles.Left )
+						| System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
+			this.trvFolder.TabIndex = 0;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
 			// lsvFileList
 			// 
 			this.lsvFileList.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
@@ -486,7 +498,7 @@ namespace TextureChanger
 			this.lsvFileList.Location = new System.Drawing.Point( 0, 0 );
 			this.lsvFileList.Margin = new System.Windows.Forms.Padding( 0 );
 			this.lsvFileList.Name = "lsvFileList";
-			this.lsvFileList.Size = new System.Drawing.Size( 646, 265 );
+			this.lsvFileList.Size = new System.Drawing.Size( 644, 265 );
 			this.lsvFileList.TabIndex = 0;
 			this.lsvFileList.UseCompatibleStateImageBehavior = false;
 			// 
@@ -618,7 +630,7 @@ namespace TextureChanger
 			this.lsvTextureImages.Location = new System.Drawing.Point( 0, 54 );
 			this.lsvTextureImages.Margin = new System.Windows.Forms.Padding( 0 );
 			this.lsvTextureImages.Name = "lsvTextureImages";
-			this.lsvTextureImages.Size = new System.Drawing.Size( 986, 191 );
+			this.lsvTextureImages.Size = new System.Drawing.Size( 986, 187 );
 			this.lsvTextureImages.TabIndex = 3;
 			this.lsvTextureImages.UseCompatibleStateImageBehavior = false;
 			// 
@@ -722,18 +734,6 @@ namespace TextureChanger
 			this.rdoEditBlotmap.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
 			this.rdoEditBlotmap.UseVisualStyleBackColor = true;
 			this.rdoEditBlotmap.Click += new System.EventHandler( this.rdoEditTexture_Click );
-			// 
-			// trvFolder
-			// 
-			this.trvFolder.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( ( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom )
-						| System.Windows.Forms.AnchorStyles.Left )
-						| System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 265 );
-			this.trvFolder.TabIndex = 0;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
 			// 
 			// TextureChangerForm
 			// 
