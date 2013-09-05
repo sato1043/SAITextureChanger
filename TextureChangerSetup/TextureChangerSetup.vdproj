@@ -15,14 +15,14 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
-        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
+        "MsmKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
+        "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
-        "OwnerKey" = "8:_UNDEFINED"
+        "MsmKey" = "8:_4CADC5627C652D834929B8159E457AA2"
+        "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_2A4164DF5088A7BCCE94CA6C7E6B2446"
+        "OwnerKey" = "8:_4CADC5627C652D834929B8159E457AA2"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -148,13 +148,18 @@
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_2A4164DF5088A7BCCE94CA6C7E6B2446"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4CADC5627C652D834929B8159E457AA2"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
+                    "_4CADC5627C652D834929B8159E457AA2"
+                    {
+                    "Name" = "8:Ionic.Zip.Reduced.dll"
+                    "Attributes" = "3:512"
+                    }
                 }
             "SourcePath" = "8:Ionic.Zip.Reduced.dll"
             "TargetName" = "8:"
@@ -250,15 +255,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
-        "ProductCode" = "8:{8F5CBFAC-7D79-46BC-B558-F9CBD0425E80}"
-        "PackageCode" = "8:{331F8406-4FF0-4614-9094-16A5AA1B793F}"
+        "ProductCode" = "8:{77A34A94-FD3D-48C2-A427-A12148425FC8}"
+        "PackageCode" = "8:{D9C1AE42-26EA-4517-9F88-43897C994F5E}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.4"
+        "ProductVersion" = "8:1.0.5"
         "Manufacturer" = "8:sato1043"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

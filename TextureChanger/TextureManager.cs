@@ -387,42 +387,62 @@ namespace TextureChanger
 		}
 		#endregion
 
-
-
-#if NOP
-
-		//パスを合成して
-		var src = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "$" : "");
-		var dst = _pathToSaiFolder + saiTextureFormat.confpath + (isRestore ? "" : "$");
-
-		// Exploreシェルでファイルをコピーする。
-		var shfop = new SH.SHFILEOPSTRUCT
-		{
-			hwnd = owner.Handle,
-			wFunc = SH.FileFuncFlags.FO_COPY,
-			pFrom = src + '\0' + '\0',
-			pTo = dst + '\0' + '\0',
-			fFlags = SH.FILEOP_FLAGS.FOF_SILENT
-						| SH.FILEOP_FLAGS.FOF_ALLOWUNDO
-						| SH.FILEOP_FLAGS.FOF_NOCONFIRMATION
-		};
-		if (SH.SHFileOperation(ref shfop) != 0)
-		{
-			throw new System.IO.IOException();
-		}
-		if (shfop.fAnyOperationsAborted == true)
-		{
-			; //ファイル処理中断
-		}
-
-#endif
-
 		#region テクスチャ情報ファイルのリストア
 		public void Restore(IWin32Window owner)
 		{
-			string filepath = "";
+			CenteredMessageBox.Show( owner,
+				"テクスチャ情報のリストアをはじめます。\n"
+				+ "現在のSAIのテクスチャ情報が消去され、\n"
+				+ "指定したZIPファイルの内容で上書きされます。\n"
+				+ "リストア内容が壊れていたり、リストアが途中失敗したりすると\n"
+				+ "SAIが動作異常を起こす場合がありますので\n"
+				+ "注意してお使いください。\n"
+				, "SAIのテクスチャ設定のリストア"
+				, MessageBoxButtons.OK, MessageBoxIcon.Information );
 
-			// ファイルパスを問合せ
+			// リストア前バックアップ
+			DialogResult res = CenteredMessageBox.Show( owner,
+				"リストアする前に、今のテクスチャ情報をバックアップしますか？\n"
+				, "SAIのテクスチャ設定のリストア"
+				, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Information );
+			if( res == DialogResult.Cancel )
+				return;
+			if( res == DialogResult.Yes )
+			{
+				string zipFileBaseName = "backup-" + DateTime.Now.ToString( "yyyyMMdd-HHmm" );
+				string[] files = Directory.GetFiles( _pathToSaiFolder, zipFileBaseName + ".zip" );
+				if( files.Length != 0 )
+				{
+					res = CenteredMessageBox.Show( owner,
+						"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
+						+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
+						+ "続行しますか？"
+						, "SAIのテクスチャ設定のリストア報告"
+						, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
+					if( res == DialogResult.No )
+						return;
+				}
+				else
+				{
+					try
+					{
+						createBackupZipArchive( owner, zipFileBaseName );
+					}
+					catch
+					{
+						res = CenteredMessageBox.Show( owner,
+							"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
+							+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
+							+ "続行しますか？"
+							, "SAIのテクスチャ設定のリストア報告"
+							, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
+						if( res == DialogResult.No )
+							return;
+					}
+				}
+			}
+			
+			// リストア元ファイルパスを問合せ
 			var openFileDialog = new OpenFileDialog
 			{
 				FileName = "",
@@ -437,18 +457,26 @@ namespace TextureChanger
 			if (openFileDialog.ShowDialog() == DialogResult.Cancel)
 				return;
 
-			//Console.WriteLine( openFileDialog.FileName );
+			// リストア
+			ExtractBackupZipFile(owner, openFileDialog.FileName);
 
+		}
+		#endregion
 
+		#region バックアップZIPファイルの上書き展開
+		private void ExtractBackupZipFile( IWin32Window owner, string zipFileFullPath )
+		{
 			// zipファイルの内容確認
 			bool signFileFound = false;
 			ReadOptions options = new ReadOptions
-				{ Encoding = Encoding.GetEncoding( "shift_jis" ) };
-			using( ZipFile zip = ZipFile.Read( openFileDialog.FileName, options ) )
 			{
-				foreach (ZipEntry entry in zip)
+				Encoding = Encoding.GetEncoding( "shift_jis" )
+			};
+			using( ZipFile zip = ZipFile.Read( zipFileFullPath, options ) )
+			{
+				foreach( ZipEntry entry in zip )
 				{
-					if (entry.FileName == SignFileName)
+					if( entry.FileName == SignFileName.Substring(1) )
 					{
 						signFileFound = true;
 						break;
@@ -456,55 +484,42 @@ namespace TextureChanger
 				}
 			}
 
-			if (signFileFound == false)
+			if( signFileFound == false )
 			{
 				CenteredMessageBox.Show( owner,
 					"TextureChangerが作成したZIPファイルではありませんでした：\n"
-					+ openFileDialog.FileName + "\n"
+					+ zipFileFullPath + "\n"
 					, "SAIのテクスチャ設定のリストア報告"
 					, MessageBoxButtons.OK, MessageBoxIcon.Information );
 				return;
 			}
 
-			// 現在のファイルを退避
-			string zipFileBaseName = "backup-" + DateTime.Now.ToString( "yyyyMMdd-HHmm" );
-			string[] files = Directory.GetFiles(_pathToSaiFolder, zipFileBaseName+".zip");
-			if (files.Length != 0)
+			// 現在のファイルを削除
+			var fileList = new List<string>( );
+
+			foreach( SAITextureFormat saiTextureFormat in _saiTextureFormatList )
 			{
-				DialogResult res = CenteredMessageBox.Show( owner,
-					"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
-					+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
-					+ "続行しますか？"
-					, "SAIのテクスチャ設定のリストア報告"
-					, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
-				if (res == DialogResult.No)
-					return;
-			}
-			try
-			{
-				createBackupZipArchive(owner, zipFileBaseName);
-			}
-			catch
-			{
-				DialogResult res = CenteredMessageBox.Show( owner,
-					"現在のSAIのテクスチャ設定をバックアップできませんでした：\n"
-					+ _pathToSaiFolder + zipFileBaseName + ".zip" + "\n"
-					+ "続行しますか？"
-					, "SAIのテクスチャ設定のリストア報告"
-					, MessageBoxButtons.YesNo, MessageBoxIcon.Warning );
-				if( res == DialogResult.No )
-					return;
+				if( fileList.Contains( saiTextureFormat.confpath ) == false )
+				{
+					File.Delete( _pathToSaiFolder + saiTextureFormat.confpath );
+					fileList.Add( saiTextureFormat.confpath );
+				}
+				foreach( var f in Directory.GetFiles( _pathToSaiFolder + "\\" + saiTextureFormat.directory ) )
+				{
+					File.Delete( f );
+				}
 			}
 
 			// zipファイルを展開
-			using( ZipFile zip = ZipFile.Read( openFileDialog.FileName, options ) )
+			using( ZipFile zip = ZipFile.Read( zipFileFullPath, options ) )
 			{
 				zip.ExtractExistingFile = ExtractExistingFileAction.OverwriteSilently;
 				zip.ExtractAll( _pathToSaiFolder );
+				File.Delete(_pathToSaiFolder + SignFileName);
 			}
-
 		}
 		#endregion
+
 
 		#region ImageListオブジェクトの生成
 		public static Image createThumbnail(Image image, int w, int h)

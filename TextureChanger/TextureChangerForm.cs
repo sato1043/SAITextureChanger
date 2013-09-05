@@ -672,7 +672,10 @@ namespace TextureChanger
 		#region リストア
 		private void mniRestore_Click( object sender, EventArgs e )
 		{
+			_saiProcessCheckTimer.Stop();
 			_textureManager.Restore(this);
+			_textureManager = null;
+			SaiProcessCheckTimerHandler( sender, e );
 		}
 		#endregion
 
