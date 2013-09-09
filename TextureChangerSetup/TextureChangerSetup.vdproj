@@ -229,7 +229,7 @@
             }
             "{3C67513D-01DD-4637-8A68-80971EB9504F}:_9A399E59084C40DA90D169CAF8386C5C"
             {
-            "DefaultLocation" = "8:[ProgramFilesFolder][Manufacturer]\\[ProductName]"
+            "DefaultLocation" = "8:[ProgramFilesFolder]\\[ProductName]"
             "Name" = "8:#1925"
             "AlwaysCreate" = "11:FALSE"
             "Condition" = "8:"
@@ -255,15 +255,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
-        "ProductCode" = "8:{77A34A94-FD3D-48C2-A427-A12148425FC8}"
-        "PackageCode" = "8:{D9C1AE42-26EA-4517-9F88-43897C994F5E}"
+        "ProductCode" = "8:{1FDB010C-61AC-48FA-AB18-8D46DC4D20A3}"
+        "PackageCode" = "8:{38B1C052-784A-4E4F-B3E5-C832C61BE3A4}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.5"
+        "ProductVersion" = "8:1.0.6"
         "Manufacturer" = "8:sato1043"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

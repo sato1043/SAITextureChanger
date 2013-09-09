@@ -508,11 +508,11 @@ namespace TextureChanger
 			}
 			catch
 			{
-				CenteredMessageBox.Show( owner
+				/*CenteredMessageBox.Show( owner
 					, "フォルダツリーの子ノードが不正な値でした。\n" +
 					  "プログラムを再起動してみてください。"
 					, "TexureChanger内部処理エラー"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );*/
 				return;
 			}
 
@@ -658,11 +658,11 @@ namespace TextureChanger
 						{
 							Marshal.ReleaseComObject( childShellFolder );
 						}
-						CenteredMessageBox.Show( owner
+						/*CenteredMessageBox.Show( owner
 							, "フォルダツリーの子ノードを列挙中に不正な処理をした要素が存在しました。\n" +
 							  "プログラムを再起動してみてください。"
 							, "TexureChanger内部処理エラー"
-							, MessageBoxButtons.OK, MessageBoxIcon.Error );
+							, MessageBoxButtons.OK, MessageBoxIcon.Error );*/
 					}
 				}
 
@@ -698,11 +698,11 @@ namespace TextureChanger
 			}
 			catch
 			{
-				CenteredMessageBox.Show( owner
+				/*CenteredMessageBox.Show( owner
 					, "フォルダツリーの子ノードが不正な値でした。\n" +
 					  "プログラムを再起動してみてください。"
 					, "TexureChanger内部処理エラー"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error );
+					, MessageBoxButtons.OK, MessageBoxIcon.Error );*/
 				return;
 			}
 
@@ -785,11 +785,11 @@ namespace TextureChanger
 			}
 			catch
 			{
-				CenteredMessageBox.Show(owner
+				/*CenteredMessageBox.Show(owner
 					, "フォルダツリーの子フォルダの検査に失敗しました。\n" +
 					  "プログラムを再起動してみてください。"
 					, "TexureChanger内部処理エラー"
-					, MessageBoxButtons.OK, MessageBoxIcon.Error);
+					, MessageBoxButtons.OK, MessageBoxIcon.Error);*/
 			}
 			
 			if( hasFolders )
