@@ -75,6 +75,7 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.lsvFileList = new System.Windows.Forms.ListView( );
 			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
@@ -87,12 +88,14 @@ namespace TextureChanger
 			this.mniFileListPopupRegistToBrushtex = new System.Windows.Forms.ToolStripMenuItem( );
 			this.mniFileListPopupRegistToPapertex = new System.Windows.Forms.ToolStripMenuItem( );
 			this.ilsFileList = new System.Windows.Forms.ImageList( this.components );
-			this.lblTextureImages = new System.Windows.Forms.Label( );
-			this.btnTextureRemove = new System.Windows.Forms.Button( );
 			this.lsvTextureImages = new System.Windows.Forms.ListView( );
 			this.popTextureImage = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniTextureRemovePopup = new System.Windows.Forms.ToolStripMenuItem( );
 			this.ilsTextureImage = new System.Windows.Forms.ImageList( this.components );
+			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel( );
+			this.pnlTextureTypeSelection = new System.Windows.Forms.Panel( );
+			this.lblTextureImages = new System.Windows.Forms.Label( );
+			this.btnTextureRemove = new System.Windows.Forms.Button( );
 			this.grpEditTexture = new System.Windows.Forms.GroupBox( );
 			this.rdoEditPapertex = new System.Windows.Forms.RadioButton( );
 			this.rdoEditBrushtex = new System.Windows.Forms.RadioButton( );
@@ -100,9 +103,6 @@ namespace TextureChanger
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
 			this.stsStatus = new System.Windows.Forms.StatusStrip( );
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel( );
-			this.pnlTextureTypeSelection = new System.Windows.Forms.Panel( );
-			this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel( );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.mnuMainMenu.SuspendLayout( );
 			( (System.ComponentModel.ISupportInitialize)( this.splNorthSouth ) ).BeginInit( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
@@ -114,9 +114,9 @@ namespace TextureChanger
 			this.splTreeList.SuspendLayout( );
 			this.popFileList.SuspendLayout( );
 			this.popTextureImage.SuspendLayout( );
+			this.pnlTextureTypeSelection.SuspendLayout( );
 			this.grpEditTexture.SuspendLayout( );
 			this.stsStatus.SuspendLayout( );
-			this.pnlTextureTypeSelection.SuspendLayout( );
 			this.SuspendLayout( );
 			// 
 			// mnuMainMenu
@@ -483,6 +483,16 @@ namespace TextureChanger
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
 			// 
+			// trvFolder
+			// 
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 272 );
+			this.trvFolder.TabIndex = 1;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
 			// lsvFileList
 			// 
 			this.lsvFileList.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -578,27 +588,6 @@ namespace TextureChanger
 			this.ilsFileList.ImageSize = new System.Drawing.Size( 256, 256 );
 			this.ilsFileList.TransparentColor = System.Drawing.Color.Transparent;
 			// 
-			// lblTextureImages
-			// 
-			this.lblTextureImages.AutoSize = true;
-			this.lblTextureImages.Font = new System.Drawing.Font( "MS UI Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 128 ) ) );
-			this.lblTextureImages.Location = new System.Drawing.Point( 3, 25 );
-			this.lblTextureImages.Name = "lblTextureImages";
-			this.lblTextureImages.Size = new System.Drawing.Size( 151, 16 );
-			this.lblTextureImages.TabIndex = 5;
-			this.lblTextureImages.Text = "↓SAI登録中の画像";
-			// 
-			// btnTextureRemove
-			// 
-			this.btnTextureRemove.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
-			this.btnTextureRemove.Location = new System.Drawing.Point( 826, 23 );
-			this.btnTextureRemove.Name = "btnTextureRemove";
-			this.btnTextureRemove.Size = new System.Drawing.Size( 150, 24 );
-			this.btnTextureRemove.TabIndex = 8;
-			this.btnTextureRemove.Text = "↓選択テクスチャをゴミ箱へ";
-			this.btnTextureRemove.UseVisualStyleBackColor = true;
-			this.btnTextureRemove.Click += new System.EventHandler( this.btnTextureRemove_Click );
-			// 
 			// lsvTextureImages
 			// 
 			this.lsvTextureImages.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -631,6 +620,52 @@ namespace TextureChanger
 			this.ilsTextureImage.ColorDepth = System.Windows.Forms.ColorDepth.Depth32Bit;
 			this.ilsTextureImage.ImageSize = new System.Drawing.Size( 200, 200 );
 			this.ilsTextureImage.TransparentColor = System.Drawing.Color.Transparent;
+			// 
+			// tableLayoutPanel1
+			// 
+			this.tableLayoutPanel1.ColumnCount = 1;
+			this.tableLayoutPanel1.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
+			this.tableLayoutPanel1.Location = new System.Drawing.Point( 477, 106 );
+			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+			this.tableLayoutPanel1.RowCount = 2;
+			this.tableLayoutPanel1.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
+			this.tableLayoutPanel1.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
+			this.tableLayoutPanel1.Size = new System.Drawing.Size( 200, 100 );
+			this.tableLayoutPanel1.TabIndex = 7;
+			// 
+			// pnlTextureTypeSelection
+			// 
+			this.pnlTextureTypeSelection.Controls.Add( this.lblTextureImages );
+			this.pnlTextureTypeSelection.Controls.Add( this.btnTextureRemove );
+			this.pnlTextureTypeSelection.Controls.Add( this.grpEditTexture );
+			this.pnlTextureTypeSelection.Dock = System.Windows.Forms.DockStyle.Top;
+			this.pnlTextureTypeSelection.Location = new System.Drawing.Point( 0, 0 );
+			this.pnlTextureTypeSelection.Margin = new System.Windows.Forms.Padding( 0 );
+			this.pnlTextureTypeSelection.Name = "pnlTextureTypeSelection";
+			this.pnlTextureTypeSelection.Padding = new System.Windows.Forms.Padding( 3 );
+			this.pnlTextureTypeSelection.Size = new System.Drawing.Size( 986, 59 );
+			this.pnlTextureTypeSelection.TabIndex = 6;
+			// 
+			// lblTextureImages
+			// 
+			this.lblTextureImages.AutoSize = true;
+			this.lblTextureImages.Font = new System.Drawing.Font( "MS UI Gothic", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ( (byte)( 128 ) ) );
+			this.lblTextureImages.Location = new System.Drawing.Point( 3, 25 );
+			this.lblTextureImages.Name = "lblTextureImages";
+			this.lblTextureImages.Size = new System.Drawing.Size( 151, 16 );
+			this.lblTextureImages.TabIndex = 5;
+			this.lblTextureImages.Text = "↓SAI登録中の画像";
+			// 
+			// btnTextureRemove
+			// 
+			this.btnTextureRemove.Anchor = ( (System.Windows.Forms.AnchorStyles)( ( System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right ) ) );
+			this.btnTextureRemove.Location = new System.Drawing.Point( 826, 23 );
+			this.btnTextureRemove.Name = "btnTextureRemove";
+			this.btnTextureRemove.Size = new System.Drawing.Size( 150, 24 );
+			this.btnTextureRemove.TabIndex = 8;
+			this.btnTextureRemove.Text = "↓選択テクスチャをゴミ箱へ";
+			this.btnTextureRemove.UseVisualStyleBackColor = true;
+			this.btnTextureRemove.Click += new System.EventHandler( this.btnTextureRemove_Click );
 			// 
 			// grpEditTexture
 			// 
@@ -727,41 +762,6 @@ namespace TextureChanger
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size( 0, 17 );
 			// 
-			// pnlTextureTypeSelection
-			// 
-			this.pnlTextureTypeSelection.Controls.Add( this.lblTextureImages );
-			this.pnlTextureTypeSelection.Controls.Add( this.btnTextureRemove );
-			this.pnlTextureTypeSelection.Controls.Add( this.grpEditTexture );
-			this.pnlTextureTypeSelection.Dock = System.Windows.Forms.DockStyle.Top;
-			this.pnlTextureTypeSelection.Location = new System.Drawing.Point( 0, 0 );
-			this.pnlTextureTypeSelection.Margin = new System.Windows.Forms.Padding( 0 );
-			this.pnlTextureTypeSelection.Name = "pnlTextureTypeSelection";
-			this.pnlTextureTypeSelection.Padding = new System.Windows.Forms.Padding( 3 );
-			this.pnlTextureTypeSelection.Size = new System.Drawing.Size( 986, 59 );
-			this.pnlTextureTypeSelection.TabIndex = 6;
-			// 
-			// tableLayoutPanel1
-			// 
-			this.tableLayoutPanel1.ColumnCount = 1;
-			this.tableLayoutPanel1.ColumnStyles.Add( new System.Windows.Forms.ColumnStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
-			this.tableLayoutPanel1.Location = new System.Drawing.Point( 477, 106 );
-			this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-			this.tableLayoutPanel1.RowCount = 2;
-			this.tableLayoutPanel1.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
-			this.tableLayoutPanel1.RowStyles.Add( new System.Windows.Forms.RowStyle( System.Windows.Forms.SizeType.Percent, 50F ) );
-			this.tableLayoutPanel1.Size = new System.Drawing.Size( 200, 100 );
-			this.tableLayoutPanel1.TabIndex = 7;
-			// 
-			// trvFolder
-			// 
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 272 );
-			this.trvFolder.TabIndex = 1;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
-			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size( 990, 623 );
@@ -790,11 +790,11 @@ namespace TextureChanger
 			this.splTreeList.ResumeLayout( false );
 			this.popFileList.ResumeLayout( false );
 			this.popTextureImage.ResumeLayout( false );
+			this.pnlTextureTypeSelection.ResumeLayout( false );
+			this.pnlTextureTypeSelection.PerformLayout( );
 			this.grpEditTexture.ResumeLayout( false );
 			this.stsStatus.ResumeLayout( false );
 			this.stsStatus.PerformLayout( );
-			this.pnlTextureTypeSelection.ResumeLayout( false );
-			this.pnlTextureTypeSelection.PerformLayout( );
 			this.ResumeLayout( false );
 			this.PerformLayout( );
 
