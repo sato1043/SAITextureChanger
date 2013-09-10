@@ -155,11 +155,6 @@
             "AssemblyAsmDisplayName" = "8:Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_4CADC5627C652D834929B8159E457AA2"
-                    {
-                    "Name" = "8:Ionic.Zip.Reduced.dll"
-                    "Attributes" = "3:512"
-                    }
                 }
             "SourcePath" = "8:Ionic.Zip.Reduced.dll"
             "TargetName" = "8:"
@@ -255,15 +250,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
-        "ProductCode" = "8:{1FDB010C-61AC-48FA-AB18-8D46DC4D20A3}"
-        "PackageCode" = "8:{38B1C052-784A-4E4F-B3E5-C832C61BE3A4}"
+        "ProductCode" = "8:{B7535B49-EC49-4944-909B-65AF37BA39BA}"
+        "PackageCode" = "8:{AB4DEB8F-856C-475D-8D33-A5B79396726C}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.6"
+        "ProductVersion" = "8:1.0.7"
         "Manufacturer" = "8:sato1043"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"
