@@ -630,6 +630,11 @@ namespace TextureChanger
 			var imagePath = targetFormat.directory + "\\" + Path.GetFileName(fromPath);
 			if (targetFormat.image_vector.Contains(imagePath))
 			{
+				CenteredMessageBox.Show( owner
+					, targetConfName + "に登録済みでした。\n"
+					, "登録失敗"
+					, MessageBoxButtons.OK
+					, MessageBoxIcon.Error );
 				return false; //登録済みだったので処理しなかった
 			}
 

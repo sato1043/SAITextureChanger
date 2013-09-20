@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -25,7 +26,12 @@ namespace TextureChanger
 	    public bool ForceExitProgram = false;
 
 	    private const string SAI = "sai";
-		
+
+		private Cursor noneCursor = Cursors.Default;
+		private Cursor moveCursor = Cursors.Default;
+		private Cursor copyCursor = Cursors.Default;
+		private Cursor linkCursor = Cursors.Default;
+
 		private Timer _saiProcessCheckTimer;
 
 	    private TextureManager _textureManager;
@@ -566,46 +572,48 @@ namespace TextureChanger
 
 		#region ファイルリストからテクスチャ登録
 
-		private void registTextureTo( object sender, EventArgs e, string targetConfName )
-		{
-			//項目が１つも選択されていない場合処理を抜ける
-			if( lsvFileList.SelectedItems.Count == 0 )
+		private void resigtToTexture( object sender, EventArgs e, string targetConfName, ListViewItem item )
+	    {
+			DialogResult res = CenteredMessageBox.Show( this
+				, item.Name + "を" + targetConfName + "へ登録しますか？", "登録確認"
+				, MessageBoxButtons.YesNoCancel
+				, MessageBoxIcon.Question );
+
+			string targetPath = trvFolder.GetSelectedNodePath( ) + "\\" + item.Name;
+
+			if( res == DialogResult.Cancel )
 				return;
-
-			foreach( ListViewItem item in lsvFileList.SelectedItems )
+			if( res == DialogResult.Yes )
 			{
-				DialogResult res = CenteredMessageBox.Show( this
-					, item.Name + "を" + targetConfName + "へ登録しますか？", "登録確認"
-					, MessageBoxButtons.YesNoCancel
-					, MessageBoxIcon.Question );
-
-				string targetPath = trvFolder.GetSelectedNodePath( ) + "\\" + item.Name;
-
-				if( res == DialogResult.Cancel )
-					break;
-				if( res == DialogResult.Yes )
+				if( _textureManager.AddImage(
+					targetConfName
+					, targetPath
+					, this ) )
 				{
-					if (_textureManager.AddImage(
-						targetConfName
-						, targetPath
-						, this))
-					{
-						_textureManager.SaveFormats( );
-					}
-					else
-					{
-						CenteredMessageBox.Show( this
-							, "登録に失敗しました：\n"
-								+ targetPath + "を\n"
-								+ targetConfName + "へ"
-							, "登録失敗"
-							, MessageBoxButtons.OK
-							, MessageBoxIcon.Warning );
-					}
-
-					lsvTextureImage_UpdateImages( sender, e );
+					_textureManager.SaveFormats( );
+				}
+				else
+				{
+					CenteredMessageBox.Show( this
+						, "登録に失敗しました：\n"
+							+ targetPath + "を\n"
+							+ targetConfName + "へ"
+						, "登録失敗"
+						, MessageBoxButtons.OK
+						, MessageBoxIcon.Warning );
 				}
 			}
+		}
+
+		private void registTextureTo( object sender, EventArgs e, string targetConfName )
+		{
+			//TODO do unit test
+			//選択項目を登録
+			foreach( ListViewItem item in lsvFileList.SelectedItems )
+				resigtToTexture(sender, e, targetConfName, item);
+
+			//テクスチャビューを更新
+			lsvTextureImage_UpdateImages( sender, e );
 		}
 
 		private void mniFileListRegistToCurrent_Click( object sender, EventArgs e )
@@ -695,6 +703,116 @@ namespace TextureChanger
 			HttpUpdater httpUpdater = new HttpUpdater( this );
 			httpUpdater.BeginAsyncCheckAppConfigUpdated( );
 		}
+		#endregion
+
+		#region ファイルビューからドラッグ
+
+		//ドラッグ側のリストビューでアイテムをドラッグ開始
+		private void lsvFileList_ItemDrag( object sender, ItemDragEventArgs e )
+		{
+			//TODO do unit test
+			if( lsvFileList.SelectedIndices.Count <= 0 )
+				return;
+
+			List<ListViewItem> dragItems = new List<ListViewItem>( );
+			foreach( ListViewItem item in lsvFileList.SelectedItems )
+				dragItems.Add( item );
+
+			lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
+		}
+
+		//ドロップ効果にあわせてカーソルを指定する
+		private void lsvFileList_GiveFeedback( object sender, GiveFeedbackEventArgs e )
+		{
+			/*
+			e.UseDefaultCursors = false; //既定のカーソルを使用しない
+
+			if( ( e.Effect & DragDropEffects.Move ) == DragDropEffects.Move )
+				Cursor.Current = moveCursor;
+			else if( ( e.Effect & DragDropEffects.Copy ) == DragDropEffects.Copy )
+				Cursor.Current = copyCursor;
+			else if( ( e.Effect & DragDropEffects.Link ) == DragDropEffects.Link )
+				Cursor.Current = linkCursor;
+			else
+				Cursor.Current = noneCursor;
+			*/
+		}
+
+		//マウスの右ボタンが押されていればドラッグをキャンセルする
+		private void lsvFileList_QueryContinueDrag(object sender, QueryContinueDragEventArgs e )
+		{
+			if( ( e.KeyState & 2 ) == 2 ) //"2"はマウスの右ボタンを表す
+				e.Action = DragAction.Cancel;
+		}
+
+		// ドロップされる側リストビュー上でアイテムがドラッグされている最中の処理
+		private void lsvTextureImages_DragOver( object sender, DragEventArgs e )
+		{
+			//ListViewItem型でなければ受け入れない
+			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
+			{
+				e.Effect = DragDropEffects.None;
+				return;
+			}
+
+			// キー状態によって効果を変化させる
+			if ((e.KeyState & 0x8) > 0 &&
+			    (e.AllowedEffect & DragDropEffects.Copy) == DragDropEffects.Copy)
+			{
+				//Ctrlキーが押されていればCopy ("8"はCtrlキーを表す)
+				e.Effect = DragDropEffects.Copy;
+			}
+			else if ((e.KeyState & 0x4) > 0 &&
+			         (e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+			{
+				// Shiftキーが押されていたら MOVE
+				e.Effect = DragDropEffects.Move;
+			}
+			else if ((e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+			{
+				// 何も押されていなければMove
+				e.Effect = DragDropEffects.Move;
+			}
+			else
+			{
+				// 想定外は受け入れない
+				e.Effect = DragDropEffects.None;
+				return;
+			}
+
+			// カーソル下のアイテムをハイライト TODO
+			//ListViewItem srcItem = (ListViewItem)e.Data.GetData( typeof( ListViewItem ) );
+			//Point p = this.lsvTextureImages.PointToClient( new Point( e.X, e.Y ) );
+			//ListViewItem item = this.lsvTextureImages.GetItemAt( p.X, p.Y );
+			//if( item != null )
+			//	item.Selected = true;
+		}
+
+		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
+		{
+			//TODO do unit test
+			// ListViewItem型でなければ受け入れない
+			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
+				return;
+
+			// ドロップしたデータを取得
+			List<ListViewItem> dropedItems = (List<ListViewItem>)e.Data.GetData( typeof( List<ListViewItem> ) );
+
+			//選択項目を登録
+			foreach( ListViewItem item in dropedItems )
+				resigtToTexture( sender, (EventArgs)e, _textureChangerOptions.LastEditingTextureName, item );
+
+			//テクスチャビューを更新
+			lsvTextureImage_UpdateImages( sender, e );
+			
+			// Move の場合には、ソースのアイテムを削除してあげる必要があります。
+			if( ( e.KeyState & 0x4 ) > 0 )
+			{
+				//this.lsvTextureImages.Items.Remove( srcItem );
+			}
+		}
+
+
 		#endregion
 
 	}

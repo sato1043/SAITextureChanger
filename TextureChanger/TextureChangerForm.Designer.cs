@@ -505,6 +505,9 @@ namespace TextureChanger
 			this.lsvFileList.Size = new System.Drawing.Size( 650, 272 );
 			this.lsvFileList.TabIndex = 2;
 			this.lsvFileList.UseCompatibleStateImageBehavior = false;
+			this.lsvFileList.ItemDrag += new System.Windows.Forms.ItemDragEventHandler( this.lsvFileList_ItemDrag );
+			this.lsvFileList.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler( this.lsvFileList_GiveFeedback );
+			this.lsvFileList.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler( this.lsvFileList_QueryContinueDrag );
 			// 
 			// popFileList
 			// 
@@ -590,6 +593,7 @@ namespace TextureChanger
 			// 
 			// lsvTextureImages
 			// 
+			this.lsvTextureImages.AllowDrop = true;
 			this.lsvTextureImages.BorderStyle = System.Windows.Forms.BorderStyle.None;
 			this.lsvTextureImages.ContextMenuStrip = this.popTextureImage;
 			this.lsvTextureImages.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -600,6 +604,8 @@ namespace TextureChanger
 			this.lsvTextureImages.Size = new System.Drawing.Size( 986, 224 );
 			this.lsvTextureImages.TabIndex = 3;
 			this.lsvTextureImages.UseCompatibleStateImageBehavior = false;
+			this.lsvTextureImages.DragDrop += new System.Windows.Forms.DragEventHandler( this.lsvTextureImages_DragDrop );
+			this.lsvTextureImages.DragOver += new System.Windows.Forms.DragEventHandler( this.lsvTextureImages_DragOver );
 			// 
 			// popTextureImage
 			// 
