@@ -166,7 +166,7 @@ namespace TextureChanger.util
 
                 bi.hwndOwner = hWndOwner;
                 bi.pidlRoot = pidlRoot;
-                bi.pszDisplayName = buffer; //TODO:
+                bi.pszDisplayName = buffer;
                 bi.lpszTitle = DialogMessage;
                 bi.ulFlags = (int)_options;
                 bi.iImage = 0;

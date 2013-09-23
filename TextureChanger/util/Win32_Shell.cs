@@ -1152,7 +1152,7 @@ namespace Win32
 			public IntPtr hwndOwner;
 			public IntPtr pidlRoot;
 			public IntPtr pszDisplayName;
-			[MarshalAs( UnmanagedType.LPTStr )]
+			[MarshalAs( UnmanagedType.LPStr )]
 			public string lpszTitle;
 			public int ulFlags;
 			[MarshalAs( UnmanagedType.FunctionPtr )]

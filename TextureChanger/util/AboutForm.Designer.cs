@@ -69,10 +69,11 @@
             // 
             // lblAppLicense
             // 
+            this.lblAppLicense.AutoEllipsis = true;
             this.lblAppLicense.Font = new System.Drawing.Font("メイリオ", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(128)));
             this.lblAppLicense.Location = new System.Drawing.Point(96, 110);
             this.lblAppLicense.Name = "lblAppLicense";
-            this.lblAppLicense.Size = new System.Drawing.Size(285, 40);
+            this.lblAppLicense.Size = new System.Drawing.Size(285, 52);
             this.lblAppLicense.TabIndex = 3;
             this.lblAppLicense.Text = "lblAppLicense";
             this.lblAppLicense.Click += new System.EventHandler(this.AboutForm_Click);
@@ -81,7 +82,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(394, 175);
+            this.ClientSize = new System.Drawing.Size(394, 172);
             this.ControlBox = false;
             this.Controls.Add(this.lblAppLicense);
             this.Controls.Add(this.lblAppVers);

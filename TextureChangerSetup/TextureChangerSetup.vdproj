@@ -21,7 +21,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4CADC5627C652D834929B8159E457AA2"
+        "MsmKey" = "8:_E9A7BA20A57687D554570340411E0500"
         "OwnerKey" = "8:_3A52AB340CDD4A679C3A46956475D1ED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -40,7 +40,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_4CADC5627C652D834929B8159E457AA2"
+        "OwnerKey" = "8:_E9A7BA20A57687D554570340411E0500"
         "MsmSig" = "8:_UNDEFINED"
         }
     }
@@ -65,9 +65,9 @@
             {
             "Enabled" = "11:TRUE"
             "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
+            "PrerequisitesLocation" = "2:3"
             "Url" = "8:"
-            "ComponentsUrl" = "8:"
+            "ComponentsUrl" = "8:http://www.microsoft.com/ja-jp/download/details.aspx?id=17718"
                 "Items"
                 {
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0"
@@ -102,9 +102,9 @@
             {
             "Enabled" = "11:TRUE"
             "PromptEnabled" = "11:TRUE"
-            "PrerequisitesLocation" = "2:1"
+            "PrerequisitesLocation" = "2:3"
             "Url" = "8:"
-            "ComponentsUrl" = "8:"
+            "ComponentsUrl" = "8:http://www.microsoft.com/ja-jp/download/details.aspx?id=17718"
                 "Items"
                 {
                     "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.0"
@@ -142,20 +142,20 @@
                 "Message" = "8:[VSDNETMSG]"
                 "FrameworkVersion" = "8:.NETFramework,Version=v4.0"
                 "AllowLaterVersions" = "11:FALSE"
-                "InstallUrl" = "8:http://go.microsoft.com/fwlink/?LinkId=131000"
+                "InstallUrl" = "8:http://www.microsoft.com/ja-jp/download/details.aspx?id=17718"
                 }
             }
         }
         "File"
         {
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_4CADC5627C652D834929B8159E457AA2"
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_E9A7BA20A57687D554570340411E0500"
             {
             "AssemblyRegister" = "3:1"
             "AssemblyIsInGAC" = "11:FALSE"
             "AssemblyAsmDisplayName" = "8:Ionic.Zip.Reduced, Version=1.9.1.8, Culture=neutral, PublicKeyToken=edbe51ad942a3f5c, processorArchitecture=MSIL"
                 "ScatterAssemblies"
                 {
-                    "_4CADC5627C652D834929B8159E457AA2"
+                    "_E9A7BA20A57687D554570340411E0500"
                     {
                     "Name" = "8:Ionic.Zip.Reduced.dll"
                     "Attributes" = "3:512"
@@ -255,15 +255,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:TextureChanger"
-        "ProductCode" = "8:{C2BDB20C-AEDA-4425-8481-1418678A14F7}"
-        "PackageCode" = "8:{57E23321-B90F-4F96-A4D7-EBAF2F769D65}"
+        "ProductCode" = "8:{FA97D064-4C76-4C0D-AEB3-583C64B17CE8}"
+        "PackageCode" = "8:{142B9FE2-800F-4D12-9B9F-77DAB3544225}"
         "UpgradeCode" = "8:{39604B1D-9912-4062-BFD4-54F03F84F84E}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.0.8"
+        "ProductVersion" = "8:1.0.9"
         "Manufacturer" = "8:sato1043"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:"

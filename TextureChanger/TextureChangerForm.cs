@@ -10,8 +10,6 @@ using Win32;
 
 namespace TextureChanger
 {
- 	//TODO ファイル-リストア機能の実装
-
 	// バージョンをあげるとき
 	//  Releaseビルドに切り替えてから
 	//   1) app.config
@@ -607,7 +605,6 @@ namespace TextureChanger
 
 		private void registTextureTo( object sender, EventArgs e, string targetConfName )
 		{
-			//TODO do unit test
 			//選択項目を登録
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 				resigtToTexture(sender, e, targetConfName, item);
@@ -710,7 +707,6 @@ namespace TextureChanger
 		//ドラッグ側のリストビューでアイテムをドラッグ開始
 		private void lsvFileList_ItemDrag( object sender, ItemDragEventArgs e )
 		{
-			//TODO do unit test
 			if( lsvFileList.SelectedIndices.Count <= 0 )
 				return;
 
@@ -790,7 +786,6 @@ namespace TextureChanger
 
 		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
 		{
-			//TODO do unit test
 			// ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
 				return;
