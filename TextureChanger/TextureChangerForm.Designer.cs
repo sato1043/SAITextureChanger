@@ -75,7 +75,6 @@ namespace TextureChanger
 			this.mniAbout = new System.Windows.Forms.ToolStripMenuItem( );
 			this.splNorthSouth = new System.Windows.Forms.SplitContainer( );
 			this.splTreeList = new System.Windows.Forms.SplitContainer( );
-			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.lsvFileList = new System.Windows.Forms.ListView( );
 			this.popFileList = new System.Windows.Forms.ContextMenuStrip( this.components );
 			this.mniFileListPopupSelectAll = new System.Windows.Forms.ToolStripMenuItem( );
@@ -103,6 +102,8 @@ namespace TextureChanger
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
 			this.stsStatus = new System.Windows.Forms.StatusStrip( );
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel( );
+			this.ilsDrag = new System.Windows.Forms.ImageList( this.components );
+			this.trvFolder = new TextureChanger.FolderTreeView( );
 			this.mnuMainMenu.SuspendLayout( );
 			( (System.ComponentModel.ISupportInitialize)( this.splNorthSouth ) ).BeginInit( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
@@ -483,16 +484,6 @@ namespace TextureChanger
 			this.splTreeList.TabStop = false;
 			this.splTreeList.Paint += new System.Windows.Forms.PaintEventHandler( this.splSplitContainer_Paint );
 			// 
-			// trvFolder
-			// 
-			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
-			this.trvFolder.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
-			this.trvFolder.Name = "trvFolder";
-			this.trvFolder.Size = new System.Drawing.Size( 326, 272 );
-			this.trvFolder.TabIndex = 1;
-			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
-			// 
 			// lsvFileList
 			// 
 			this.lsvFileList.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -506,6 +497,7 @@ namespace TextureChanger
 			this.lsvFileList.TabIndex = 2;
 			this.lsvFileList.UseCompatibleStateImageBehavior = false;
 			this.lsvFileList.ItemDrag += new System.Windows.Forms.ItemDragEventHandler( this.lsvFileList_ItemDrag );
+			this.lsvFileList.DragEnter += new System.Windows.Forms.DragEventHandler( this.lsvFileList_DragEnter );
 			this.lsvFileList.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler( this.lsvFileList_GiveFeedback );
 			this.lsvFileList.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler( this.lsvFileList_QueryContinueDrag );
 			// 
@@ -605,7 +597,10 @@ namespace TextureChanger
 			this.lsvTextureImages.TabIndex = 3;
 			this.lsvTextureImages.UseCompatibleStateImageBehavior = false;
 			this.lsvTextureImages.DragDrop += new System.Windows.Forms.DragEventHandler( this.lsvTextureImages_DragDrop );
+			this.lsvTextureImages.DragEnter += new System.Windows.Forms.DragEventHandler( this.lsvTextureImages_DragEnter );
 			this.lsvTextureImages.DragOver += new System.Windows.Forms.DragEventHandler( this.lsvTextureImages_DragOver );
+			this.lsvTextureImages.GiveFeedback += new System.Windows.Forms.GiveFeedbackEventHandler( this.lsvTextureImages_GiveFeedback );
+			this.lsvTextureImages.QueryContinueDrag += new System.Windows.Forms.QueryContinueDragEventHandler( this.lsvTextureImages_QueryContinueDrag );
 			// 
 			// popTextureImage
 			// 
@@ -768,6 +763,22 @@ namespace TextureChanger
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size( 0, 17 );
 			// 
+			// ilsDrag
+			// 
+			this.ilsDrag.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
+			this.ilsDrag.ImageSize = new System.Drawing.Size( 16, 16 );
+			this.ilsDrag.TransparentColor = System.Drawing.Color.Transparent;
+			// 
+			// trvFolder
+			// 
+			this.trvFolder.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.trvFolder.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.trvFolder.Location = new System.Drawing.Point( 0, 0 );
+			this.trvFolder.Name = "trvFolder";
+			this.trvFolder.Size = new System.Drawing.Size( 326, 272 );
+			this.trvFolder.TabIndex = 1;
+			this.trvFolder.AfterSelect += new System.Windows.Forms.TreeViewEventHandler( this.trvFolder_AfterSelect );
+			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size( 990, 623 );
@@ -876,6 +887,7 @@ namespace TextureChanger
 		private ToolStripStatusLabel lblStatus;
 		private Panel pnlTextureTypeSelection;
 		private TableLayoutPanel tableLayoutPanel1;
+		private ImageList ilsDrag;
 	}
 }
 

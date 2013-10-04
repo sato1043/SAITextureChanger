@@ -710,19 +710,74 @@ namespace TextureChanger
 			if( lsvFileList.SelectedIndices.Count <= 0 )
 				return;
 
+			// Dragアイテムを記録
 			List<ListViewItem> dragItems = new List<ListViewItem>( );
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 				dragItems.Add( item );
+			
+			foreach( ListViewItem item in lsvFileList.SelectedItems )
+				dragItems.Add( item );
+			
+#if NOP
+			Bitmap bmp = new Bitmap( lsvFileList.ClientSize.Width, lsvFileList.ClientSize.Height );
+			Graphics gfx = Graphics.FromImage( bmp );
 
-			lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
+			foreach (ListViewItem item in lsvFileList.SelectedItems)
+			{
+				Rectangle rect = lsvFileList.GetItemRect( item.Index );
+
+				gfx.DrawImage( ilsFileList.Images[ item.ImageIndex ], rect.Left, rect.Top );
+			}
+#endif
+
+
+			// Dragイメージに使うイメージリストをクリア
+			var dragImageSize = new Size(
+				ilsFileList.Images[0].Size.Width,
+				ilsFileList.Images[0].Size.Height
+			);
+
+			Bitmap bmp = new Bitmap( dragImageSize.Width, dragImageSize.Height );
+
+			Graphics gfx = Graphics.FromImage( bmp );
+			gfx.DrawImage(ilsFileList.Images[0], 0, 0);
+			/*gfx.DrawString(lsvFileList.SelectedItems[0].Text,
+				lsvFileList.Font, new SolidBrush( lsvFileList.ForeColor ),
+				dragImageSize.Width / 2, dragImageSize.Height / 2 );*/
+
+			ilsDrag.Images.Clear( );
+			ilsDrag.ImageSize = dragImageSize;
+
+			var lsvFileListPoint = lsvFileList.PointToClient(Cursor.Position);
+			int dx = lsvFileListPoint.X - lsvFileList.SelectedItems[ 0 ].Bounds.Left;
+			int dy = lsvFileListPoint.Y - lsvFileList.SelectedItems[ 0 ].Bounds.Top;
+			if( DragHelper.ImageList_BeginDrag( ilsDrag.Handle, 0, dx,dy ) )
+			{
+				// Begin dragging
+				lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
+				// End dragging
+				DragHelper.ImageList_EndDrag( );
+			}
+		}
+
+		private void lsvFileList_DragEnter( object sender, DragEventArgs e )
+		{
+			Point p = this.PointToClient( Cursor.Position );
+			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
+		}
+
+		private void lsvTextureImages_DragEnter( object sender, DragEventArgs e )
+		{
+			Point p = this.PointToClient( Cursor.Position );
+			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
 		}
 
 		//ドロップ効果にあわせてカーソルを指定する
 		private void lsvFileList_GiveFeedback( object sender, GiveFeedbackEventArgs e )
 		{
-			/*
 			e.UseDefaultCursors = false; //既定のカーソルを使用しない
 
+			/*
 			if( ( e.Effect & DragDropEffects.Move ) == DragDropEffects.Move )
 				Cursor.Current = moveCursor;
 			else if( ( e.Effect & DragDropEffects.Copy ) == DragDropEffects.Copy )
@@ -732,6 +787,23 @@ namespace TextureChanger
 			else
 				Cursor.Current = noneCursor;
 			*/
+
+			/*
+			if( e.Effect == DragDropEffects.Move )
+			{
+				// Show pointer cursor while dragging
+				e.UseDefaultCursors = false;
+				lsvFileList.Cursor = Cursors.Default;
+			}
+			else
+				e.UseDefaultCursors = true;
+			*/
+		}
+
+		private void lsvTextureImages_GiveFeedback( object sender, GiveFeedbackEventArgs e )
+		{
+			e.UseDefaultCursors = false; //既定のカーソルを使用しない
+
 		}
 
 		//マウスの右ボタンが押されていればドラッグをキャンセルする
@@ -739,9 +811,24 @@ namespace TextureChanger
 		{
 			if( ( e.KeyState & 2 ) == 2 ) //"2"はマウスの右ボタンを表す
 				e.Action = DragAction.Cancel;
+
+			// ImageList_DragEnter同様Windowにおける相対座標を指定する
+			Point p = this.PointToClient( Cursor.Position );
+			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
+		}
+
+		private void lsvTextureImages_QueryContinueDrag( object sender, QueryContinueDragEventArgs e )
+		{
+			if( ( e.KeyState & 2 ) == 2 ) //"2"はマウスの右ボタンを表す
+				e.Action = DragAction.Cancel;
+
+			// ImageList_DragEnter同様Windowにおける相対座標を指定する
+			Point p = this.PointToClient( Cursor.Position );
+			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
 		}
 
 		// ドロップされる側リストビュー上でアイテムがドラッグされている最中の処理
+
 		private void lsvTextureImages_DragOver( object sender, DragEventArgs e )
 		{
 			//ListViewItem型でなければ受け入れない
@@ -752,19 +839,19 @@ namespace TextureChanger
 			}
 
 			// キー状態によって効果を変化させる
-			if ((e.KeyState & 0x8) > 0 &&
-			    (e.AllowedEffect & DragDropEffects.Copy) == DragDropEffects.Copy)
+			if( ( e.KeyState & 0x8 ) > 0 &&
+				( e.AllowedEffect & DragDropEffects.Copy ) == DragDropEffects.Copy )
 			{
 				//Ctrlキーが押されていればCopy ("8"はCtrlキーを表す)
 				e.Effect = DragDropEffects.Copy;
 			}
-			else if ((e.KeyState & 0x4) > 0 &&
-			         (e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+			else if( ( e.KeyState & 0x4 ) > 0 &&
+					 ( e.AllowedEffect & DragDropEffects.Move ) == DragDropEffects.Move )
 			{
 				// Shiftキーが押されていたら MOVE
 				e.Effect = DragDropEffects.Move;
 			}
-			else if ((e.AllowedEffect & DragDropEffects.Move) == DragDropEffects.Move)
+			else if( ( e.AllowedEffect & DragDropEffects.Move ) == DragDropEffects.Move )
 			{
 				// 何も押されていなければMove
 				e.Effect = DragDropEffects.Move;
@@ -782,10 +869,19 @@ namespace TextureChanger
 			//ListViewItem item = this.lsvTextureImages.GetItemAt( p.X, p.Y );
 			//if( item != null )
 			//	item.Selected = true;
+
+			// Compute drag position and move image
+			// ImageList_DragEnter同様Windowにおける相対座標を指定する 
+			Point formP = this.PointToClient( new Point( e.X, e.Y ) );
+			DragHelper.ImageList_DragMove( formP.X - lsvFileList.Left,
+										  formP.Y - lsvFileList.Top );
 		}
 
 		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
 		{
+			// Unlock updates
+			DragHelper.ImageList_DragLeave( ilsDrag.Handle );
+
 			// ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
 				return;
@@ -794,8 +890,10 @@ namespace TextureChanger
 			List<ListViewItem> dropedItems = (List<ListViewItem>)e.Data.GetData( typeof( List<ListViewItem> ) );
 
 			//選択項目を登録
-			foreach( ListViewItem item in dropedItems )
-				resigtToTexture( sender, (EventArgs)e, _textureChangerOptions.LastEditingTextureName, item );
+			foreach (ListViewItem item in dropedItems)
+			{
+				//resigtToTexture( sender, (EventArgs)e, _textureChangerOptions.LastEditingTextureName, item );
+			}
 
 			//テクスチャビューを更新
 			lsvTextureImage_UpdateImages( sender, e );
@@ -805,6 +903,8 @@ namespace TextureChanger
 			{
 				//this.lsvTextureImages.Items.Remove( srcItem );
 			}
+
+			lsvTextureImages.Focus();
 		}
 
 
