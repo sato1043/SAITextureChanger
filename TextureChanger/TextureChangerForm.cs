@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -25,18 +26,22 @@ namespace TextureChanger
 
 	    private const string SAI = "sai";
 
-		private Cursor noneCursor = Cursors.Default;
-		private Cursor moveCursor = Cursors.Default;
-		private Cursor copyCursor = Cursors.Default;
-		private Cursor linkCursor = Cursors.Default;
+        #region ドラッグ中のカーソルの指定
+		private Cursor moveCursor = Cursors.Hand;
+        private Cursor copyCursor = Cursors.Hand;
+        private Cursor linkCursor = Cursors.Hand;
+        #endregion
 
-		private Timer _saiProcessCheckTimer;
+        private DragImagesForm dragImagesForm;
+
+        private Timer _saiProcessCheckTimer;
 
 	    private TextureManager _textureManager;
 
 	    public TextureChangerForm( )
 		{
 			InitializeComponent( );
+            dragImagesForm = new DragImagesForm();
         }
 
 		private void TextureChangerForm_Load(object sender, EventArgs e)
@@ -718,118 +723,129 @@ namespace TextureChanger
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 				dragItems.Add( item );
 			
-#if NOP
-			Bitmap bmp = new Bitmap( lsvFileList.ClientSize.Width, lsvFileList.ClientSize.Height );
-			Graphics gfx = Graphics.FromImage( bmp );
+            // ドラッグイメージを選定
+            var pt = lsvFileList.PointToClient(Cursor.Position);
+            var pointedItem = lsvFileList.GetItemAt(pt.X, pt.Y);
+            if (pointedItem == null)
+                return;
+            var pointedIndex = pointedItem.Index;
 
-			foreach (ListViewItem item in lsvFileList.SelectedItems)
+            // ドラッグイメージを作成
+            var sz = new Size(ilsFileList.Images[pointedIndex].Width, ilsFileList.Images[pointedIndex].Height);
+			var bmp = new Bitmap( sz.Width, sz.Height );
+			var gfx = Graphics.FromImage( bmp );
+            gfx.DrawImage(ilsFileList.Images[pointedIndex], 0, 0);
+
+            // ドラッグに使うイメージリストにドラッグイメージを追加
+            ilsDrag.Images.Clear();
+			ilsDrag.ImageSize = sz;
+            ilsDrag.Images.Add(bmp);
+
+            // ドラッグ開始
+            var lsvFileListPoint = lsvFileList.PointToClient(Cursor.Position);
+            int dx = lsvFileListPoint.X - pointedItem.Bounds.Left;
+            int dy = lsvFileListPoint.Y - pointedItem.Bounds.Top;
+            BeginDrag(Cursor.Position, pointedItem);
+			//if( DragHelper.ImageList_BeginDrag( ilsDrag.Handle, 0, dx,dy ) )
 			{
-				Rectangle rect = lsvFileList.GetItemRect( item.Index );
-
-				gfx.DrawImage( ilsFileList.Images[ item.ImageIndex ], rect.Left, rect.Top );
-			}
-#endif
-
-
-			// Dragイメージに使うイメージリストをクリア
-			var dragImageSize = new Size(
-				ilsFileList.Images[0].Size.Width,
-				ilsFileList.Images[0].Size.Height
-			);
-
-			Bitmap bmp = new Bitmap( dragImageSize.Width, dragImageSize.Height );
-
-			Graphics gfx = Graphics.FromImage( bmp );
-			gfx.DrawImage(ilsFileList.Images[0], 0, 0);
-			/*gfx.DrawString(lsvFileList.SelectedItems[0].Text,
-				lsvFileList.Font, new SolidBrush( lsvFileList.ForeColor ),
-				dragImageSize.Width / 2, dragImageSize.Height / 2 );*/
-
-			ilsDrag.Images.Clear( );
-			ilsDrag.ImageSize = dragImageSize;
-
-			var lsvFileListPoint = lsvFileList.PointToClient(Cursor.Position);
-			int dx = lsvFileListPoint.X - lsvFileList.SelectedItems[ 0 ].Bounds.Left;
-			int dy = lsvFileListPoint.Y - lsvFileList.SelectedItems[ 0 ].Bounds.Top;
-			if( DragHelper.ImageList_BeginDrag( ilsDrag.Handle, 0, dx,dy ) )
-			{
-				// Begin dragging
+                // Begin dragging
 				lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
 				// End dragging
 				DragHelper.ImageList_EndDrag( );
+                EndDrag();
 			}
 		}
 
-		private void lsvFileList_DragEnter( object sender, DragEventArgs e )
-		{
-			Point p = this.PointToClient( Cursor.Position );
-			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
-		}
+        private Rectangle CalculateApproximateRect(ListView lsv)
+        {
+            int ox = 0, oy = 0;
+            int dx = 0, dy = 0;
+            foreach (ListViewItem item in lsv.Items)
+            {
+                if (item.Bounds.X < ox) ox = item.Bounds.X;
+                if (item.Bounds.Y < oy) oy = item.Bounds.Y;
+                if (dx < item.Bounds.X + item.Bounds.Width) dx = item.Bounds.X + item.Bounds.Width;
+                if (dy < item.Bounds.Y + item.Bounds.Height) dy = item.Bounds.Y + item.Bounds.Height;
+            }
+            return new Rectangle(ox, oy, dx - ox, dy - oy);
+        }
 
-		private void lsvTextureImages_DragEnter( object sender, DragEventArgs e )
-		{
-			Point p = this.PointToClient( Cursor.Position );
-			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
-		}
+        private void BeginDrag(Point curPos, ListViewItem curPosItem)
+        {
+            if (dragImagesForm.Region != null)
+                dragImagesForm.Region.Dispose();
+            if (dragImagesForm.BackgroundImage != null)
+                dragImagesForm.BackgroundImage.Dispose();
+
+            var rcfl = CalculateApproximateRect(lsvFileList);
+
+            dragImagesForm.BeginDragPosItem = curPosItem;
+
+            dragImagesForm.Size = new Size(rcfl.Width, rcfl.Height);
+            dragImagesForm.Opacity = 0.5;
+
+            var pt = lsvFileList.PointToClient(Cursor.Position);
+
+            dragImagesForm.Location = new Point(
+                curPos.X - rcfl.Left - pt.X,
+                curPos.Y - rcfl.Top - pt.Y);
+
+            dragImagesForm.BackgroundImage = new Bitmap(rcfl.Width, rcfl.Height);
+
+            GraphicsPath path = new GraphicsPath();
+
+            using (Graphics g = Graphics.FromImage(dragImagesForm.BackgroundImage))
+            {
+                foreach (ListViewItem item in lsvFileList.SelectedItems)
+                {
+                    var rc = lsvFileList.GetItemRect(item.Index, ItemBoundsPortion.Icon);
+                    rc.Offset(rcfl.X, rcfl.Y);
+                    path.AddRectangle(rc);
+                    g.DrawImage(ilsFileList.Images[item.Index], rc.Left, rc.Top);
+                }
+            }
+            dragImagesForm.Region = new Region(path);
+            dragImagesForm.Show();
+        }
+
+        private void MoveDrag(Point curPos)
+        {
+            dragImagesForm.Location = new Point(
+                curPos.X - dragImagesForm.BeginDragPosItem.Position.X,
+                curPos.Y - dragImagesForm.BeginDragPosItem.Position.Y);
+        }
+
+        private void EndDrag()
+        {
+            dragImagesForm.Hide();
+        }
+
 
 		//ドロップ効果にあわせてカーソルを指定する
 		private void lsvFileList_GiveFeedback( object sender, GiveFeedbackEventArgs e )
 		{
-			e.UseDefaultCursors = false; //既定のカーソルを使用しない
+            e.UseDefaultCursors = true; //既定のカーソルを使用
 
-			/*
-			if( ( e.Effect & DragDropEffects.Move ) == DragDropEffects.Move )
-				Cursor.Current = moveCursor;
-			else if( ( e.Effect & DragDropEffects.Copy ) == DragDropEffects.Copy )
-				Cursor.Current = copyCursor;
-			else if( ( e.Effect & DragDropEffects.Link ) == DragDropEffects.Link )
-				Cursor.Current = linkCursor;
-			else
-				Cursor.Current = noneCursor;
-			*/
-
-			/*
-			if( e.Effect == DragDropEffects.Move )
-			{
-				// Show pointer cursor while dragging
-				e.UseDefaultCursors = false;
-				lsvFileList.Cursor = Cursors.Default;
-			}
-			else
-				e.UseDefaultCursors = true;
-			*/
+            Point p = this.PointToClient(Cursor.Position);
+            DragHelper.ImageList_DragEnter(this.Handle, p.X, p.Y);
 		}
 
-		private void lsvTextureImages_GiveFeedback( object sender, GiveFeedbackEventArgs e )
-		{
-			e.UseDefaultCursors = false; //既定のカーソルを使用しない
-
-		}
-
-		//マウスの右ボタンが押されていればドラッグをキャンセルする
+		//ファイルリストビューからのドラッグの間中ずっと判定しつづけることとしては
 		private void lsvFileList_QueryContinueDrag(object sender, QueryContinueDragEventArgs e )
 		{
-			if( ( e.KeyState & 2 ) == 2 ) //"2"はマウスの右ボタンを表す
+            //マウスの右ボタンが押されていればドラッグをキャンセルする
+            if ((e.KeyState & 2) == 2) //"2"はマウスの右ボタンを表す
 				e.Action = DragAction.Cancel;
+            
+            //ドラッグイメージを描画
+			//Point p = this.PointToClient( Cursor.Position );
+			//DragHelper.ImageList_DragMove( p.X, p.Y );
 
-			// ImageList_DragEnter同様Windowにおける相対座標を指定する
-			Point p = this.PointToClient( Cursor.Position );
-			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
+            MoveDrag(Cursor.Position);
 		}
 
-		private void lsvTextureImages_QueryContinueDrag( object sender, QueryContinueDragEventArgs e )
-		{
-			if( ( e.KeyState & 2 ) == 2 ) //"2"はマウスの右ボタンを表す
-				e.Action = DragAction.Cancel;
-
-			// ImageList_DragEnter同様Windowにおける相対座標を指定する
-			Point p = this.PointToClient( Cursor.Position );
-			DragHelper.ImageList_DragEnter( this.Handle, p.X, p.Y );
-		}
-
-		// ドロップされる側リストビュー上でアイテムがドラッグされている最中の処理
-
-		private void lsvTextureImages_DragOver( object sender, DragEventArgs e )
+        //テクスチャ画像ビュー上でアイテムを移動させている間は
+        private void lsvTextureImages_DragOver(object sender, DragEventArgs e)
 		{
 			//ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
@@ -863,20 +879,41 @@ namespace TextureChanger
 				return;
 			}
 
+            //挿入マークを表示する
+            Point targetPoint = lsvTextureImages.PointToClient(new Point(e.X, e.Y));
+            int targetIndex = lsvTextureImages.InsertionMark.NearestIndex(targetPoint);
+            if (targetIndex > -1)
+            {
+                Rectangle itemBounds = lsvTextureImages.GetItemRect(targetIndex);
+                if (targetPoint.X > itemBounds.Left + (itemBounds.Width / 2))
+                {
+                    lsvTextureImages.InsertionMark.AppearsAfterItem = true;
+                }
+                else
+                {
+                    lsvTextureImages.InsertionMark.AppearsAfterItem = false;
+                }
+            }
+            lsvTextureImages.InsertionMark.Index = targetIndex;
+
+
+
 			// カーソル下のアイテムをハイライト TODO
 			//ListViewItem srcItem = (ListViewItem)e.Data.GetData( typeof( ListViewItem ) );
 			//Point p = this.lsvTextureImages.PointToClient( new Point( e.X, e.Y ) );
 			//ListViewItem item = this.lsvTextureImages.GetItemAt( p.X, p.Y );
 			//if( item != null )
 			//	item.Selected = true;
-
-			// Compute drag position and move image
-			// ImageList_DragEnter同様Windowにおける相対座標を指定する 
-			Point formP = this.PointToClient( new Point( e.X, e.Y ) );
-			DragHelper.ImageList_DragMove( formP.X - lsvFileList.Left,
-										  formP.Y - lsvFileList.Top );
 		}
 
+        //テクスチャ画像ビューからカーソルが外れたら
+        private void lsvTextureImages_DragLeave(object sender, EventArgs e)
+        {
+            //挿入マークを非表示する
+            lsvTextureImages.InsertionMark.Index = -1;
+        }
+
+        //テクスチャ画像ビュー上でアイテムドロップされたら
 		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
 		{
 			// Unlock updates
