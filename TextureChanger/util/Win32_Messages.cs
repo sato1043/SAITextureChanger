@@ -947,6 +947,13 @@ namespace Win32
         SYSTIMER = 0x118
     }
 
+	public enum LVM : uint
+	{
+		FIRST = 0x1000
+	  , APPROXIMATEVIEWRECT = ( FIRST + 0x40 )
+	  , GETITEMSPACING = ( FIRST + 0x33 )
+	}
+
 	public enum TVM : uint
 	{
 		  FIRST = 0x1100

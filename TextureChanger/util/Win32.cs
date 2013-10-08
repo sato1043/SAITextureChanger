@@ -195,9 +195,14 @@ namespace Win32
 
     #region WIN32 API prototypes
     public partial class Api
-    {
-        #region WindowsLong
-        [DllImport("user32.dll")]
+	{
+		#region HIWORD & LOWORD
+		public static uint HIWORD( IntPtr ptr ) { return ( ( (uint)(int)ptr ) >> 16 ) & 0xffff; }
+		public static uint LOWORD( IntPtr ptr ) { return ( ( (uint)(int)ptr )       ) & 0xffff; }
+		#endregion
+
+		#region WindowsLong
+		[DllImport("user32.dll")]
         public static extern IntPtr GetWindowLong(IntPtr hwnd, GWL nIndex);
         [DllImport("user32.dll")]
         public static extern IntPtr SetWindowLong(IntPtr hwnd, GWL nIndex, int dwNewLong);
