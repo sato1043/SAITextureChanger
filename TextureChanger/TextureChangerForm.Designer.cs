@@ -103,7 +103,6 @@ namespace TextureChanger
 			this.rdoEditBlotmap = new System.Windows.Forms.RadioButton( );
 			this.stsStatus = new System.Windows.Forms.StatusStrip( );
 			this.lblStatus = new System.Windows.Forms.ToolStripStatusLabel( );
-			this.ilsDrag = new System.Windows.Forms.ImageList( this.components );
 			this.mnuMainMenu.SuspendLayout( );
 			( (System.ComponentModel.ISupportInitialize)( this.splNorthSouth ) ).BeginInit( );
 			this.splNorthSouth.Panel1.SuspendLayout( );
@@ -769,12 +768,6 @@ namespace TextureChanger
 			this.lblStatus.Name = "lblStatus";
 			this.lblStatus.Size = new System.Drawing.Size( 0, 17 );
 			// 
-			// ilsDrag
-			// 
-			this.ilsDrag.ColorDepth = System.Windows.Forms.ColorDepth.Depth24Bit;
-			this.ilsDrag.ImageSize = new System.Drawing.Size( 16, 16 );
-			this.ilsDrag.TransparentColor = System.Drawing.Color.Transparent;
-			// 
 			// TextureChangerForm
 			// 
 			this.ClientSize = new System.Drawing.Size( 990, 623 );
@@ -883,7 +876,6 @@ namespace TextureChanger
 		private ToolStripStatusLabel lblStatus;
 		private Panel pnlTextureTypeSelection;
 		private TableLayoutPanel tableLayoutPanel1;
-        private ImageList ilsDrag;
 	}
 }
 

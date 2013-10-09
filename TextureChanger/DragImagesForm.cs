@@ -37,7 +37,7 @@ namespace TextureChanger
 			return new Rectangle( ox, oy, w, h );
 		}
 
-		public void BeginDrag( ListView curListView, Point curPos, ListViewItem curPosItem )
+		public void BeginDrag( ListView curListView, Point curPos )
 		{
 			if( Region != null )
 				Region.Dispose( );
@@ -66,9 +66,9 @@ namespace TextureChanger
 
 			Rectangle padding = new Rectangle(
 					( horizontal - DragListView.LargeImageList.ImageSize.Width ) / 2,
-					( vertical - DragListView.LargeImageList.ImageSize.Height ) / 2,
+					0, //( vertical - DragListView.LargeImageList.ImageSize.Height ) / 2,
 					( horizontal - DragListView.LargeImageList.ImageSize.Width ),
-					( vertical - DragListView.LargeImageList.ImageSize.Height )
+					0 //( vertical - DragListView.LargeImageList.ImageSize.Height )
 				);
 
 			// 上に切れたアイテムをドラッグすると透明が描画されない
@@ -77,18 +77,34 @@ namespace TextureChanger
 
 			GraphicsPath path = new GraphicsPath( );
 
-			using( Graphics g = Graphics.FromImage( BackgroundImage ) )
+			using( Graphics gfx = Graphics.FromImage( BackgroundImage ) )
 			{
+				var brush = new SolidBrush(DragListView.ForeColor);
+
 				foreach( int index in DragListView.SelectedIndices )
 				{
-					var rc = DragListView.GetItemRect( index, ItemBoundsPortion.Entire );
-					rc.Offset( DragListViewRect.X, DragListViewRect.Y );
-					rc.Offset( padding.X, padding.Y );
-					rc.Width -= padding.Width;
-					rc.Height -= padding.Height;
-					path.AddRectangle( rc );
-					g.DrawImage( DragListView.LargeImageList.Images[ index ], rc.Left, rc.Top );
-					//TODO draw text
+					var rcIcon = DragListView.GetItemRect( index, ItemBoundsPortion.Entire );
+					rcIcon.Offset( DragListViewRect.X, DragListViewRect.Y );
+					rcIcon.Offset( padding.X, padding.Y );
+					rcIcon.Width -= padding.Width;
+					rcIcon.Height -= padding.Height;
+					
+					gfx.DrawImage( DragListView.LargeImageList.Images[ index ], rcIcon.Left, rcIcon.Top );
+
+					var rcText = DragListView.GetItemRect( index, ItemBoundsPortion.Label );
+					rcText.Offset( DragListViewRect.X, DragListViewRect.Y );
+					rcText.Offset( 0 /*padding.X*/, padding.Y );
+					rcText.Width -= padding.Width;
+					rcText.Height -= padding.Height;
+					
+					gfx.DrawString(
+						DragListView.Items[ index ].Text,
+						DragListView.Font, brush,
+						rcText.Left, rcText.Top
+					);
+
+					path.AddRectangle( rcIcon );
+					//path.AddRectangle( rcText );
 				}
 			}
 

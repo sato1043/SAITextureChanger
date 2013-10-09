@@ -720,99 +720,11 @@ namespace TextureChanger
 			foreach( ListViewItem item in lsvFileList.SelectedItems )
 				dragItems.Add( item );
 			
-			foreach( ListViewItem item in lsvFileList.SelectedItems )
-				dragItems.Add( item );
-			
-            // ドラッグイメージを選定
-            var pt = lsvFileList.PointToClient(Cursor.Position);
-            var pointedItem = lsvFileList.GetItemAt(pt.X, pt.Y);
-            if (pointedItem == null)
-                return;
-            var pointedIndex = pointedItem.Index;
-
-            // ドラッグイメージを作成
-            var sz = new Size(ilsFileList.Images[pointedIndex].Width, ilsFileList.Images[pointedIndex].Height);
-			var bmp = new Bitmap( sz.Width, sz.Height );
-			var gfx = Graphics.FromImage( bmp );
-            gfx.DrawImage(ilsFileList.Images[pointedIndex], 0, 0);
-
-            // ドラッグに使うイメージリストにドラッグイメージを追加
-            ilsDrag.Images.Clear();
-			ilsDrag.ImageSize = sz;
-            ilsDrag.Images.Add(bmp);
-
             // ドラッグ開始
-			dragImagesForm.BeginDrag( lsvFileList, Cursor.Position, pointedItem );
+			dragImagesForm.BeginDrag( lsvFileList, Cursor.Position );
 			lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
 			dragImagesForm.EndDrag( );
 		}
-
-#if NOP
-        private Rectangle CalculateApproximateRect(ListView lsv)
-        {
-	        IntPtr coord = Api.SendMessage(lsvFileList.Handle, (uint)LVM.APPROXIMATEVIEWRECT, -1, -1);
-			int w = (int)Api.LOWORD( coord );
-			int h = (int)Api.HIWORD( coord );
-	        
-            int ox = 0, oy = 0;
-            foreach (ListViewItem item in lsv.Items)
-            {
-                if (item.Bounds.X < ox) ox = item.Bounds.X;
-                if (item.Bounds.Y < oy) oy = item.Bounds.Y;
-            }
-            return new Rectangle(ox, oy, w, h);
-        }
-
-		private void BeginDrag(Point curPos, ListViewItem curPosItem)
-        {
-            if (dragImagesForm.Region != null)
-                dragImagesForm.Region.Dispose();
-            if (dragImagesForm.BackgroundImage != null)
-                dragImagesForm.BackgroundImage.Dispose();
-
-            var rcfl = CalculateApproximateRect(lsvFileList);
-
-            dragImagesForm.BeginDragPosItem = curPosItem;
-
-            dragImagesForm.Size = new Size(rcfl.Width, rcfl.Height);
-            dragImagesForm.Opacity = 0.5;
-
-            var pt = lsvFileList.PointToClient(Cursor.Position);
-
-            dragImagesForm.Location = new Point(
-                curPos.X - rcfl.Left - pt.X,
-                curPos.Y - rcfl.Top - pt.Y);
-
-            dragImagesForm.BackgroundImage = new Bitmap(rcfl.Width, rcfl.Height);
-
-            GraphicsPath path = new GraphicsPath();
-
-            using (Graphics g = Graphics.FromImage(dragImagesForm.BackgroundImage))
-            {
-                foreach (ListViewItem item in lsvFileList.SelectedItems)
-                {
-                    var rc = lsvFileList.GetItemRect(item.Index, ItemBoundsPortion.Icon);
-                    rc.Offset(rcfl.X, rcfl.Y);
-                    path.AddRectangle(rc);
-                    g.DrawImage(ilsFileList.Images[item.Index], rc.Left, rc.Top);
-                }
-            }
-            dragImagesForm.Region = new Region(path);
-            dragImagesForm.Show();
-        }
-
-		private void MoveDrag(Point curPos)
-        {
-            dragImagesForm.Location = new Point(
-                curPos.X - dragImagesForm.BeginDragPosItem.Position.X,
-                curPos.Y - dragImagesForm.BeginDragPosItem.Position.Y);
-        }
-
-        private void EndDrag()
-        {
-            dragImagesForm.Hide();
-        }
-#endif
 
 		//ファイルリストビューからのドラッグの間中ずっと判定しつづけることとしては
 		private void lsvFileList_QueryContinueDrag(object sender, QueryContinueDragEventArgs e )
