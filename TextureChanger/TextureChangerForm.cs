@@ -809,9 +809,6 @@ namespace TextureChanger
         //テクスチャ画像ビュー上でアイテムドロップされたら
 		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
 		{
-			// Unlock updates
-			//DragHelper.ImageList_DragLeave( ilsDrag.Handle );
-
 			// ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
 				return;
@@ -822,7 +819,7 @@ namespace TextureChanger
 			//選択項目を登録
 			foreach (ListViewItem item in dropedItems)
 			{
-				//resigtToTexture( sender, (EventArgs)e, _textureChangerOptions.LastEditingTextureName, item );
+				resigtToTexture( sender, (EventArgs)e, _textureChangerOptions.LastEditingTextureName, item );
 			}
 
 			//テクスチャビューを更新

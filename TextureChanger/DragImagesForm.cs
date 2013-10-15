@@ -52,11 +52,13 @@ namespace TextureChanger
 			Opacity = 0.5;
 
 			DragOffset = DragListView.PointToClient( curPos );
-			DragOffset.Offset( DragListViewRect.Left, DragListViewRect.Top );
+			DragOffset.X *= -1;
+			DragOffset.Y *= -1;
+			DragOffset.Offset( DragListViewRect.X, DragListViewRect.Y ); // リストビューの隠れている箇所のぶんのオフセット
 
 			Location = new Point(
-				curPos.X - DragOffset.X,
-				curPos.Y - DragOffset.Y
+				curPos.X + DragOffset.X,
+				curPos.Y + DragOffset.Y
 			);
 
 
@@ -84,7 +86,7 @@ namespace TextureChanger
 				foreach( int index in DragListView.SelectedIndices )
 				{
 					var rcIcon = DragListView.GetItemRect( index, ItemBoundsPortion.Entire );
-					rcIcon.Offset( DragListViewRect.X, DragListViewRect.Y );
+					rcIcon.Offset( -DragListViewRect.X, -DragListViewRect.Y );
 					rcIcon.Offset( padding.X, padding.Y );
 					rcIcon.Width -= padding.Width;
 					rcIcon.Height -= padding.Height;
@@ -92,7 +94,7 @@ namespace TextureChanger
 					gfx.DrawImage( DragListView.LargeImageList.Images[ index ], rcIcon.Left, rcIcon.Top );
 
 					var rcText = DragListView.GetItemRect( index, ItemBoundsPortion.Label );
-					rcText.Offset( DragListViewRect.X, DragListViewRect.Y );
+					rcText.Offset( -DragListViewRect.X, -DragListViewRect.Y );
 					rcText.Offset( 0 /*padding.X*/, padding.Y );
 					rcText.Width -= padding.Width;
 					rcText.Height -= padding.Height;
@@ -115,10 +117,12 @@ namespace TextureChanger
 
 		public void MoveDrag( Point curPos )
 		{
+			/*
 			Location = new Point(
-				curPos.X - DragOffset.X,
-				curPos.Y - DragOffset.Y
+				curPos.X + DragOffset.X,
+				curPos.Y + DragOffset.Y
 			);
+			 * */
 		}
 
 		public void EndDrag( )
