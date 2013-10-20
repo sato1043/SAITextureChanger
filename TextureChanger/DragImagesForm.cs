@@ -10,14 +10,17 @@ namespace TextureChanger
     public partial class DragImagesForm : Form
     {
 		private ListView DragListView = null;
-		private Rectangle DragListViewRect;
+        private ListView DropListView = null;
+        private Rectangle DragListViewRect;
 
 		private Point DragOffset;
 
+        private Form parentForm = null;
 
-	    public DragImagesForm()
+	    public DragImagesForm(Form _parentForm)
         {
             InitializeComponent();
+            parentForm = _parentForm;
         }
 
 		private Rectangle CalculateApproximateRect( ListView lsv )
@@ -37,7 +40,7 @@ namespace TextureChanger
 			return new Rectangle( ox, oy, w, h );
 		}
 
-		public void BeginDrag( ListView curListView, Point curPos )
+		public void BeginDrag( ListView curListView, Point curPos, ListView targetListView )
 		{
 			if( Region != null )
 				Region.Dispose( );
@@ -47,6 +50,7 @@ namespace TextureChanger
 			DragListViewRect = CalculateApproximateRect( curListView );
 
 			DragListView = curListView;
+            DropListView = targetListView;
 
 			Size = new Size( DragListViewRect.Width, DragListViewRect.Height );
 			Opacity = 0.5;
@@ -117,12 +121,10 @@ namespace TextureChanger
 
 		public void MoveDrag( Point curPos )
 		{
-			/*
 			Location = new Point(
 				curPos.X + DragOffset.X,
 				curPos.Y + DragOffset.Y
 			);
-			 * */
 		}
 
 		public void EndDrag( )
@@ -134,6 +136,14 @@ namespace TextureChanger
 			if( BackgroundImage != null )
 				BackgroundImage.Dispose( );
 		}
+
+        private void DragImagesForm_DragOver(object sender, DragEventArgs e)
+        {
+            if (DropListView.ClientRectangle.Contains(new Point(e.X, e.Y)))
+            {
+                DropListView.DragOver(sender, e);
+            }
+        }
 
     }
 }

@@ -103,7 +103,6 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="util\DragHelper.cs" />
     <Compile Include="util\HttpUpdater.cs" />
     <Compile Include="util\SystemImageList.cs" />
     <Compile Include="util\Win32_Messages.cs" />

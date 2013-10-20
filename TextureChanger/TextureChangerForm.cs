@@ -41,7 +41,7 @@ namespace TextureChanger
 	    public TextureChangerForm( )
 		{
 			InitializeComponent( );
-            dragImagesForm = new DragImagesForm();
+            dragImagesForm = new DragImagesForm(this);
         }
 
 		private void TextureChangerForm_Load(object sender, EventArgs e)
