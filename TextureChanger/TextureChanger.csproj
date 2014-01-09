@@ -146,6 +146,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Changes.txt" />
+    <Content Include="README.txt" />
     <Content Include="rsrc\icon1.ico" />
     <Content Include="rsrc\nopreview-mask.bmp" />
     <Content Include="rsrc\nopreview.bmp" />

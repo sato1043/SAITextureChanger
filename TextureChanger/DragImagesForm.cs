@@ -15,9 +15,9 @@ namespace TextureChanger
 
 		private Point DragOffset;
 
-        private Form parentForm = null;
+        private TextureChangerForm parentForm = null;
 
-	    public DragImagesForm(Form _parentForm)
+	    public DragImagesForm(TextureChangerForm _parentForm)
         {
             InitializeComponent();
             parentForm = _parentForm;
@@ -139,11 +139,39 @@ namespace TextureChanger
 
         private void DragImagesForm_DragOver(object sender, DragEventArgs e)
         {
-            if (DropListView.ClientRectangle.Contains(new Point(e.X, e.Y)))
+			var dropScreenRect = new Rectangle(
+				DropListView.Parent.PointToScreen(DropListView.Location),
+				DropListView.ClientSize);
+			if (dropScreenRect.Contains(new Point(e.X, e.Y)))
             {
-                DropListView.DragOver(sender, e);
+                parentForm.lsvTextureImages_DragOver(sender, e);
             }
         }
+
+		private void DragImagesForm_DragDrop( object sender, DragEventArgs e )
+		{
+			Hide( );
+
+			var dropScreenRect = new Rectangle(
+				DropListView.Parent.PointToScreen(DropListView.Location),
+				DropListView.ClientSize);
+			if (dropScreenRect.Contains(new Point(e.X, e.Y)))
+            {
+                parentForm.lsvTextureImages_DragDrop(sender, e);
+            }
+			parentForm.lsvTextureImages_DragLeave(sender, e);
+ 		}
+
+		private void DragImagesForm_DragLeave( object sender, EventArgs e )
+		{
+			//var dropScreenRect = new Rectangle(
+			//    DropListView.Parent.PointToScreen(DropListView.Location),
+			//    DropListView.ClientSize);
+			//if (dropScreenRect.Contains(new Point(e.X, e.Y)))
+			//{
+               
+            //}
+		}
 
     }
 }

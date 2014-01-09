@@ -721,7 +721,7 @@ namespace TextureChanger
 				dragItems.Add( item );
 			
             // ドラッグ開始
-			dragImagesForm.BeginDrag( lsvFileList, Cursor.Position );
+			dragImagesForm.BeginDrag( lsvFileList, Cursor.Position, lsvTextureImages );
 			lsvFileList.DoDragDrop( dragItems, DragDropEffects.Copy | DragDropEffects.Move );
 			dragImagesForm.EndDrag( );
 		}
@@ -734,12 +734,14 @@ namespace TextureChanger
 				e.Action = DragAction.Cancel;
             
             //ドラッグイメージを描画
-			dragImagesForm.MoveDrag( Cursor.Position );
+			dragImagesForm.MoveDrag(Cursor.Position);
 		}
 
         //テクスチャ画像ビュー上でアイテムを移動させている間は
-        private void lsvTextureImages_DragOver(object sender, DragEventArgs e)
+	    internal void lsvTextureImages_DragOver(object sender, DragEventArgs e)
 		{
+			Debug.Print("lsvTextureImages_DragOver");
+
 			//ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
 			{
@@ -800,15 +802,19 @@ namespace TextureChanger
 		}
 
         //テクスチャ画像ビューからカーソルが外れたら
-        private void lsvTextureImages_DragLeave(object sender, EventArgs e)
+        public void lsvTextureImages_DragLeave(object sender, EventArgs e)
         {
-            //挿入マークを非表示する
+ 			Debug.Print(DateTime.Now.ToString()+" lsvTextureImages_DragLeave");
+
+           //挿入マークを非表示する
             lsvTextureImages.InsertionMark.Index = -1;
         }
 
         //テクスチャ画像ビュー上でアイテムドロップされたら
-		private void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
+	    public void lsvTextureImages_DragDrop( object sender, DragEventArgs e )
 		{
+			Debug.Print(DateTime.Now.ToString()+" lsvTextureImages_DragDrop");
+
 			// ListViewItem型でなければ受け入れない
 			if( !e.Data.GetDataPresent( typeof( List<ListViewItem> ) ) )
 				return;
