@@ -1,7 +1,7 @@
 ﻿SAI TextureChanger
 =======================
 
-SAI TextureChanger Version 1.1
+SAI TextureChanger Version 1.1.1
 
 Auther: sato1043@gmail.com
 
@@ -55,6 +55,14 @@ SAIが起動していないときに、
 
 ## TODO
   * いまのところなし
+
+## 履歴
+
+2014/01/26 - 1.1.1
+	- ドラッグ中の画像プレビュー表示実装
+	- 不具合修正
+
+
 
 
 __END__
